@@ -369,4 +369,8 @@ function registerMoreLessFacetsEventHandlers() {
   });
 }
 
-VuFind.listen('VuFind.sidefacets.loaded', registerMoreLessFacetsEventHandlers);
+function registerSideFacetTruncation() {
+  VuFind.truncate.initTruncate('.truncate-facets', '.facet');
+}
+
+VuFind.listen('VuFind.sidefacets.loaded', registerSideFacetTruncation);
