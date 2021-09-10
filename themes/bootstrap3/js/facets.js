@@ -1,5 +1,5 @@
 /*global VuFind */
-/*exported collapseTopFacets, initFacetTree */
+/*exported collapseTopFacets, initFacetTree, registerMoreLessFacetsEventHandlers */
 function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 {
   var json = [];
