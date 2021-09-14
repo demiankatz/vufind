@@ -1,5 +1,5 @@
 /*global VuFind */
-/*exported collapseTopFacets, initFacetTree, registerMoreLessFacetsEventHandlers */
+/*exported collapseTopFacets, initFacetTree */
 function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 {
   var json = [];
@@ -351,23 +351,6 @@ VuFind.register('lightbox_facets', function LightboxFacets() {
 
   return { setup: setup };
 });
-
-function registerMoreLessFacetsEventHandlers() {
-  $('.more-facets, .less-facets').off('click');
-  $('.more-facets').click(function moreFacets() {
-    var id = 'narrowGroupHidden-' + $(this).data('title');
-    $('.' + id).removeClass('hidden');
-    $('#more-' + id).addClass('hidden');
-    return false;
-  });
-
-  $('.less-facets').click(function lessFacets() {
-    var id = 'narrowGroupHidden-' + $(this).data('title');
-    $('.' + id).addClass('hidden');
-    $('#more-' + id).removeClass('hidden');
-    return false;
-  });
-}
 
 function registerSideFacetTruncation() {
   VuFind.truncate.initTruncate('.truncate-facets', '.facet');

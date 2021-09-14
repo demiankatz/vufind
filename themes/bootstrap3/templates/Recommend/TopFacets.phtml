@@ -4,10 +4,14 @@
   $topFacetSet = $this->recommend->getTopFacetSet();
   $topFacetSettings = $this->recommend->getTopFacetSettings();
   $results = $this->recommend->getResults();
+  $truncateSettings = [
+    'rows' => $topFacetSettings['rows'],
+    'more-label' => $this->transEsc('more') . ' ...',
+    'less-label' => $this->transEsc('less') . ' ...',
+  ];
 ?>
 <?php if (isset($topFacetSet)): ?>
   <?php foreach($topFacetSet as $title => $cluster): ?>
-    <?php $moreClass = ' narrowGroupHidden-' . $this->escapeHtml($title) . ' hidden'; ?>
     <?php $allowExclude = $this->recommend->excludeAllowed($title); ?>
     <div class="top-facets">
       <!--Toggle for mobile collapse -->
@@ -15,10 +19,10 @@
       <a class="top-title js-toggle visible-xs" data-toggle="collapse" data-target="#top_<?=$this->escapeHtml($title) ?>"><i class="fa fa-caret-right"></i> <?=$topLabel ?></a>
       <!--Regular title for non-mobile -->
       <strong class="top-title hidden-xs"><?=$topLabel ?></strong>
-      <div class="collapse in" id="top_<?=$this->escapeHtml($title) ?>">
+      <div class="top-facets-contents collapse in" id="top_<?=$this->escapeHtml($title) ?>" data-truncate="<?=$this->escapeHtmlAttr(json_encode($truncateSettings))?>">
         <?php $limit = $topFacetSettings['rows'] * $topFacetSettings['cols']; ?>
         <?php foreach($cluster['list'] as $index => $thisFacet): ?>
-          <span class="facet top-facet <?=$index > $limit ? $moreClass : '' ?>">
+          <span class="facet top-facet">
             <?php if ($thisFacet['isApplied']):
               if (isset($thisFacet['specialType']) && $thisFacet['specialType'] == 'keyword') {
                 $removeLink = $this->currentPath() . $results->getUrlQuery()->replaceTerm($thisFacet['value'], '');
@@ -41,27 +45,14 @@
               <?php endif; ?>
             <?php endif; ?>
           </span>
-          <?php /* More link */ ?>
-          <?php if ($index == $limit): ?>
-            <span id="more-narrowGroupHidden-<?=$this->escapeHtml($title)?>" class="narrow-toggle">
-              <a href="#" class="more-facets" data-title="<?=$this->escapeHtmlAttr($title)?>">
-                <?=$this->transEsc('more') ?> ...
-              </a>
-            </span>
-          <?php endif; ?>
         <?php endforeach; ?>
-        <?php if (count($cluster['list']) > $limit): ?>
-          <a class="narrow-toggle <?=$moreClass ?> less-facets" href="#" data-title="<?=$this->escapeHtmlAttr($title) ?>">
-            <?=$this->transEsc('less') ?> ...
-          </a>
-        <?php endif; ?>
       </div>
     </div>
   <?php endforeach; ?>
 <?php endif; ?>
 <?php
 $script = <<<JS
-registerMoreLessFacetsEventHandlers();
+VuFind.truncate.initTruncate('.top-facets-contents');
 collapseTopFacets();
 JS;
 ?>

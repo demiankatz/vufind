@@ -89,7 +89,8 @@ VuFind.register('truncate', function Truncate() {
 
         if (shouldTruncate) {
           truncatedHeight = rowCount * rowHeight;
-          container.css('height', truncatedHeight + 'px');
+          container.css('max-height', truncatedHeight + 'px');
+          container.css('overflow', 'hidden');
         }
       }
 
@@ -137,7 +138,7 @@ VuFind.register('truncate', function Truncate() {
           } else if (truncatedHeight === 0) {
             container.hide();
           } else {
-            container.css('height', truncatedHeight + 'px');
+            container.css('max-height', truncatedHeight + 'px');
           }
           btnWrapperBtm.find('.more-btn').focus();
         };
@@ -162,7 +163,7 @@ VuFind.register('truncate', function Truncate() {
           } else if (truncatedHeight === 0) {
             container.show();
           } else {
-            container.css('height', 'auto');
+            container.css('max-height', "");
           }
         });
       }
