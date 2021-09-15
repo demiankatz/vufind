@@ -76,8 +76,9 @@ VuFind.register('truncate', function Truncate() {
         if (container.children().length > 0) {
           // Use first child as the height element if available
           var heightElem = container.children().first();
-          if (heightElem.is('div')) {
-            rowHeight = parseFloat(heightElem.height());
+          var display = heightElem.css('display');
+          if (display === 'block' || display === 'inline-block') {
+            rowHeight = parseFloat(heightElem.outerHeight());
           } else {
             rowHeight = parseFloat(heightElem.css('line-height').replace('px', ''));
           }
@@ -89,8 +90,7 @@ VuFind.register('truncate', function Truncate() {
 
         if (shouldTruncate) {
           truncatedHeight = rowCount * rowHeight;
-          container.css('max-height', truncatedHeight + 'px');
-          container.css('overflow', 'hidden');
+          container.css('height', truncatedHeight + 'px');
         }
       }
 
@@ -138,7 +138,7 @@ VuFind.register('truncate', function Truncate() {
           } else if (truncatedHeight === 0) {
             container.hide();
           } else {
-            container.css('max-height', truncatedHeight + 'px');
+            container.css('height', truncatedHeight + 'px');
           }
           btnWrapperBtm.find('.more-btn').focus();
         };
@@ -163,7 +163,7 @@ VuFind.register('truncate', function Truncate() {
           } else if (truncatedHeight === 0) {
             container.show();
           } else {
-            container.css('max-height', "");
+            container.css('height', 'auto');
           }
         });
       }
