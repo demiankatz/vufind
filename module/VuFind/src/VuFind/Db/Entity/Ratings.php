@@ -38,41 +38,57 @@ use Doctrine\ORM\Mapping as ORM;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
- * @ORM\Table(name="ratings")
+ * @ORM\Table(name="ratings",
+ * indexes={@ORM\Index(name="user_id", columns={"user_id"}),
+ * @ORM\Index(name="resource_id", columns={"resource_id"})}
+ * )
  * @ORM\Entity
  */
 class Ratings implements EntityInterface
 {
     /**
+     * Unique ID.
+     *
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Column(name="id",
+     *          type="integer",
+     *          nullable=false
+     * )
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;
 
     /**
+     * User id.
+     *
      * @var \VuFind\Db\Entity\User
      *
      * @ORM\ManyToOne(targetEntity="VuFind\Db\Entity\User")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id",
+     *              referencedColumnName="id")
      * })
      */
     protected $user;
 
     /**
+     * Resource id.
+     *
      * @var \VuFind\Db\Entity\Resource
      *
      * @ORM\ManyToOne(targetEntity="VuFind\Db\Entity\Resource")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="resource_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="resource_id",
+     *              referencedColumnName="id")
      * })
      */
     protected $resource;
 
     /**
+     * Rating.
+     *
      * @var int
      *
      * @ORM\Column(name="rating", type="integer", nullable=false)
@@ -80,9 +96,15 @@ class Ratings implements EntityInterface
     protected $rating;
 
     /**
+     * Creation date.
+     *
      * @var \DateTime
      *
-     * @ORM\Column(name="created", type="datetime", nullable=false, options={"default"="2000-01-01 00:00:00"})
+     * @ORM\Column(name="created",
+     *          type="datetime",
+     *          nullable=false,
+     *          options={"default"="2000-01-01 00:00:00"}
+     * )
      */
     protected $created = '2000-01-01 00:00:00';
 }
