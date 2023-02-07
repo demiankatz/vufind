@@ -38,11 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
- * @ORM\Table(name="resource_tags",
- * indexes={@ORM\Index(name="list_id", columns={"list_id"}),
- * @ORM\Index(name="resource_id",   columns={"resource_id"}),
- * @ORM\Index(name="tag_id",        columns={"tag_id"}),
- * @ORM\Index(name="user_id",       columns={"user_id"})})
+ * @ORM\Table(name="resource_tags")
  * @ORM\Entity
  */
 class ResourceTags implements EntityInterface
@@ -75,7 +71,7 @@ class ResourceTags implements EntityInterface
     protected $posted = 'CURRENT_TIMESTAMP';
 
     /**
-     * Resource.
+     * Resource ID.
      *
      * @var \VuFind\Db\Entity\Resource
      *
@@ -88,7 +84,7 @@ class ResourceTags implements EntityInterface
     protected $resource;
 
     /**
-     * Tag.
+     * Tag ID.
      *
      * @var \VuFind\Db\Entity\Tags
      *
@@ -101,7 +97,7 @@ class ResourceTags implements EntityInterface
     protected $tag;
 
     /**
-     * List id.
+     * List ID.
      *
      * @var \VuFind\Db\Entity\UserList
      *
@@ -114,7 +110,7 @@ class ResourceTags implements EntityInterface
     protected $list;
 
     /**
-     * User id.
+     * User ID.
      *
      * @var \VuFind\Db\Entity\User
      *

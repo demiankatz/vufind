@@ -115,7 +115,7 @@ class User implements EntityInterface
     protected $email = '';
 
     /**
-     * Email verified.
+     * Date of email verification.
      *
      * @var \DateTime|null
      *
@@ -142,7 +142,7 @@ class User implements EntityInterface
     protected $userProvidedEmail = '0';
 
     /**
-     * Cat id.
+     * Cat ID.
      *
      * @var string|null
      *

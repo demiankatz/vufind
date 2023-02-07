@@ -40,8 +40,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
  * @ORM\Table(name="feedback",
- * indexes={@ORM\Index(name="user_id", columns={"user_id"}),
- * @ORM\Index(name="created",   columns={"created"}),
+ * indexes={@ORM\Index(name="created", columns={"created"}),
  * @ORM\Index(name="status",    columns={"status"}),
  * @ORM\Index(name="form_name", columns={"form_name"})}
  * )
@@ -224,7 +223,7 @@ class Feedback implements EntityInterface
     /**
      * Created setter.
      *
-     * @param datetime $dateTime Created date
+     * @param Datetime $dateTime Created date
      *
      * @return Feedback
      */
@@ -237,7 +236,7 @@ class Feedback implements EntityInterface
     /**
      * Updated setter.
      *
-     * @param datetime $dateTime Last update date
+     * @param Datetime $dateTime Last update date
      *
      * @return Feedback
      */
@@ -276,7 +275,7 @@ class Feedback implements EntityInterface
     /**
      * User setter.
      *
-     * @param user $user User that created request
+     * @param User $user User that created request
      *
      * @return Feedback
      */
@@ -289,7 +288,7 @@ class Feedback implements EntityInterface
     /**
      * Updatedby setter.
      *
-     * @param user $user User that updated request
+     * @param User $user User that updated request
      *
      * @return Feedback
      */

@@ -51,7 +51,8 @@ class UserList implements EntityInterface
      * @var int
      *
      * @ORM\Id
-     * @ORM\Column(type="integer",
+     * @ORM\Column(name="id",
+     *          type="integer",
      *          nullable=false
      * )
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -99,7 +100,7 @@ class UserList implements EntityInterface
     protected $public = '0';
 
     /**
-     * User id.
+     * User ID.
      *
      * @var \VuFind\Db\Entity\User
      *

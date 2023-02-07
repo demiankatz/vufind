@@ -60,7 +60,7 @@ class Record implements EntityInterface
     protected $id;
 
     /**
-     * Record id.
+     * Record ID.
      *
      * @var string|null
      *
@@ -96,7 +96,7 @@ class Record implements EntityInterface
     protected $data;
 
     /**
-     * Updation date.
+     * Updated date.
      *
      * @var \DateTime
      *

@@ -101,7 +101,7 @@ class ChangeTracker implements EntityInterface
     protected $lastRecordChange;
 
     /**
-     * Time record was removed form index.
+     * Time record was removed from index.
      *
      * @var \DateTime|null
      *

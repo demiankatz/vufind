@@ -38,10 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
- * @ORM\Table(name="comments",
- * indexes={@ORM\Index(name="resource_id", columns={"resource_id"}),
- * @ORM\Index(name="user_id",  columns={"user_id"})}
- * )
+ * @ORM\Table(name="comments")
  * @ORM\Entity
  */
 class Comments implements EntityInterface
@@ -83,7 +80,7 @@ class Comments implements EntityInterface
     protected $created = '2000-01-01 00:00:00';
 
     /**
-     * User id.
+     * User ID.
      *
      * @var \VuFind\Db\Entity\User
      *
@@ -96,7 +93,7 @@ class Comments implements EntityInterface
     protected $user;
 
     /**
-     * Resource id.
+     * Resource ID.
      *
      * @var \VuFind\Db\Entity\Resource
      *

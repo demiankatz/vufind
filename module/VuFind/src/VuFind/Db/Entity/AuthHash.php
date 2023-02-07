@@ -54,7 +54,8 @@ class AuthHash implements EntityInterface
      * @var int
      *
      * @ORM\Id
-     * @ORM\Column(type="bigint",
+     * @ORM\Column(name="id",
+     *          type="bigint",
      *          nullable=false,
      *          options={"unsigned"=true}
      * )
@@ -63,7 +64,7 @@ class AuthHash implements EntityInterface
     protected $id;
 
     /**
-     * Session id.
+     * Session ID.
      *
      * @var string|null
      *

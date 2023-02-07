@@ -60,7 +60,7 @@ class Resource implements EntityInterface
     protected $id;
 
     /**
-     * Record id.
+     * Record ID.
      *
      * @var string
      *

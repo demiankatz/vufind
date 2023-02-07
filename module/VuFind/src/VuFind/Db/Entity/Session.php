@@ -62,7 +62,7 @@ class Session implements EntityInterface
     protected $id;
 
     /**
-     * Session id.
+     * Session ID.
      *
      * @var string|null
      *

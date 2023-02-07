@@ -63,7 +63,7 @@ class ExternalSession implements EntityInterface
     protected $id;
 
     /**
-     * Session id.
+     * Session ID.
      *
      * @var string
      *
@@ -72,7 +72,7 @@ class ExternalSession implements EntityInterface
     protected $sessionId;
 
     /**
-     * External session id.
+     * External session ID.
      *
      * @var string
      *

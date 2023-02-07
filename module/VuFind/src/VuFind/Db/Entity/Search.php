@@ -64,7 +64,7 @@ class Search implements EntityInterface
     protected $id;
 
     /**
-     * User id.
+     * User ID.
      *
      * @var int
      *
@@ -73,7 +73,7 @@ class Search implements EntityInterface
     protected $userId = '0';
 
     /**
-     * Session id.
+     * Session ID.
      *
      * @var string|null
      *
@@ -82,7 +82,7 @@ class Search implements EntityInterface
     protected $sessionId;
 
     /**
-     * Folder id.
+     * Folder ID.
      *
      * @var int|null
      *

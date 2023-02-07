@@ -38,10 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
- * @ORM\Table(name="ratings",
- * indexes={@ORM\Index(name="user_id", columns={"user_id"}),
- * @ORM\Index(name="resource_id", columns={"resource_id"})}
- * )
+ * @ORM\Table(name="ratings")
  * @ORM\Entity
  */
 class Ratings implements EntityInterface
@@ -61,7 +58,7 @@ class Ratings implements EntityInterface
     protected $id;
 
     /**
-     * User id.
+     * User ID.
      *
      * @var \VuFind\Db\Entity\User
      *
@@ -74,7 +71,7 @@ class Ratings implements EntityInterface
     protected $user;
 
     /**
-     * Resource id.
+     * Resource ID.
      *
      * @var \VuFind\Db\Entity\Resource
      *

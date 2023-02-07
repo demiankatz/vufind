@@ -87,7 +87,7 @@ class UserCard implements EntityInterface
     protected $catPassword;
 
     /**
-     * Cat password encryption.
+     * Cat password (encrypted).
      *
      * @var string|null
      *

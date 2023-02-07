@@ -83,7 +83,7 @@ class UserResource implements EntityInterface
     protected $saved = 'CURRENT_TIMESTAMP';
 
     /**
-     * User id.
+     * User ID.
      *
      * @var \VuFind\Db\Entity\User
      *
@@ -109,7 +109,7 @@ class UserResource implements EntityInterface
     protected $resource;
 
     /**
-     * Id from userlist.
+     * User list ID.
      *
      * @var \VuFind\Db\Entity\UserList
      *

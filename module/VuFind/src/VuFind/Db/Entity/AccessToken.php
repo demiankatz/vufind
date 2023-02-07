@@ -38,9 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
- * @ORM\Table(name="access_token",
- * indexes={@ORM\Index(name="user_id", columns={"user_id"})}
- * )
+ * @ORM\Table(name="access_token")
  * @ORM\Entity
  */
 class AccessToken implements EntityInterface
@@ -50,8 +48,13 @@ class AccessToken implements EntityInterface
      *
      * @var string
      *
-     * @ORM\Column(type="string", length=255, nullable=false)
+     * @ORM\Column(name="id",
+     *          type="string",
+     *          length=255,
+     *          nullable=false
+     * )
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      */
     protected $id;
 
@@ -60,13 +63,18 @@ class AccessToken implements EntityInterface
      *
      * @var string
      *
-     * @ORM\Column(name="type", type="string", length=128, nullable=false)
+     * @ORM\Column(name="type",
+     *          type="string",
+     *          length=128,
+     *          nullable=false
+     * )
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      */
     protected $type;
 
     /**
-     * User id.
+     * User ID.
      *
      * @var \VuFind\Db\Entity\User
      *
