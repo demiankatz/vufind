@@ -53,6 +53,13 @@ class Database implements HandlerInterface, LoggerAwareInterface
     protected $db;
 
     /**
+     * User database service
+     *
+     * @var \VuFind\Db\Service\UserService
+     */
+    protected $us;
+
+    /**
      * Site base url
      *
      * @var string
@@ -63,13 +70,16 @@ class Database implements HandlerInterface, LoggerAwareInterface
      * Constructor
      *
      * @param \VuFind\Db\Service\FeedbackService $db      Feedback database service
+     * @param \VuFind\Db\Service\UserService     $us      User database service
      * @param string                             $baseUrl Site base url
      */
     public function __construct(
         \VuFind\Db\Service\FeedbackService $db,
+        \VuFind\Db\Service\UserService $us,
         string $baseUrl
     ) {
         $this->db = $db;
+        $this->us = $us;
         $this->baseUrl = $baseUrl;
     }
 
@@ -89,12 +99,15 @@ class Database implements HandlerInterface, LoggerAwareInterface
     ): bool {
         $fields = $form->mapRequestParamsToFieldValues($params->fromPost());
         $fields = array_column($fields, 'value', 'name');
-
+        $userVal = null;
+        if ($user) {
+            $userVal = $this->us->getUserById($user->id);
+        }
         $formData = $fields;
         unset($formData['message']);
         $now = new \DateTime();
         $data = $this->db->createEntity()
-            ->setUser($user)
+            ->setUser($userVal)
             ->setMessage($fields['message'] ?? '')
             ->setFormData(json_encode($formData))
             ->setFormName($form->getFormId())
