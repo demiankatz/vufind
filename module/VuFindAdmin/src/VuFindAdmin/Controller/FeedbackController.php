@@ -93,7 +93,11 @@ class FeedbackController extends AbstractAdmin
         );
         $view = $this->createViewModel(
             [
-                'feedback' => $feedback,
+                'feedback' => new \Laminas\Paginator\Paginator(
+                    new \DoctrineORMModule\Paginator\Adapter\DoctrinePaginator(
+                        $feedback
+                    )
+                ),
                 'statuses' => $this->getStatuses(),
                 'uniqueForms' => $this->getUniqueColumn('form_name'),
                 'uniqueSites' => $this->getUniqueColumn('site_url'),
