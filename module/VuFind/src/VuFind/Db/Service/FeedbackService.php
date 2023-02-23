@@ -85,9 +85,9 @@ class FeedbackService extends AbstractService
         $page = null,
         $limit = 20
     ): Paginator {
-        $dql = "SELECT *, CONCAT_WS(' ', u.firstname, u.lastname) AS user_name "
-            . "CONCAT_WS(' ', m.firstname, m.lastname) AS manager_name "
-            . "FROM " . $this->createEntity()
+        $dql = "SELECT f, CONCAT(u.firstname, ' ', u.lastname) AS user_name, "
+            . "CONCAT(m.firstname, ' ', m.lastname) AS manager_name "
+            . "FROM " . $this->getEntityClass(Feedback::class) . " f "
             . "LEFT JOIN user u "
             . "LEFT JOIN updatedBy m ";
         $parameters = $dqlWhere = [];
@@ -133,8 +133,8 @@ class FeedbackService extends AbstractService
         if (empty($ids)) {
             return 0;
         }
-        $dql = 'DELETE FROM ' . $this->createEntity() . ' fb '
-            . 'WHERE fb.id IN (:ids)';
+        $dql = 'DELETE FROM ' . $this->getEntityClass(Feedback::class) . ' fb '
+            . ' WHERE fb.id IN (:ids)';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(compact('ids'));
         $query->execute();
@@ -150,9 +150,9 @@ class FeedbackService extends AbstractService
      */
     public function getColumn(string $column): array
     {
-        $dql = "SELECT id, ". $column 
-            . "FROM " . $this->createEntity()
-            . "ORDER BY " . $column;
+        $dql = "SELECT f.id, f.". $this->mapper($column) 
+            . " FROM " . $this->getEntityClass(Feedback::class) . " f "
+            . "ORDER BY f." . $this->mapper($column);
         $query = $this->entityManager->createQuery($dql);
         return $query->getResult();
     }
@@ -168,11 +168,30 @@ class FeedbackService extends AbstractService
      */
     public function updateColumn($column, $value, $id)
     {
-        $dql = "UPDATE " . $this->createEntity() 
-            . "SET " . $column . "= " . $value
-            . "WHERE id = " . $id;
+        $dql = "UPDATE " . $this->getEntityClass(Feedback::class) . " f "
+            . "SET f." . $this->mapper($column) . " = " . $value
+            . " WHERE f.id = " . $id;
         $query = $this->entityManager->createQuery($dql);
         return $query->execute();
     }
 
+    /**
+     * Db columnn name to Doctrine entity field mapper
+     *
+     * @param string $column Column name
+     * 
+     * @return string
+     */
+    public function mapper($column)
+    {
+        $map = [
+            'form_data' => 'formData',
+            'form_name' => 'formName',
+            'site_url' => 'siteUrl',
+            'user_id' => 'user',
+            'updated_by' => 'updatedBy',
+        ];
+
+        return $map[$column];
+    }
 }
