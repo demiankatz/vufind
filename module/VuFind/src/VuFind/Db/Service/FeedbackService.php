@@ -93,15 +93,15 @@ class FeedbackService extends AbstractService
         $parameters = $dqlWhere = [];
 
         if (null !== $formName) {
-            $dqlWhere[] = "formName = :formName";
+            $dqlWhere[] = "f.formName = :formName";
             $parameters['formName'] = $formName;
         }
         if (null !== $siteUrl) {
-            $dqlWhere[] = "siteUrl = :siteUrl";
+            $dqlWhere[] = "f.siteUrl = :siteUrl";
             $parameters['siteUrl'] = $siteUrl;
         }
         if (null !== $status) {
-            $dqlWhere[] = "status = :status";
+            $dqlWhere[] = "f.status = :status";
             $parameters['status'] = $status;
         }
         if (!empty($dqlWhere)) {
