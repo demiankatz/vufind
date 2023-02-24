@@ -107,7 +107,7 @@ class FeedbackService extends AbstractService
         if (!empty($dqlWhere)) {
             $dql .= ' WHERE ' . implode(' AND ', $dqlWhere);
         }
-        $dql .= "ORDER BY created DESC";
+        $dql .= "ORDER BY f.created DESC";
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);
 
