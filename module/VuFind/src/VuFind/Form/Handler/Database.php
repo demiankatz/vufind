@@ -70,6 +70,7 @@ class Database implements HandlerInterface, LoggerAwareInterface
      * Constructor
      *
      * @param \VuFind\Db\Service\FeedbackService $db      Feedback database service
+     * @param \VuFind\Db\Service\UserService     $us      User database service
      * @param string                             $baseUrl Site base url
      */
     public function __construct(
@@ -98,12 +99,15 @@ class Database implements HandlerInterface, LoggerAwareInterface
     ): bool {
         $fields = $form->mapRequestParamsToFieldValues($params->fromPost());
         $fields = array_column($fields, 'value', 'name');
-
+        $userVal = null;
+        if($user){
+            $userVal = $user;
+        }
         $formData = $fields;
         unset($formData['message']);
         $now = new \DateTime();
         $data = $this->db->createEntity()
-            ->setUser($this->us->getUserById($user->id))
+            ->setUser($this->us->getUserById($userVal->id))
             ->setMessage($fields['message'] ?? '')
             ->setFormData(json_encode($formData))
             ->setFormName($form->getFormId())
