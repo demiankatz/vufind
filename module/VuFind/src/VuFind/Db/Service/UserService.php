@@ -1,10 +1,10 @@
 <?php
 /**
- * Database service plugin manager
+ * Database service for user.
  *
  * PHP version 7
  *
- * Copyright (C) Villanova University 2021.
+ * Copyright (C) Villanova University 2023.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -21,14 +21,18 @@
  *
  * @category VuFind
  * @package  Database
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Sudharma Kellampalli <skellamp@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
 namespace VuFind\Db\Service;
 
+use Doctrine\ORM\EntityManager;
+use VuFind\Db\Entity\PluginManager as EntityPluginManager;
+use VuFind\Db\Entity\User;
+
 /**
- * Database service plugin manager
+ * Database service for user.
  *
  * @category VuFind
  * @package  Database
@@ -36,38 +40,29 @@ namespace VuFind\Db\Service;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
-class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
+class UserService extends AbstractService
 {
     /**
-     * Default plugin aliases.
+     * Constructor
      *
-     * @var array
+     * @param EntityManager       $entityManager       Doctrine ORM entity manager
+     * @param EntityPluginManager $entityPluginManager VuFind entity plugin manager
      */
-    protected $aliases = [
-        'feedback' => FeedbackService::class,
-        'tag' => TagService::class,
-        'user' => UserService::class,
-    ];
+    public function __construct(
+        EntityManager $entityManager,
+        EntityPluginManager $entityPluginManager
+    ) {
+        parent::__construct($entityManager, $entityPluginManager);
+    }
 
     /**
-     * Default plugin factories.
+     * Lookup and return a user.
      *
-     * @var array
+     * @return User
      */
-    protected $factories = [
-        UserService::class => AbstractServiceFactory::class,
-        FeedbackService::class => AbstractServiceFactory::class,
-        TagService::class => TagServiceFactory::class,
-    ];
-
-    /**
-     * Return the name of the base class or interface that plug-ins must conform
-     * to.
-     *
-     * @return string
-     */
-    protected function getExpectedInterface()
+    public function getUserById($id)
     {
-        return AbstractService::class;
+        $user = $this->entityManager->find(\VuFind\Db\Entity\User::class, $id);
+        return $user;
     }
 }

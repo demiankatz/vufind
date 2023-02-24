@@ -27,9 +27,9 @@
  */
 namespace VuFind\Db\Service;
 
-use VuFind\Db\Entity\Feedback;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use VuFind\Db\Entity\Feedback;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
 
 /**
@@ -140,8 +140,8 @@ class FeedbackService extends AbstractService
         $query->execute();
         return count($ids);
     }
-    
-     /**
+
+    /**
      * Get values for a column
      *
      * @param string $column Column name
@@ -150,7 +150,7 @@ class FeedbackService extends AbstractService
      */
     public function getColumn(string $column): array
     {
-        $dql = "SELECT f.id, f.". $this->mapper($column) 
+        $dql = "SELECT f.id, f." . $this->mapper($column)
             . " FROM " . $this->getEntityClass(Feedback::class) . " f "
             . "ORDER BY f." . $this->mapper($column);
         $query = $this->entityManager->createQuery($dql);
@@ -163,7 +163,7 @@ class FeedbackService extends AbstractService
      * @param string $column Column name
      * @param mixed $value Column value
      * @param int $id id value
-     * 
+     *
      * @return bool
      */
     public function updateColumn($column, $value, $id)
@@ -179,7 +179,7 @@ class FeedbackService extends AbstractService
      * Db columnn name to Doctrine entity field mapper
      *
      * @param string $column Column name
-     * 
+     *
      * @return string
      */
     public function mapper($column)
