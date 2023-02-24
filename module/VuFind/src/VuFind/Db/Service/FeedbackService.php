@@ -161,16 +161,16 @@ class FeedbackService extends AbstractService
      * Update a column
      *
      * @param string $column Column name
-     * @param mixed $value Column value
-     * @param int $id id value
+     * @param mixed  $value  Column value
+     * @param int    $id     id value
      *
      * @return bool
      */
     public function updateColumn($column, $value, $id)
     {
         $dql = "UPDATE " . $this->getEntityClass(Feedback::class) . " f "
-            . "SET f." . $this->mapper($column) . " = " . $value
-            . " WHERE f.id = " . $id;
+            . "SET f." . $this->mapper($column) . " = : " . $value
+            . " WHERE f.id = : " . $id;
         $query = $this->entityManager->createQuery($dql);
         return $query->execute();
     }
