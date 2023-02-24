@@ -190,6 +190,10 @@ class FeedbackService extends AbstractService
             'site_url' => 'siteUrl',
             'user_id' => 'user',
             'updated_by' => 'updatedBy',
+            'message' => 'message',
+            'created' => 'created',
+            'updated' => 'updated',
+            'status' => 'status'
         ];
 
         return $map[$column];
