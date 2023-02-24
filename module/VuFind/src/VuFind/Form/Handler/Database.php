@@ -101,13 +101,13 @@ class Database implements HandlerInterface, LoggerAwareInterface
         $fields = array_column($fields, 'value', 'name');
         $userVal = null;
         if($user){
-            $userVal = $user;
+            $userVal = $this->us->getUserById($user->id);
         }
         $formData = $fields;
         unset($formData['message']);
         $now = new \DateTime();
         $data = $this->db->createEntity()
-            ->setUser($this->us->getUserById($userVal->id))
+            ->setUser($userVal)
             ->setMessage($fields['message'] ?? '')
             ->setFormData(json_encode($formData))
             ->setFormName($form->getFormId())
