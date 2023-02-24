@@ -88,8 +88,8 @@ class FeedbackService extends AbstractService
         $dql = "SELECT f, CONCAT(u.firstname, ' ', u.lastname) AS user_name, "
             . "CONCAT(m.firstname, ' ', m.lastname) AS manager_name "
             . "FROM " . $this->getEntityClass(Feedback::class) . " f "
-            . "LEFT JOIN user u "
-            . "LEFT JOIN updatedBy m ";
+            . "LEFT JOIN f.user u "
+            . "LEFT JOIN f.updatedBy m ";
         $parameters = $dqlWhere = [];
 
         if (null !== $formName) {
