@@ -105,6 +105,7 @@ class FeedbackController extends AbstractAdmin
                     => $this->params()->fromQuery() + $this->params()->fromPost(),
             ]
         );
+        $view->feedback->setItemCountPerPage(20);
         $view->setTemplate('admin/feedback/home');
         return $view;
     }

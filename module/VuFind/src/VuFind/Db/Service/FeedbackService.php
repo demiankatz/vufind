@@ -73,7 +73,7 @@ class FeedbackService extends AbstractService
      * @param string|null $formName Form name
      * @param string|null $siteUrl  Site URL
      * @param string|null $status   Current status
-     * @param string|null $page     Current page
+     * @param int|null    $page     Current page
      * @param int         $limit    Limit per page
      *
      * @return Paginator
