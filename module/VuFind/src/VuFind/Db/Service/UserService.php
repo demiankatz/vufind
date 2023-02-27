@@ -58,8 +58,8 @@ class UserService extends AbstractService
     /**
      * Lookup and return a user.
      *
-     * @param int    $id     id value
-     * 
+     * @param int $id id value
+     *
      * @return User
      */
     public function getUserById($id)

@@ -100,7 +100,7 @@ class Database implements HandlerInterface, LoggerAwareInterface
         $fields = $form->mapRequestParamsToFieldValues($params->fromPost());
         $fields = array_column($fields, 'value', 'name');
         $userVal = null;
-        if($user){
+        if ($user) {
             $userVal = $this->us->getUserById($user->id);
         }
         $formData = $fields;
