@@ -150,6 +150,7 @@ class FeedbackService extends AbstractService
      */
     public function getColumn(string $column): array
     {
+        $parameters = [];
         $dql = "SELECT f.id, f." . $this->mapper($column)
             . " FROM " . $this->getEntityClass(Feedback::class) . " f "
             . "ORDER BY f." . $this->mapper($column);
@@ -169,9 +170,12 @@ class FeedbackService extends AbstractService
     public function updateColumn($column, $value, $id)
     {
         $dql = "UPDATE " . $this->getEntityClass(Feedback::class) . " f "
-            . "SET f." . $this->mapper($column) . " = : " . $value
-            . " WHERE f.id = : " . $id;
+            . "SET f." . $this->mapper($column) . " = :value "
+            . " WHERE f.id = :id";
+        $parameters['value'] = $value;
+        $parameters['id'] = $id;
         $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($parameters);
         return $query->execute();
     }
 
