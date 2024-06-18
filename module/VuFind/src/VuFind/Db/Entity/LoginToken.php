@@ -44,7 +44,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="login_token")
  * @ORM\Entity
  */
-
 class LoginToken implements LoginTokenEntityInterface
 {
     /**
@@ -249,7 +248,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function setLastLogin(DateTime $dateTime): LoginTokenEntityInterface
     {
-        $this->lastLogin = $dateTime->format('Y-m-d H:i:s');
+        $this->lastLogin = $dateTime;
         return $this;
     }
 
