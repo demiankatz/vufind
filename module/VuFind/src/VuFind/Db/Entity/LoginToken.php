@@ -181,7 +181,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function setUser(UserEntityInterface $user): LoginTokenEntityInterface
     {
-        $this->user_id = $user->getId();
+        $this->user = $user;
         return $this;
     }
 
@@ -192,9 +192,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function getUser(): ?UserEntityInterface
     {
-        return $this->user_id
-            ? $this->getDbServiceManager()->get(UserServiceInterface::class)->getUserById($this->user_id)
-            : null;
+        return $this->user;
     }
 
     /**
@@ -252,7 +250,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function setLastLogin(DateTime $dateTime): LoginTokenEntityInterface
     {
-        $this->last_login = $dateTime->format('Y-m-d H:i:s');
+        $this->lastLogin = $dateTime->format('Y-m-d H:i:s');
         return $this;
     }
 
@@ -263,7 +261,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function getLastLogin(): DateTime
     {
-        return DateTime::createFromFormat('Y-m-d H:i:s', $this->last_login);
+        return $this->lastLogin;
     }
 
     /**
@@ -344,7 +342,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function setLastSessionId(?string $sid): LoginTokenEntityInterface
     {
-        $this->last_session_id = $sid;
+        $this->lastSessionId = $sid;
         return $this;
     }
 
@@ -355,6 +353,6 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function getLastSessionId(): ?string
     {
-        return $this->last_session_id;
+        return $this->lastSessionId;
     }
 }
