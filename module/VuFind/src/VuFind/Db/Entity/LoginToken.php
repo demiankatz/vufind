@@ -29,10 +29,8 @@
 
 namespace VuFind\Db\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use DateTime;
-use VuFind\Db\Entity\UserInterfaceEntity;
-use VuFind\Db\Entity\LoginTokenInterfaceEntity;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Entity model for login_token table
@@ -46,6 +44,7 @@ use VuFind\Db\Entity\LoginTokenInterfaceEntity;
  * @ORM\Table(name="login_token")
  * @ORM\Entity
  */
+
 class LoginToken implements LoginTokenEntityInterface
 {
     /**
