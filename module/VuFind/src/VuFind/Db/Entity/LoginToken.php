@@ -102,7 +102,7 @@ class LoginToken implements LoginTokenEntityInterface
     /**
      * Last login date.
      *
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="last_login",
      *          type="datetime",
@@ -159,6 +159,15 @@ class LoginToken implements LoginTokenEntityInterface
      *             nullable=true
      */
     protected $lastSessionId;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->lastLogin = DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
+    }
 
     /**
      * Getter for ID.
