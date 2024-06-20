@@ -109,7 +109,7 @@ class LoginToken implements LoginTokenEntityInterface
      *          nullable=false
      * )
      */
-    protected $lastLogin = '2000-01-01 00:00:00';
+    protected $lastLogin;
 
     /**
      * Browser.
