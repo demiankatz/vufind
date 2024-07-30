@@ -45,9 +45,9 @@ interface AccessTokenEntityInterface extends EntityInterface
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return ?int
+     * @return ?string
      */
-    public function getId(): ?int;
+    public function getId(): ?string;
 
     /**
      * Get type of access token.

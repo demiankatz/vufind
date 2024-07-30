@@ -123,9 +123,9 @@ class AccessToken implements AccessTokenEntityInterface
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return ?int
+     * @return ?string
      */
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
