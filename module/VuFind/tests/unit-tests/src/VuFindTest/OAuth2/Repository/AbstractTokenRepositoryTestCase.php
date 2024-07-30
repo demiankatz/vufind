@@ -282,7 +282,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             ->getMock();
         $accessTokenService = $this->getMockBuilder(AccessTokenService::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getByIdAndType', 'persistEntity'])
+            ->onlyMethods(['getByIdAndType', 'persistEntity', 'storeNonce', 'getNonce'])
             ->getMock();
 
         $getByIdAndTypeCallback = function (
@@ -325,6 +325,35 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $accessTokenService->expects($this->any())
             ->method('persistEntity')
             ->willReturnCallback($persistEntityCallback);
+        
+        $getNonceCallback = function(int $userId) : ?string {
+            foreach ($this->accessTokenTable as $row) {
+                if ($userId === $row['user_id']) {
+                    return $row['data'];
+                }
+            }
+            return null;
+        };
+        $accessTokenService->expects($this->any())
+        ->method('getNonce')
+        ->willReturnCallback($getNonceCallback);
+        $storeNonceCallback = function(int $userId, ?string $nonce) : void {
+            $data = [
+                'id' => 2,
+                'type' => 'oauth2_access_token',
+                'revoked' => false,
+                'data' => $nonce,
+                'user_id' => $userId,
+            ];
+            if (null !== ($i = $this->findAccessTokenTableRow($data))) {
+                $this->accessTokenTable[$i] = $data;
+                return;
+            }
+            $this->accessTokenTable[] = $data;
+        };
+        $accessTokenService->expects($this->any())
+        ->method('storeNonce')
+        ->willReturnCallback($storeNonceCallback);
         return $accessTokenService;
     }
 
