@@ -41,7 +41,7 @@ use VuFind\OAuth2\Entity\ScopeEntity;
  * @link     https://vufind.org/wiki/development:testing:unit_tests Wiki
  */
 class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
-{    
+{
     /**
      * Test access token repository
      *
@@ -67,7 +67,7 @@ class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
                     'type' => 'oauth2_access_token',
                     'revoked' => false,
                     'data' => json_encode($token),
-                    'user_id' => '1',
+                    'user_id' => 1,
                 ],
             ],
             $this->accessTokenTable

@@ -122,20 +122,20 @@ class AccessTokenService extends AbstractDbService implements
     public function getNonce(int $userId): ?string
     {
         $user = $this->entityManager->getReference(UserEntityInterface::class, $userId);
-    
+
         $dql = 'SELECT at.data '
             . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' at '
             . 'WHERE at.user = :user';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('user', $user);
-        
+
         $result = $query->getOneOrNullResult();
-        
+
         if ($result) {
             $data = json_decode($result['data'], true);
             return $data['nonce'] ?? null;
         }
-        
+
         return null;
     }
 
