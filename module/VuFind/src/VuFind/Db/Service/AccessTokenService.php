@@ -33,6 +33,7 @@ use DateTime;
 use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
+use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Log\LoggerAwareTrait;
 
 /**
@@ -83,11 +84,13 @@ class AccessTokenService extends AbstractDbService implements
             . 'WHERE id = :id '
             . 'AND type = :type';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(['id' => $id, 'type' => $type]);
-        $result = $query->getResult();
-        $result = $result ?: $this->createEntity()
-                          ->setType($type)
-                          ->setCreated(new \DateTime());
+        $query->setParameters(compact('id', 'type'));
+        $result = $query->getOneOrNullResult();
+        if ($result === null && $create) {
+            $result = $this->createEntity()
+                           ->setType($type)
+                           ->setCreated(new DateTime());
+        }
 
         return $result;
     }
@@ -118,14 +121,22 @@ class AccessTokenService extends AbstractDbService implements
      */
     public function getNonce(int $userId): ?string
     {
-        $dql = 'SELECT data '
+        $user = $this->entityManager->getReference(UserEntityInterface::class, $userId);
+    
+        $dql = 'SELECT at.data '
             . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' at '
-            . 'WHERE at.user_id = :userId';
+            . 'WHERE at.user = :user';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(['userId' => $userId]);
-        $result = $query->getResult();
-        $data = json_decode($result, true);
-        return $data['nonce'] ?? null;
+        $query->setParameter('user', $user);
+        
+        $result = $query->getOneOrNullResult();
+        
+        if ($result) {
+            $data = json_decode($result['data'], true);
+            return $data['nonce'] ?? null;
+        }
+        
+        return null;
     }
 
     /**
@@ -142,7 +153,7 @@ class AccessTokenService extends AbstractDbService implements
         $subQueryBuilder->select('at.id')
             ->from($this->getEntityClass(AccessTokenEnTityInterface::class), 'at')
             ->where('at.created < :latestCreated')
-            ->setParameter('lastestCreated', $dateLimit->getTimestamp());
+            ->setParameter('latestCreated', $dateLimit->getTimestamp());
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }

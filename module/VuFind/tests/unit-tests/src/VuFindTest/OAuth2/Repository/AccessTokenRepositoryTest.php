@@ -41,15 +41,16 @@ use VuFind\OAuth2\Entity\ScopeEntity;
  * @link     https://vufind.org/wiki/development:testing:unit_tests Wiki
  */
 class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
-{       
+{
     /**
      * Test access token repository
      *
      * @return void
      */
     public function testAccessTokenRepository(): void
-    {   
+    {
         $repo = $this->getAccessTokenRepository();
+
         $token = $repo->getNewToken(
             $this->createClientEntity(),
             [new ScopeEntity(['identifier' => 'openid', 'description' => 'OpenID'])],
@@ -61,6 +62,7 @@ class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
 
         $repo->persistNewAccessToken($token);
         $this->assertEquals(
+            [
                 [
                     'id' => $tokenId,
                     'type' => 'oauth2_access_token',
@@ -68,13 +70,14 @@ class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
                     'data' => json_encode($token),
                     'user_id' => '1',
                 ],
+            ],
             $this->accessTokenTable
         );
         $this->assertFalse($repo->isAccessTokenRevoked($tokenId));
         $repo->revokeAccessToken($tokenId);
         $this->assertTrue($repo->isAccessTokenRevoked($tokenId));
-        
         $this->assertEquals(
+            [
                 [
                     'id' => $tokenId,
                     'type' => 'oauth2_access_token',
@@ -82,6 +85,7 @@ class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
                     'data' => json_encode($token),
                     'user_id' => '1',
                 ],
+            ],
             $this->accessTokenTable
         );
     }
@@ -92,12 +96,15 @@ class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
      * @return void
      */
     public function testPersistInvalidTokenClass(): void
-    {   
+    {
         $accessTokenRepo = $this->getAccessTokenRepository();
         $authCodeRepo = $this->getAuthCodeRepository();
 
         $token = $authCodeRepo->getNewAuthCode();
-        $this->expectExceptionMessage('VuFind\OAuth2\Entity\AuthCodeEntity is not VuFind\OAuth2\Entity\AccessTokenEntity');
+        $this->expectExceptionMessage(
+            'VuFind\OAuth2\Entity\AuthCodeEntity is not'
+            . ' VuFind\OAuth2\Entity\AccessTokenEntity'
+        );
         $accessTokenRepo->persistNew($token);
     }
 }
