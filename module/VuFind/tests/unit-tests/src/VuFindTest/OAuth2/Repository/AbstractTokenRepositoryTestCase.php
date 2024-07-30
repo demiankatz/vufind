@@ -217,6 +217,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             }
             return null;
         });
+        $mock->method('getData')->willReturnCallback(fn () => $this->accessTokenTable[$i]['data'] ?? null);
         $mock->method('isRevoked')->willReturnCallback(fn () => $this->accessTokenTable[$i]['revoked'] ?? false);
         $mock->method('setData')->willReturnCallback(function ($data) use ($i, $mock) {
             $this->accessTokenTable[$i]['data'] = $data;
@@ -312,6 +313,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
                 'id' => $entity->getId(),
                 'type' => $entity->getType(),
                 'revoked' => $entity->isRevoked(),
+                'data' => $entity->getData(),
                 'user_id' => $entity->getUser()?->getId(),
             ];
             if (null !== ($i = $this->findAccessTokenTableRow($data))) {
@@ -324,23 +326,6 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             ->method('persistEntity')
             ->willReturnCallback($persistEntityCallback);
         return $accessTokenService;
-    }
-
-    /**
-     * Mock Access token entity
-     *
-     * @return MockObject&AccessTokenEntityInterface
-     */
-    protected function getMockAccessTokenEntity(): AccessTokenEntityInterface
-    {
-        $accessTokenEntity = $this->createMock(AccessToken::class);
-        $accessTokenEntity->expects($this->any())->method('getId')->willReturn((int)$this->createTokenId());
-        $accessTokenEntity->expects($this->any())->method('getType')->willReturn('oauth2_access_token');
-        $accessTokenEntity->expects($this->any())->method('isRevoked')->willReturn(true);
-        $user = $this->createMock(\VuFind\Db\Entity\UserEntityInterface::class);
-        $user->expects($this->any())->method('getId')->willReturn(1);
-        $accessTokenEntity->expects($this->any())->method('getUser')->willReturn($user);
-        return $accessTokenEntity;
     }
 
     /**
