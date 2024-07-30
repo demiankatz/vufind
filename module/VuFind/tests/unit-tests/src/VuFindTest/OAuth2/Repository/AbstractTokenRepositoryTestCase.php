@@ -207,7 +207,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             $this->accessTokenTable[] = $fields;
         }
         $mock = $this->createMock(AccessTokenEntityInterface::class);
-        $mock->method('getId')->willReturnCallback(fn () => (int)$this->accessTokenTable[$i]['id']);
+        $mock->method('getId')->willReturnCallback(fn () => (string)$this->accessTokenTable[$i]['id']);
         $mock->method('getType')->willReturnCallback(fn () => $this->accessTokenTable[$i]['type'] ?? null);
         $mock->method('getUser')->willReturnCallback(function () use ($i) {
             $userId = $this->accessTokenTable[$i]['user_id'] ?? null;
@@ -249,7 +249,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
     {
         foreach ($this->accessTokenTable as $i => $row) {
             if (
-                (int)$data['id'] === (int)$row['id']
+                $data['id'] === $row['id']
                 && $data['type'] === $row['type']
             ) {
                 return $i;
@@ -368,12 +368,11 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
      *
      * Follows OAuth2 server's generateUniqueIdentifier.
      *
-     * @return int
+     * @return string
      */
-    protected function createTokenId(): int
+    protected function createTokenId(): string
     {
-        static $id = 0;
-        return ++$id;
+        return bin2hex(random_bytes(40));
     }
 
     /**
