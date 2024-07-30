@@ -41,7 +41,7 @@ use VuFind\OAuth2\Entity\ScopeEntity;
  * @link     https://vufind.org/wiki/development:testing:unit_tests Wiki
  */
 class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
-{
+{    
     /**
      * Test access token repository
      *
@@ -59,7 +59,6 @@ class AccessTokenRepositoryTest extends AbstractTokenRepositoryTestCase
         $tokenId = $this->createTokenId();
         $token->setIdentifier($tokenId);
         $token->setExpiryDateTime($this->createExpiryDateTime());
-
         $repo->persistNewAccessToken($token);
         $this->assertEquals(
             [
