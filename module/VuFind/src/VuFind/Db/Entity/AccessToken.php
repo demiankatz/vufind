@@ -207,7 +207,7 @@ class AccessToken implements AccessTokenEntityInterface
      */
     public function setCreated(DateTime $dateTime): AccessTokenEntityInterface
     {
-        $this->created = $dateTime->format('Y-m-d H:i:s');
+        $this->created = $dateTime;
         return $this;
     }
 

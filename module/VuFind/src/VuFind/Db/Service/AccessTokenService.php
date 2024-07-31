@@ -80,10 +80,10 @@ class AccessTokenService extends AbstractDbService implements
         bool $create = true
     ): ?AccessTokenEntityInterface {
 
-        $dql = 'SELECT * '
-            . 'FROM ' . $this->getEntityClass(AccessToken::class)
-            . 'WHERE id = :id '
-            . 'AND type = :type';
+        $dql = 'SELECT at '
+            . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' at '
+            . 'WHERE at.id = :id '
+            . 'AND at.type = :type';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(compact('id', 'type'));
         $result = $query->getOneOrNullResult();
@@ -107,7 +107,7 @@ class AccessTokenService extends AbstractDbService implements
      */
     public function storeNonce(int $userId, ?string $nonce): void
     {
-        $user = $this->entityManager->getReference(UserEntityInterface::class, $userId);
+        $user = $this->entityManager->getReference(User::class, $userId);
         $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' at '
                 . 'SET at.data = :nonce WHERE at.user = :user';
         $query = $this->entityManager->createQuery($dql);
@@ -124,21 +124,16 @@ class AccessTokenService extends AbstractDbService implements
      */
     public function getNonce(int $userId): ?string
     {
-        $user = $this->entityManager->getReference(UserEntityInterface::class, $userId);
-
-        $dql = 'SELECT at.data '
+        $user = $this->entityManager->getReference(User::class, $userId);
+        $dql = 'SELECT at '
             . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' at '
-            . 'WHERE at.user = :user';
+            . 'WHERE at.user = :user ';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('user', $user);
-
+        $query->setParameters(compact(['user']));
         $result = $query->getOneOrNullResult();
-
-        if ($result) {
-            $data = json_decode($result['data'], true);
-            return $data['nonce'] ?? null;
+        if($result) {
+            return $result['data'] ?? null;
         }
-
         return null;
     }
 
