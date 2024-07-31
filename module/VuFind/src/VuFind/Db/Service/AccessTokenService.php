@@ -34,6 +34,7 @@ use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
+use VuFind\Db\Entity\User;
 use VuFind\Log\LoggerAwareTrait;
 
 /**
@@ -88,6 +89,7 @@ class AccessTokenService extends AbstractDbService implements
         $result = $query->getOneOrNullResult();
         if ($result === null && $create) {
             $result = $this->createEntity()
+                           ->setId($id)
                            ->setType($type)
                            ->setCreated(new DateTime());
         }
@@ -105,10 +107,11 @@ class AccessTokenService extends AbstractDbService implements
      */
     public function storeNonce(int $userId, ?string $nonce): void
     {
+        $user = $this->entityManager->getReference(UserEntityInterface::class, $userId);
         $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' at '
                 . 'SET at.data = :nonce WHERE at.user = :user';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(['nonce' => $nonce, 'user' => $userId]);
+        $query->setParameters(compact(['nonce','user']));
         $query->execute();
     }
 
@@ -151,14 +154,14 @@ class AccessTokenService extends AbstractDbService implements
     {
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
         $subQueryBuilder->select('at.id')
-            ->from($this->getEntityClass(AccessTokenEnTityInterface::class), 'at')
+            ->from($this->getEntityClass(AccessTokenEntityInterface::class), 'at')
             ->where('at.created < :latestCreated')
             ->setParameter('latestCreated', $dateLimit->getTimestamp());
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }
         $queryBuilder = $this->entityManager->createQueryBuilder();
-        $queryBuilder->delete($this->getEntityClass(AccessTokenEnTityInterface::class), 'at')
+        $queryBuilder->delete($this->getEntityClass(AccessTokenEntityInterface::class), 'at')
             ->where('at.id IN (:ids)')
             ->setParameter('ids', $subQueryBuilder->getQuery()->getResult());
         return $queryBuilder->getQuery()->execute();

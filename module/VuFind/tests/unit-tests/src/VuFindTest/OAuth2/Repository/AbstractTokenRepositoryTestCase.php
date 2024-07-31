@@ -180,10 +180,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
      */
     protected function getPluginManager($setExpectation = false)
     {
-        $pluginManager = $this->getMockBuilder(
-            \VuFind\Db\Entity\PluginManager::class
-        )->disableOriginalConstructor()
-            ->getMock();
+        $pluginManager = $this->createMock(\VuFind\Db\Entity\PluginManager::class);
         if ($setExpectation) {
             $pluginManager->expects($this->any())->method('get')
                 ->with($this->equalTo(AccessToken::class))
@@ -335,8 +332,9 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             return null;
         };
         $accessTokenService->expects($this->any())
-        ->method('getNonce')
-        ->willReturnCallback($getNonceCallback);
+            ->method('getNonce')
+            ->willReturnCallback($getNonceCallback);
+        
         $storeNonceCallback = function (int $userId, ?string $nonce): void {
             $data = [
                 'id' => 2,
@@ -352,8 +350,8 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             $this->accessTokenTable[] = $data;
         };
         $accessTokenService->expects($this->any())
-        ->method('storeNonce')
-        ->willReturnCallback($storeNonceCallback);
+            ->method('storeNonce')
+            ->willReturnCallback($storeNonceCallback);
         return $accessTokenService;
     }
 

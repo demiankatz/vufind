@@ -121,6 +121,18 @@ class AccessToken implements AccessTokenEntityInterface
     protected $revoked = '0';
 
     /**
+     * Set access token identifier.
+     * 
+     * @param string $id Access Token Identifier
+     * 
+     * @return AccessTokenEntityInterface
+     */
+    public function setId(string $id): AccessTokenEntityInterface {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
      *
      * @return ?string
