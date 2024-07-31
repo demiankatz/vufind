@@ -325,8 +325,8 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $accessTokenService->expects($this->any())
             ->method('persistEntity')
             ->willReturnCallback($persistEntityCallback);
-        
-        $getNonceCallback = function(int $userId) : ?string {
+
+        $getNonceCallback = function (int $userId): ?string {
             foreach ($this->accessTokenTable as $row) {
                 if ($userId === $row['user_id']) {
                     return $row['data'];
@@ -337,7 +337,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $accessTokenService->expects($this->any())
         ->method('getNonce')
         ->willReturnCallback($getNonceCallback);
-        $storeNonceCallback = function(int $userId, ?string $nonce) : void {
+        $storeNonceCallback = function (int $userId, ?string $nonce): void {
             $data = [
                 'id' => 2,
                 'type' => 'oauth2_access_token',
