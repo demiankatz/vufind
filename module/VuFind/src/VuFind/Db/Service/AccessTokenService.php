@@ -107,8 +107,8 @@ class AccessTokenService extends AbstractDbService implements
     public function storeNonce(int $userId, ?string $nonce): void
     {
         $type = 'openid_nonce';
-        $token = $this->getByIdAndType((string)$userId,$type);
-        $token->setUser($this->entityManager->getReference(User::class,$userId));
+        $token = $this->getByIdAndType((string)$userId, $type);
+        $token->setUser($this->entityManager->getReference(User::class, $userId));
         $token->setData($nonce);
         $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' a '
                 . 'SET a.data = :nonce, a.created = :created, a.user = :user WHERE a.id = :id AND a.type = :type';
@@ -127,7 +127,7 @@ class AccessTokenService extends AbstractDbService implements
     public function getNonce(int $userId): ?string
     {
         $type = 'openid_nonce';
-        $token = $this->getByIdAndType((string)$userId,$type);
+        $token = $this->getByIdAndType((string)$userId, $type);
         $dql = 'SELECT a.data '
             . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' a '
             . 'WHERE a.id = :id '
@@ -135,7 +135,7 @@ class AccessTokenService extends AbstractDbService implements
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(['id' => $token->getId(), 'type' => $token->getType()]);
         $result = $query->getOneOrNullResult();
-        if($result) {
+        if ($result) {
             return $result['data'] ?? null;
         }
         return null;

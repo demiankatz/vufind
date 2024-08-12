@@ -334,7 +334,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $accessTokenService->expects($this->any())
             ->method('getNonce')
             ->willReturnCallback($getNonceCallback);
-        
+
         $storeNonceCallback = function (int $userId, ?string $nonce): void {
             $data = [
                 'id' => 2,

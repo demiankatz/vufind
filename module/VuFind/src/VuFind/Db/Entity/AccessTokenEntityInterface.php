@@ -41,16 +41,16 @@ use DateTime;
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
 interface AccessTokenEntityInterface extends EntityInterface
-{   
+{
     /**
      * Set access token identifier.
-     * 
+     *
      * @param string $id Access Token Identifier
-     * 
+     *
      * @return AccessTokenEntityInterface
      */
     public function setId(string $id): AccessTokenEntityInterface;
-    
+
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
      *

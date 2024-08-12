@@ -122,12 +122,13 @@ class AccessToken implements AccessTokenEntityInterface
 
     /**
      * Set access token identifier.
-     * 
+     *
      * @param string $id Access Token Identifier
-     * 
+     *
      * @return AccessTokenEntityInterface
      */
-    public function setId(string $id): AccessTokenEntityInterface {
+    public function setId(string $id): AccessTokenEntityInterface
+    {
         $this->id = $id;
         return $this;
     }
