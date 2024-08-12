@@ -113,7 +113,11 @@ class AccessTokenService extends AbstractDbService implements
         $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' a '
                 . 'SET a.data = :nonce, a.created = :created, a.user = :user WHERE a.id = :id AND a.type = :type';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(['nonce' => $token->getData(), 'created' => $token->getCreated(), 'user' => $token->getUser(), 'id' => $token->getId(), 'type' => $token->getType()]);
+        $query->setParameters(['nonce' => $token->getData(),
+            'created' => $token->getCreated(),
+            'user' => $token->getUser(),
+            'id' => $token->getId(),
+            'type' => $token->getType()]);
         $query->execute();
     }
 
