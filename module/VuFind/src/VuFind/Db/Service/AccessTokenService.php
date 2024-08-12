@@ -33,7 +33,6 @@ use DateTime;
 use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
-use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\User;
 use VuFind\Log\LoggerAwareTrait;
 
@@ -107,12 +106,14 @@ class AccessTokenService extends AbstractDbService implements
      */
     public function storeNonce(int $userId, ?string $nonce): void
     {
-        $user = $this->entityManager->getReference(User::class, $userId);
         $type = 'openid_nonce';
-        $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' at '
-                . 'SET at.data = :nonce WHERE at.user = :user AND at.type = :type';
+        $token = $this->getByIdAndType((string)$userId,$type);
+        $token->setUser($this->entityManager->getReference(User::class,$userId));
+        $token->setData($nonce);
+        $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' a '
+                . 'SET a.data = :nonce, a.created = :created, a.user = :user WHERE a.id = :id AND a.type = :type';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(compact(['nonce','user','type']));
+        $query->setParameters(['nonce' => $token->getData(), 'created' => $token->getCreated(), 'user' => $token->getUser(), 'id' => $token->getId(), 'type' => $token->getType()]);
         $query->execute();
     }
 
@@ -125,14 +126,14 @@ class AccessTokenService extends AbstractDbService implements
      */
     public function getNonce(int $userId): ?string
     {
-        $user = $this->entityManager->getReference(User::class, $userId);
         $type = 'openid_nonce';
-        $dql = 'SELECT at '
-            . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' at '
-            . 'WHERE at.user = :user '
-            . 'AND at.type = :type';
+        $token = $this->getByIdAndType((string)$userId,$type);
+        $dql = 'SELECT a.data '
+            . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' a '
+            . 'WHERE a.id = :id '
+            . 'AND a.type = :type ';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(compact(['user', 'type']));
+        $query->setParameters(['id' => $token->getId(), 'type' => $token->getType()]);
         $result = $query->getOneOrNullResult();
         if($result) {
             return $result['data'] ?? null;
@@ -151,16 +152,16 @@ class AccessTokenService extends AbstractDbService implements
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
-        $subQueryBuilder->select('at.id')
-            ->from($this->getEntityClass(AccessTokenEntityInterface::class), 'at')
-            ->where('at.created < :latestCreated')
+        $subQueryBuilder->select('a.id')
+            ->from($this->getEntityClass(AccessTokenEntityInterface::class), 'a')
+            ->where('a.created < :latestCreated')
             ->setParameter('latestCreated', $dateLimit->getTimestamp());
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }
         $queryBuilder = $this->entityManager->createQueryBuilder();
-        $queryBuilder->delete($this->getEntityClass(AccessTokenEntityInterface::class), 'at')
-            ->where('at.id IN (:ids)')
+        $queryBuilder->delete($this->getEntityClass(AccessTokenEntityInterface::class), 'a')
+            ->where('a.id IN (:ids)')
             ->setParameter('ids', $subQueryBuilder->getQuery()->getResult());
         return $queryBuilder->getQuery()->execute();
     }
