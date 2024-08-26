@@ -35,6 +35,7 @@ use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
 use VuFind\Db\Entity\User;
 use VuFind\Log\LoggerAwareTrait;
+use VuFind\OAuth2\Entity\AccessTokenEntity;
 
 /**
  * Database service for access tokens.
@@ -92,7 +93,12 @@ class AccessTokenService extends AbstractDbService implements
                            ->setType($type)
                            ->setCreated(new DateTime());
         }
-
+        try {
+            $this->persistEntity($result);
+        } catch (\Exception $e) {
+            $this->logError('No token found' . $e->getMessage());
+            return null;
+        }
         return $result;
     }
 
@@ -131,18 +137,8 @@ class AccessTokenService extends AbstractDbService implements
     public function getNonce(int $userId): ?string
     {
         $type = 'openid_nonce';
-        $token = $this->getByIdAndType((string)$userId, $type);
-        $dql = 'SELECT a.data '
-            . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' a '
-            . 'WHERE a.id = :id '
-            . 'AND a.type = :type ';
-        $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(['id' => $token->getId(), 'type' => $token->getType()]);
-        $result = $query->getOneOrNullResult();
-        if ($result) {
-            return $result['data'] ?? null;
-        }
-        return null;
+        $token = $this->getByIdAndType((string)$userId, $type, false);
+        return $token;
     }
 
     /**
