@@ -93,12 +93,8 @@ class AccessTokenService extends AbstractDbService implements
                            ->setType($type)
                            ->setCreated(new DateTime());
         }
-        try {
-            $this->persistEntity($result);
-        } catch (\Exception $e) {
-            $this->logError('No token found' . $e->getMessage());
-            return null;
-        }
+        
+        $this->persistEntity($result);
         return $result;
     }
 
