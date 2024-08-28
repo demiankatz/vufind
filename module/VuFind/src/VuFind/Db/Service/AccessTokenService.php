@@ -134,6 +134,8 @@ class AccessTokenService extends AbstractDbService implements
     {
         $type = 'openid_nonce';
         $token = $this->getByIdAndType((string)$userId, $type, false);
+        if($token == null)
+            return null;
         return $token->getData();
     }
 
