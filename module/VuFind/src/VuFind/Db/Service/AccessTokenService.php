@@ -35,7 +35,6 @@ use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
 use VuFind\Db\Entity\User;
 use VuFind\Log\LoggerAwareTrait;
-use VuFind\OAuth2\Entity\AccessTokenEntity;
 
 /**
  * Database service for access tokens.
@@ -93,7 +92,7 @@ class AccessTokenService extends AbstractDbService implements
                            ->setType($type)
                            ->setCreated(new DateTime());
         }
-        
+
         $this->persistEntity($result);
         return $result;
     }
@@ -134,8 +133,9 @@ class AccessTokenService extends AbstractDbService implements
     {
         $type = 'openid_nonce';
         $token = $this->getByIdAndType((string)$userId, $type, false);
-        if($token == null)
+        if ($token == null) {
             return null;
+        }
         return $token->getData();
     }
 
