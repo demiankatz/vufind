@@ -78,7 +78,6 @@ class AccessTokenService extends AbstractDbService implements
         string $type,
         bool $create = true
     ): ?AccessTokenEntityInterface {
-
         $dql = 'SELECT at '
             . 'FROM ' . $this->getEntityClass(AccessToken::class) . ' at '
             . 'WHERE at.id = :id '
@@ -111,15 +110,7 @@ class AccessTokenService extends AbstractDbService implements
         $token = $this->getByIdAndType((string)$userId, $type);
         $token->setUser($this->entityManager->getReference(User::class, $userId));
         $token->setData($nonce);
-        $dql = 'UPDATE ' . $this->getEntityClass(AccessToken::class) . ' a '
-                . 'SET a.data = :nonce, a.created = :created, a.user = :user WHERE a.id = :id AND a.type = :type';
-        $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(['nonce' => $token->getData(),
-            'created' => $token->getCreated(),
-            'user' => $token->getUser(),
-            'id' => $token->getId(),
-            'type' => $token->getType()]);
-        $query->execute();
+        $this->persistEntity($token);
     }
 
     /**
@@ -133,10 +124,7 @@ class AccessTokenService extends AbstractDbService implements
     {
         $type = 'openid_nonce';
         $token = $this->getByIdAndType((string)$userId, $type, false);
-        if ($token == null) {
-            return null;
-        }
-        return $token->getData();
+        return $token?->getData();
     }
 
     /**
