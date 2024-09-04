@@ -87,12 +87,12 @@ class AccessTokenService extends AbstractDbService implements
         $result = $query->getOneOrNullResult();
         if ($result === null && $create) {
             $result = $this->createEntity()
-                           ->setId($id)
-                           ->setType($type)
-                           ->setCreated(new DateTime());
+                ->setId($id)
+                ->setType($type)
+                ->setCreated(new DateTime());
+            $this->persistEntity($result);
         }
 
-        $this->persistEntity($result);
         return $result;
     }
 
