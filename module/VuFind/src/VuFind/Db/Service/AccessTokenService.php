@@ -138,16 +138,16 @@ class AccessTokenService extends AbstractDbService implements
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
-        $subQueryBuilder->select('a.id')
+        $subQueryBuilder->select('CONCAT(a.id, a.type)')
             ->from($this->getEntityClass(AccessTokenEntityInterface::class), 'a')
             ->where('a.created < :latestCreated')
-            ->setParameter('latestCreated', $dateLimit->getTimestamp());
+            ->setParameter('latestCreated', $dateLimit->format('Y-m-d H:i:s'));
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->delete($this->getEntityClass(AccessTokenEntityInterface::class), 'a')
-            ->where('a.id IN (:ids)')
+            ->where('concat(a.id, a.type) IN (:ids)')
             ->setParameter('ids', $subQueryBuilder->getQuery()->getResult());
         return $queryBuilder->getQuery()->execute();
     }
