@@ -30,10 +30,10 @@
 namespace VuFind\Db\Service;
 
 use DateTime;
-use VuFind\Db\Entity\AuthHashEntityInterface;
-use VuFind\Db\Entity\AuthHash;
-use VuFind\Log\LoggerAwareTrait;
 use Laminas\Log\LoggerAwareInterface;
+use VuFind\Db\Entity\AuthHash;
+use VuFind\Db\Entity\AuthHashEntityInterface;
+use VuFind\Log\LoggerAwareTrait;
 
 /**
  * Database service for auth_hash table.
@@ -130,7 +130,7 @@ class AuthHashService extends AbstractDbService implements
                 ->setCreated(new DateTime());
             $this->persistEntity($result);
         }
-        
+
         return $result;
     }
 
