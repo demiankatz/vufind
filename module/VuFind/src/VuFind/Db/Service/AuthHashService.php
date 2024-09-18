@@ -124,13 +124,6 @@ class AuthHashService extends AbstractDbService implements
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('sessionId', $sessionId);
         $result = $query->getOneOrNullResult();
-        if ($result === null) {
-            $result = $this->createEntity()
-                ->setSessionId($sessionId)
-                ->setCreated(new DateTime());
-            $this->persistEntity($result);
-        }
-
         return $result;
     }
 
