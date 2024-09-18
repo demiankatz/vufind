@@ -90,10 +90,10 @@ class AuthHashService extends AbstractDbService implements
      */
     public function getByHashAndType(string $hash, string $type, bool $create = true): ?AuthHashEntityInterface
     {
-        $dql = 'SELECT at '
+        $dql = 'SELECT ah '
             . 'FROM ' . $this->getEntityClass(AuthHash::class) . ' ah '
             . 'WHERE ah.hash = :hash '
-            . 'AND at.type = :type';
+            . 'AND ah.type = :type';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(compact('hash', 'type'));
         $result = $query->getOneOrNullResult();
@@ -117,12 +117,12 @@ class AuthHashService extends AbstractDbService implements
      */
     public function getLatestBySessionId(string $sessionId): ?AuthHashEntityInterface
     {
-        $dql = 'SELECT at '
+        $dql = 'SELECT ah '
             . 'FROM ' . $this->getEntityClass(AuthHash::class) . ' ah '
-            . 'WHERE ah.session_id = :session_id '
+            . 'WHERE ah.sessionId = :sessionId '
             . 'ORDER BY ah.created DESC';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('session_id', $sessionId);
+        $query->setParameter('sessionId', $sessionId);
         $result = $query->getOneOrNullResult();
         if ($result === null) {
             $result = $this->createEntity()
@@ -130,7 +130,7 @@ class AuthHashService extends AbstractDbService implements
                 ->setCreated(new DateTime());
             $this->persistEntity($result);
         }
-
+        
         return $result;
     }
 
