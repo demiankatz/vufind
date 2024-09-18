@@ -31,8 +31,9 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use VuFind\Db\Entity\AuthHashEntityInterface;
-use VuFind\Db\Table\DbTableAwareInterface;
-use VuFind\Db\Table\DbTableAwareTrait;
+use VuFind\Db\Entity\AuthHash;
+use VuFind\Log\LoggerAwareTrait;
+use Laminas\Log\LoggerAwareInterface;
 
 /**
  * Database service for auth_hash table.
@@ -45,10 +46,10 @@ use VuFind\Db\Table\DbTableAwareTrait;
  */
 class AuthHashService extends AbstractDbService implements
     AuthHashServiceInterface,
-    DbTableAwareInterface,
-    Feature\DeleteExpiredInterface
+    Feature\DeleteExpiredInterface,
+    LoggerAwareInterface
 {
-    use DbTableAwareTrait;
+    use LoggerAwareTrait;
 
     /**
      * Create an auth_hash entity object.
@@ -57,7 +58,8 @@ class AuthHashService extends AbstractDbService implements
      */
     public function createEntity(): AuthHashEntityInterface
     {
-        return $this->getDbTable('AuthHash')->createRow();
+        $class = $this->getEntityClass(AuthHash::class);
+        return new $class();
     }
 
     /**
@@ -69,8 +71,11 @@ class AuthHashService extends AbstractDbService implements
      */
     public function deleteAuthHash(AuthHashEntityInterface|int $authHashOrId): void
     {
-        $authHashId = $authHashOrId instanceof AuthHashEntityInterface ? $authHashOrId->getId() : $authHashOrId;
-        $this->getDbTable('AuthHash')->delete(['id' => $authHashId]);
+        $dql = 'DELETE FROM ' . $this->getEntityClass(AuthHash::class) . ' ah '
+            . 'WHERE ah.id = :id';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('id', $authHashOrId);
+        $query->execute();
     }
 
     /**
@@ -85,7 +90,22 @@ class AuthHashService extends AbstractDbService implements
      */
     public function getByHashAndType(string $hash, string $type, bool $create = true): ?AuthHashEntityInterface
     {
-        return $this->getDbTable('AuthHash')->getByHashAndType($hash, $type, $create);
+        $dql = 'SELECT at '
+            . 'FROM ' . $this->getEntityClass(AuthHash::class) . ' ah '
+            . 'WHERE ah.hash = :hash '
+            . 'AND at.type = :type';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters(compact('hash', 'type'));
+        $result = $query->getOneOrNullResult();
+        if ($result === null && $create) {
+            $result = $this->createEntity()
+                ->setHash($hash)
+                ->setHashType($type)
+                ->setCreated(new DateTime());
+            $this->persistEntity($result);
+        }
+
+        return $result;
     }
 
     /**
@@ -97,7 +117,21 @@ class AuthHashService extends AbstractDbService implements
      */
     public function getLatestBySessionId(string $sessionId): ?AuthHashEntityInterface
     {
-        return $this->getDbTable('AuthHash')->getLatestBySessionId($sessionId);
+        $dql = 'SELECT at '
+            . 'FROM ' . $this->getEntityClass(AuthHash::class) . ' ah '
+            . 'WHERE ah.session_id = :session_id '
+            . 'ORDER BY ah.created DESC';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('session_id', $sessionId);
+        $result = $query->getOneOrNullResult();
+        if ($result === null) {
+            $result = $this->createEntity()
+                ->setSessionId($sessionId)
+                ->setCreated(new DateTime());
+            $this->persistEntity($result);
+        }
+
+        return $result;
     }
 
     /**
@@ -110,6 +144,18 @@ class AuthHashService extends AbstractDbService implements
      */
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
-        return $this->getDbTable('AuthHash')->deleteExpired($dateLimit->format('Y-m-d H:i:s'), $limit);
+        $subQueryBuilder = $this->entityManager->createQueryBuilder();
+        $subQueryBuilder->select('CONCAT(ah.hash, ah.type)')
+            ->from($this->getEntityClass(AuthHashEntityInterface::class), 'ah')
+            ->where('ah.created < :dateLimit')
+            ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
+        if ($limit) {
+            $subQueryBuilder->setMaxResults($limit);
+        }
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder->delete($this->getEntityClass(AuthHashEntityInterface::class), 'ah')
+            ->where('concat(ah.hash, ah.type) IN (:hashes)')
+            ->setParameter('hashes', $subQueryBuilder->getQuery()->getResult());
+        return $queryBuilder->getQuery()->execute();
     }
 }
