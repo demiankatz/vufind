@@ -30,10 +30,10 @@
 namespace VuFind\Db\Service;
 
 use DateTime;
-use Laminas\Log\LoggerAwareInterface;
+//use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\AuthHash;
 use VuFind\Db\Entity\AuthHashEntityInterface;
-use VuFind\Log\LoggerAwareTrait;
+//use VuFind\Log\LoggerAwareTrait;
 
 /**
  * Database service for auth_hash table.
@@ -46,10 +46,10 @@ use VuFind\Log\LoggerAwareTrait;
  */
 class AuthHashService extends AbstractDbService implements
     AuthHashServiceInterface,
-    Feature\DeleteExpiredInterface,
-    LoggerAwareInterface
+    Feature\DeleteExpiredInterface
+    //LoggerAwareInterface
 {
-    use LoggerAwareTrait;
+    //use LoggerAwareTrait;
 
     /**
      * Create an auth_hash entity object.
