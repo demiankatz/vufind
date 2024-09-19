@@ -69,7 +69,8 @@ class AuthHashService extends AbstractDbService implements
         $dql = 'DELETE FROM ' . $this->getEntityClass(AuthHash::class) . ' ah '
             . 'WHERE ah.id = :id';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('id', $authHashOrId);
+        $authHashId = $authHashOrId instanceof AuthHashEntityInterface ? $authHashOrId->getId() : $authHashOrId;
+        $query->setParameter('id', $authHashId);
         $query->execute();
     }
 
@@ -133,7 +134,7 @@ class AuthHashService extends AbstractDbService implements
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
-        $subQueryBuilder->select('CONCAT(ah.hash, ah.type)')
+        $subQueryBuilder->select('ah.id')
             ->from($this->getEntityClass(AuthHashEntityInterface::class), 'ah')
             ->where('ah.created < :dateLimit')
             ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
@@ -142,7 +143,7 @@ class AuthHashService extends AbstractDbService implements
         }
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->delete($this->getEntityClass(AuthHashEntityInterface::class), 'ah')
-            ->where('concat(ah.hash, ah.type) IN (:hashes)')
+            ->where('ah.id IN (:hashes)')
             ->setParameter('hashes', $subQueryBuilder->getQuery()->getResult());
         return $queryBuilder->getQuery()->execute();
     }
