@@ -49,7 +49,7 @@ class LoginToken implements LoginTokenEntityInterface
     /**
      * Unique ID.
      *
-     * @var string
+     * @var int
      *
      * @ORM\Column(name="id",
      *          type="integer",
