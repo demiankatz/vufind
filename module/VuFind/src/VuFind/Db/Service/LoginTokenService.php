@@ -30,9 +30,9 @@
 namespace VuFind\Db\Service;
 
 use DateTime;
+use VuFind\Db\Entity\LoginToken;
 use VuFind\Db\Entity\LoginTokenEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Table\DbTableAwareInterface;
 use VuFind\Exception\LoginToken as LoginTokenException;
 
 use function is_int;
@@ -48,11 +48,8 @@ use function is_int;
  */
 class LoginTokenService extends AbstractDbService implements
     LoginTokenServiceInterface,
-    Feature\DeleteExpiredInterface,
-    DbTableAwareInterface
+    Feature\DeleteExpiredInterface
 {
-    use \VuFind\Db\Table\DbTableAwareTrait;
-
     /**
      * Create a new login token entity.
      *
@@ -60,7 +57,8 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function createEntity(): LoginTokenEntityInterface
     {
-        return $this->getDbTable('LoginToken')->createRow();
+        $class = $this->getEntityClass(LoginToken::class);
+        return new $class();
     }
 
     /**
@@ -108,7 +106,37 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function matchToken(array $token): ?LoginTokenEntityInterface
     {
-        return $this->getDbTable('LoginToken')->matchToken($token);
+        $userId = null;
+        foreach ($this->getBySeries($token['series']) as $row) {
+            $userId = $row->getUser()->getId();
+            if (hash_equals($row->getToken(), hash('sha256', $token['token']))) {
+                if (time() > $row->getExpires()) {
+                    $this->deleteById($row->getId());
+                    return null;
+                }
+                return $row;
+            }
+        }
+        if ($userId) {
+            throw new LoginTokenException('Tokens do not match', $userId);
+        }
+        return null;
+    }
+
+    /**
+     * Delete a token with given id.
+     *
+     * @param int $id id
+     *
+     * @return void
+     */
+    protected function deleteById(int $id): void
+    {
+        $dql = 'DELETE FROM ' . $this->getEntityClass(LoginToken::class) . ' lt '
+            . 'WHERE lt.id == :id';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('id', $id);
+        $query->execute();
     }
 
     /**
@@ -121,7 +149,12 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function deleteBySeries(string $series, ?int $currentTokenId = null): void
     {
-        $this->getDbTable('LoginToken')->deleteBySeries($series, $currentTokenId);
+        $dql = 'DELETE FROM ' . $this->getEntityClass(LoginToken::class) . ' lt '
+            . 'WHERE lt.series = :series '
+            . 'AND lt.id != :currentTokenId';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters(compact('series', 'currentTokenId'));
+        $query->execute();
     }
 
     /**
@@ -134,7 +167,11 @@ class LoginTokenService extends AbstractDbService implements
     public function deleteByUser(UserEntityInterface|int $userOrId): void
     {
         $userId = is_int($userOrId) ? $userOrId : $userOrId->getId();
-        $this->getDbTable('LoginToken')->deleteByUserId($userId);
+        $dql = 'DELETE FROM ' . $this->getEntityClass(LoginToken::class) . ' lt '
+            . 'WHERE lt.userId = :userId';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('id', $userId);
+        $query->execute();
     }
 
     /**
@@ -148,7 +185,24 @@ class LoginTokenService extends AbstractDbService implements
     public function getByUser(UserEntityInterface|int $userOrId, bool $grouped = true): array
     {
         $userId = is_int($userOrId) ? $userOrId : $userOrId->getId();
-        return $this->getDbTable('LoginToken')->getByUserId($userId, $grouped);
+        $dql = 'SELECT lt '
+            . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
+            . 'WHERE lt.userId = :userId '
+            . 'ORDER BY lt.lastLogin DESC';
+
+        if ($grouped) {
+            // Modify the DQL for grouping logic
+            $dql = 'SELECT MAX(lt.lastLogin) as lastLogin, lt.series, lt.browser, lt.platform, lt.expires '
+                . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
+                . 'WHERE lt.userId = :userId '
+                . 'GROUP BY lt.series, lt.browser, lt.platform, lt.expires '
+                . 'ORDER BY lastLogin DESC';
+        }
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('userId', $userId);
+        $result = $query->getResult();
+        return $result;
     }
 
     /**
@@ -160,7 +214,13 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function getBySeries(string $series): array
     {
-        return iterator_to_array($this->getDbTable('LoginToken')->getBySeries($series));
+        $dql = 'SELECT lt '
+            . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
+            . 'WHERE lt.series = :series';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('series', $series);
+        $result = $query->getArrayResult();
+        return $result;
     }
 
     /**
@@ -173,6 +233,18 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
-        return $this->getDbTable('LoginToken')->deleteExpired($dateLimit->format('Y-m-d H:i:s'), $limit);
+        $subQueryBuilder = $this->entityManager->createQueryBuilder();
+        $subQueryBuilder->select('lt.id')
+            ->from($this->getEntityClass(LoginTokenEntityInterface::class), 'lt')
+            ->where('lt.lastLogin < :dateLimit')
+            ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
+        if ($limit) {
+            $subQueryBuilder->setMaxResults($limit);
+        }
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder->delete($this->getEntityClass(LoginTokenEntityInterface::class), 'lt')
+            ->where('lt.id IN (:tokens)')
+            ->setParameter('tokens', value: $subQueryBuilder->getQuery()->getResult());
+        return $queryBuilder->getQuery()->execute();
     }
 }
