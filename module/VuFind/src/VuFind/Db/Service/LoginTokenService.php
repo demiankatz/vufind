@@ -168,9 +168,9 @@ class LoginTokenService extends AbstractDbService implements
     {
         $userId = is_int($userOrId) ? $userOrId : $userOrId->getId();
         $dql = 'DELETE FROM ' . $this->getEntityClass(LoginToken::class) . ' lt '
-            . 'WHERE lt.userId = :userId';
+            . 'WHERE lt.user = :user';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('id', $userId);
+        $query->setParameter('user', $userId);
         $query->execute();
     }
 
@@ -187,20 +187,20 @@ class LoginTokenService extends AbstractDbService implements
         $userId = is_int($userOrId) ? $userOrId : $userOrId->getId();
         $dql = 'SELECT lt '
             . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
-            . 'WHERE lt.userId = :userId '
+            . 'WHERE lt.user = :user '
             . 'ORDER BY lt.lastLogin DESC';
 
         if ($grouped) {
             // Modify the DQL for grouping logic
             $dql = 'SELECT MAX(lt.lastLogin) as lastLogin, lt.series, lt.browser, lt.platform, lt.expires '
                 . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
-                . 'WHERE lt.userId = :userId '
+                . 'WHERE lt.user = :user '
                 . 'GROUP BY lt.series, lt.browser, lt.platform, lt.expires '
                 . 'ORDER BY lastLogin DESC';
         }
 
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('userId', $userId);
+        $query->setParameter('user', $userId);
         $result = $query->getResult();
         return $result;
     }
@@ -233,11 +233,12 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
+        // Date limit ignored since login token already contains an expiration time.
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
         $subQueryBuilder->select('lt.id')
             ->from($this->getEntityClass(LoginTokenEntityInterface::class), 'lt')
-            ->where('lt.lastLogin < :dateLimit')
-            ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
+            ->where('lt.expires < :dateLimit')
+            ->setParameter('dateLimit', time());
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }
