@@ -32,10 +32,9 @@ namespace VuFind\Db\Service;
 use DateTime;
 use VuFind\Db\Entity\LoginToken;
 use VuFind\Db\Entity\LoginTokenEntityInterface;
+use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Exception\LoginToken as LoginTokenException;
-
-use function is_int;
 
 /**
  * Database service for login_token table.
@@ -166,11 +165,11 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function deleteByUser(UserEntityInterface|int $userOrId): void
     {
-        $userId = is_int($userOrId) ? $userOrId : $userOrId->getId();
+        $user = $this->getDoctrineReference(User::class, $userOrId);
         $dql = 'DELETE FROM ' . $this->getEntityClass(LoginToken::class) . ' lt '
             . 'WHERE lt.user = :user';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('user', $userId);
+        $query->setParameter('user', $user);
         $query->execute();
     }
 
@@ -184,7 +183,7 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function getByUser(UserEntityInterface|int $userOrId, bool $grouped = true): array
     {
-        $userId = is_int($userOrId) ? $userOrId : $userOrId->getId();
+        $user = $this->getDoctrineReference(User::class, $userOrId);
         $dql = 'SELECT lt '
             . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
             . 'WHERE lt.user = :user '
@@ -200,7 +199,7 @@ class LoginTokenService extends AbstractDbService implements
         }
 
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('user', $userId);
+        $query->setParameter('user', $user);
         $result = $query->getResult();
         return $result;
     }
