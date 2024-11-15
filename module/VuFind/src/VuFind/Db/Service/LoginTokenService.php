@@ -241,7 +241,7 @@ class LoginTokenService extends AbstractDbService implements
         $subQueryBuilder->select('lt.id')
             ->from($this->getEntityClass(LoginTokenEntityInterface::class), 'lt')
             ->where('lt.expires < :dateLimit')
-            ->setParameter('dateLimit', time());
+            ->setParameter('dateLimit', $dateLimit->getTimestamp());
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }
