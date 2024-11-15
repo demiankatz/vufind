@@ -179,7 +179,7 @@ class LoginTokenService extends AbstractDbService implements
      * @param UserEntityInterface|int $userOrId User entity object or identifier
      * @param bool                    $grouped  Whether to return results grouped by series
      *
-     * @return LoginTokenEntityInterface[]
+     * @return LoginTokenEntityInterface
      */
     public function getByUser(UserEntityInterface|int $userOrId, bool $grouped = true): array
     {
@@ -191,11 +191,15 @@ class LoginTokenService extends AbstractDbService implements
 
         if ($grouped) {
             // Modify the DQL for grouping logic
-            $dql = 'SELECT MAX(lt.lastLogin) as lastLogin, lt.series, lt.browser, lt.platform, lt.expires '
+            $dql = 'SELECT lt '
                 . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
-                . 'WHERE lt.user = :user '
-                . 'GROUP BY lt.series, lt.browser, lt.platform, lt.expires '
-                . 'ORDER BY lastLogin DESC';
+                . 'WHERE lt.user = :user AND lt.lastLogin = ('
+                . '    SELECT MAX(subLt.lastLogin) '
+                . '    FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' subLt '
+                . '    WHERE subLt.user = :user AND subLt.series = lt.series AND subLt.browser = lt.browser '
+                . '        AND subLt.platform = lt.platform AND subLt.expires = lt.expires '
+                . ') '
+                . 'ORDER BY lt.lastLogin DESC';
         }
 
         $query = $this->entityManager->createQuery($dql);
