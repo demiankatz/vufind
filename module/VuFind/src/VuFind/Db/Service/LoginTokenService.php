@@ -213,7 +213,7 @@ class LoginTokenService extends AbstractDbService implements
      *
      * @param string $series Series identifier
      *
-     * @return LoginTokenEntityInterface[]
+     * @return LoginTokenEntityInterface
      */
     public function getBySeries(string $series): array
     {
@@ -222,7 +222,7 @@ class LoginTokenService extends AbstractDbService implements
             . 'WHERE lt.series = :series';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('series', $series);
-        $result = $query->getArrayResult();
+        $result = $query->getResult();
         return $result;
     }
 

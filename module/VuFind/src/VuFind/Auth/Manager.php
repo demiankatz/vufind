@@ -556,6 +556,10 @@ class Manager implements
                     $this->currentUser = $this->getDbTable('User')->getById($this->currentUser->getId());
                 }
             } elseif ($user = $this->loginTokenManager->tokenLogin($this->sessionManager->getId())) {
+                // Temporary backward-compatibility shim while we transition from Laminas to Doctrine:
+                if (!($user instanceof \VuFind\Db\Row\User)) {
+                    $user = $this->getDbTable('User')->getById($user->getId());
+                }
                 if ($this->getAuth() instanceof ChoiceAuth) {
                     $this->getAuth()->setStrategy($user->getAuthMethod());
                 }
