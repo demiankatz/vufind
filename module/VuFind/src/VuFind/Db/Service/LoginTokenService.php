@@ -179,7 +179,7 @@ class LoginTokenService extends AbstractDbService implements
      * @param UserEntityInterface|int $userOrId User entity object or identifier
      * @param bool                    $grouped  Whether to return results grouped by series
      *
-     * @return LoginTokenEntityInterface
+     * @return LoginTokenEntityInterface[]
      */
     public function getByUser(UserEntityInterface|int $userOrId, bool $grouped = true): array
     {
@@ -213,7 +213,7 @@ class LoginTokenService extends AbstractDbService implements
      *
      * @param string $series Series identifier
      *
-     * @return LoginTokenEntityInterface
+     * @return LoginTokenEntityInterface[]
      */
     public function getBySeries(string $series): array
     {
