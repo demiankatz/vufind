@@ -184,13 +184,8 @@ class LoginTokenService extends AbstractDbService implements
     public function getByUser(UserEntityInterface|int $userOrId, bool $grouped = true): array
     {
         $user = $this->getDoctrineReference(User::class, $userOrId);
-        $dql = 'SELECT lt '
-            . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
-            . 'WHERE lt.user = :user '
-            . 'ORDER BY lt.lastLogin DESC';
-
         if ($grouped) {
-            // Modify the DQL for grouping logic
+            // Use different DQL for grouping logic
             $dql = 'SELECT lt '
                 . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
                 . 'WHERE lt.user = :user AND lt.lastLogin = ('
@@ -199,6 +194,11 @@ class LoginTokenService extends AbstractDbService implements
                 . '    WHERE subLt.user = :user AND subLt.series = lt.series AND subLt.browser = lt.browser '
                 . '        AND subLt.platform = lt.platform AND subLt.expires = lt.expires '
                 . ') '
+                . 'ORDER BY lt.lastLogin DESC';
+        } else {
+            $dql = 'SELECT lt '
+                . 'FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
+                . 'WHERE lt.user = :user '
                 . 'ORDER BY lt.lastLogin DESC';
         }
 
