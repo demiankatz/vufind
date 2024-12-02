@@ -148,11 +148,15 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function deleteBySeries(string $series, ?int $currentTokenId = null): void
     {
+        $params = compact('series');
         $dql = 'DELETE FROM ' . $this->getEntityClass(LoginToken::class) . ' lt '
-            . 'WHERE lt.series = :series '
-            . 'AND lt.id != :currentTokenId';
+            . 'WHERE lt.series = :series';
+        if ($currentTokenId !== null) {
+            $dql .= ' AND lt.id != :currentTokenId';
+            $params['currentTokenId'] = $currentTokenId;
+        }
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters(compact('series', 'currentTokenId'));
+        $query->setParameters($params);
         $query->execute();
     }
 
