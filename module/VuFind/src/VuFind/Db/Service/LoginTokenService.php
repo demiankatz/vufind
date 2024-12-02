@@ -248,7 +248,7 @@ class LoginTokenService extends AbstractDbService implements
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->delete($this->getEntityClass(LoginTokenEntityInterface::class), 'lt')
             ->where('lt.id IN (:tokens)')
-            ->setParameter('tokens', value: $subQueryBuilder->getQuery()->getResult());
+            ->setParameter('tokens', $subQueryBuilder->getQuery()->getResult());
         return $queryBuilder->getQuery()->execute();
     }
 }
