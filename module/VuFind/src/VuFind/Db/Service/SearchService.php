@@ -31,6 +31,7 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use Exception;
+use VuFind\Db\Entity\Search;
 use VuFind\Db\Entity\SearchEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Table\DbTableAwareInterface;
@@ -61,7 +62,8 @@ class SearchService extends AbstractDbService implements
      */
     public function createEntity(): SearchEntityInterface
     {
-        return $this->getDbTable('search')->createRow();
+        $class = $this->getEntityClass(Search::class);
+        return new $class();
     }
 
     /**
@@ -76,18 +78,21 @@ class SearchService extends AbstractDbService implements
      */
     public function createAndPersistEntityWithChecksum(int $checksum): SearchEntityInterface
     {
-        $table = $this->getDbTable('search');
-        $table->insert(
-            [
-                'created' => date('Y-m-d H:i:s'),
-                'checksum' => $checksum,
-            ]
-        );
-        $lastInsert = $table->getLastInsertValue();
-        if (!($row = $this->getSearchById($lastInsert))) {
-            throw new Exception('Cannot find id ' . $lastInsert);
+        $entity = $this->createEntity();
+        $entity->setCreated(new \DateTime());
+        $entity->setChecksum($checksum);
+
+        $this->persistEntity($entity);
+        $this->entityManager->flush();
+
+        $id = $entity->getId();
+        $retrieved = $this->getSearchById($id);
+
+        if (!$retrieved) {
+            throw new \Exception('Cannot find id ' . $id);
         }
-        return $row;
+
+        return $retrieved;
     }
 
     /**
@@ -101,14 +106,18 @@ class SearchService extends AbstractDbService implements
     public function destroySession(string $sessionId, UserEntityInterface|int|null $userOrId = null): void
     {
         $uid = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $callback = function ($select) use ($sessionId, $uid) {
-            $select->where->equalTo('session_id', $sessionId)->and->equalTo('saved', 0);
-            if ($uid !== null) {
-                $select->where->OR
-                    ->equalTo('user_id', $uid)->and->equalTo('saved', 0);
-            }
-        };
-        $this->getDbTable('search')->delete($callback);
+        $entityClass = $this->getEntityClass(SearchEntityInterface::class);
+        $dql = 'DELETE FROM ' . $entityClass . ' s WHERE s.sessionId = :sessionId AND s.saved = 0';
+        $params = ['sessionId' => $sessionId];
+
+        if ($uid !== null) {
+            $dql .= ' AND s.user = :userId';
+            $params['userId'] = $uid;
+        }
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($params);
+        $query->execute();
     }
 
     /**
@@ -120,7 +129,7 @@ class SearchService extends AbstractDbService implements
      */
     public function getSearchById(int $id): ?SearchEntityInterface
     {
-        return $this->getDbTable('search')->select(['id' => $id])->current();
+        return $this->entityManager->find($this->getEntityClass(SearchEntityInterface::class), $id);
     }
 
     /**
@@ -138,17 +147,25 @@ class SearchService extends AbstractDbService implements
         UserEntityInterface|int|null $userOrId
     ): ?SearchEntityInterface {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $callback = function ($select) use ($id, $sessionId, $userId) {
-            $nest = $select->where
-                ->equalTo('id', $id)
-                ->and
-                ->nest
-                ->equalTo('session_id', $sessionId);
-            if (!empty($userId)) {
-                $nest->or->equalTo('user_id', $userId);
-            }
-        };
-        return $this->getDbTable('search')->select($callback)->current();
+        $entityClass = $this->getEntityClass(SearchEntityInterface::class);
+
+        $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE s.id = :id';
+        $params = ['id' => $id];
+
+        if (!empty($sessionId)) {
+            $dql .= ' AND s.sessionId = :sessionId';
+            $params['sessionId'] = $sessionId;
+        }
+
+        if (!empty($userId)) {
+            $dql .= ' AND s.user = :userId';
+            $params['userId'] = $userId;
+        }
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($params);
+
+        return $query->getOneOrNullResult();
     }
 
     /**
@@ -166,17 +183,31 @@ class SearchService extends AbstractDbService implements
             return [];
         }
         $uid = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $callback = function ($select) use ($sessionId, $uid) {
-            if (null !== $sessionId) {
-                $select->where->equalTo('session_id', $sessionId)->and->equalTo('saved', 0);
-            }
-            if ($uid !== null) {
-                // Note: It doesn't hurt to use OR here even if there are no other terms
-                $select->where->OR->equalTo('user_id', $uid);
-            }
-            $select->order('created');
-        };
-        return iterator_to_array($this->getDbTable('search')->select($callback));
+
+        $entityClass = $this->getEntityClass(SearchEntityInterface::class);
+        $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE ';
+        $conditions = [];
+        $params = [];
+
+        if ($sessionId !== null) {
+            $conditions[] = '(s.sessionId = :sessionId AND s.saved = 0)';
+            $params['sessionId'] = $sessionId;
+        }
+
+        if ($uid !== null) {
+            $conditions[] = 's.user = :userId';
+            $params['userId'] = $uid;
+        }
+
+        if (!empty($conditions)) {
+            $dql .= '(' . implode(' OR ', $conditions) . ')';
+        }
+        $dql .= ' ORDER BY s.created ASC';
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($params);
+
+        return $query->getResult();
     }
 
     /**
@@ -186,12 +217,14 @@ class SearchService extends AbstractDbService implements
      */
     public function getScheduledSearches(): array
     {
-        $callback = function ($select) {
-            $select->where->equalTo('saved', 1);
-            $select->where->greaterThan('notification_frequency', 0);
-            $select->order('user_id');
-        };
-        return iterator_to_array($this->getDbTable('search')->select($callback));
+        $entityClass = $this->getEntityClass(SearchEntityInterface::class);
+        $dql = 'SELECT s FROM ' . $entityClass
+            . ' s WHERE s.saved = 1'
+            . ' AND s.notificationFrequency > 0'
+            . ' ORDER BY s.user ASC';
+
+        $query = $this->entityManager->createQuery($dql);
+        return $query->getResult();
     }
 
     /**
@@ -211,17 +244,21 @@ class SearchService extends AbstractDbService implements
         UserEntityInterface|int|null $userOrId = null
     ): array {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $callback = function ($select) use ($checksum, $sessionId, $userId) {
-            $nest = $select->where
-                ->equalTo('checksum', $checksum)
-                ->and
-                ->nest
-                ->equalTo('session_id', $sessionId)->and->equalTo('saved', 0);
-            if (!empty($userId)) {
-                $nest->or->equalTo('user_id', $userId);
-            }
-        };
-        return iterator_to_array($this->getDbTable('search')->select($callback));
+        $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
+            . 'WHERE s.checksum = :checksum '
+            . 'AND s.sessionId = :sessionId '
+            . 'AND s.saved = 0';
+
+        $params = ['checksum' => $checksum, 'sessionId' => $sessionId];
+
+        if (!empty($userId)) {
+            $dql .= ' AND (s.userId = :userId)';
+            $params['userId'] = $userId;
+        }
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($params);
+        return $query->getResult();
     }
 
     /**
@@ -231,15 +268,33 @@ class SearchService extends AbstractDbService implements
      */
     public function cleanUpInvalidUserIds(): int
     {
-        $searchTable = $this->getDbTable('search');
-        $allIds = $this->getDbTable('user')->getSql()->select()->columns(['id']);
-        $searchCallback = function ($select) use ($allIds) {
-            $select->where->isNotNull('user_id')->AND->notIn('user_id', $allIds);
-        };
-        $badRows = $searchTable->select($searchCallback);
-        $count = count($badRows);
+        $dql = 'SELECT u.id FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u';
+        $query = $this->entityManager->createQuery($dql);
+        $validUserIds = $query->getResult();
+
+        // Extract just the IDs for comparison
+        $validUserIds = array_map(fn ($user) => $user['id'], $validUserIds);
+
+        if (empty($validUserIds)) {
+            return 0;
+        }
+
+        $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
+             . 'WHERE s.userId IS NOT NULL '
+             . 'AND s.userId NOT IN (:validUserIds)';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('validUserIds', $validUserIds);
+        $invalidSearches = $query->getResult();
+
+        $count = count($invalidSearches);
         if ($count > 0) {
-            $searchTable->update(['user_id' => null], $searchCallback);
+            // Update invalid records to set userId to null
+            $dql = 'UPDATE ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
+                 . 'SET s.userId = NULL '
+                 . 'WHERE s.userId NOT IN (:validUserIds)';
+            $updateQuery = $this->entityManager->createQuery($dql);
+            $updateQuery->setParameter('validUserIds', $validUserIds);
+            $updateQuery->execute();
         }
         return $count;
     }
@@ -251,8 +306,11 @@ class SearchService extends AbstractDbService implements
      */
     public function getSavedSearchesWithMissingChecksums(): array
     {
-        $searchWhere = ['checksum' => null, 'saved' => 1];
-        return iterator_to_array($this->getDbTable('search')->select($searchWhere));
+        $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
+        . 'WHERE s.checksum IS NULL AND s.saved = 1';
+
+        $query = $this->entityManager->createQuery($dql);
+        return $query->getResult();
     }
 
     /**
@@ -265,6 +323,20 @@ class SearchService extends AbstractDbService implements
      */
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
-        return $this->getDbTable('search')->deleteExpired($dateLimit->format('Y-m-d H:i:s'), $limit);
+        $subQueryBuilder = $this->entityManager->createQueryBuilder();
+        $subQueryBuilder->select('s.id')
+            ->from($this->getEntityClass(SearchEntityInterface::class), 's')
+            ->where('s.created < :dateLimit')
+            ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
+
+        if ($limit) {
+            $subQueryBuilder->setMaxResults($limit);
+        }
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder->delete($this->getEntityClass(SearchEntityInterface::class), 's')
+            ->where('s.id IN (:searches)')
+            ->setParameter('searches', $subQueryBuilder->getQuery()->getResult());
+
+        return $queryBuilder->getQuery()->execute();
     }
 }
