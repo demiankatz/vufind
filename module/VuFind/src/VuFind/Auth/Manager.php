@@ -29,9 +29,9 @@
 
 namespace VuFind\Auth;
 
-use Laminas\Config\Config;
 use Laminas\Session\SessionManager;
 use LmcRbacMvc\Identity\IdentityInterface;
+use VuFind\Config\Config;
 use VuFind\Cookie\CookieManager;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Service\UserServiceInterface;
@@ -95,6 +95,13 @@ class Manager implements
     protected $hideLogin = null;
 
     /**
+     * ILS Authenticator
+     *
+     * @var ?ILSAuthenticator
+     */
+    protected $ilsAuthenticator = null;
+
+    /**
      * Constructor
      *
      * @param Config                          $config            VuFind configuration
@@ -123,6 +130,18 @@ class Manager implements
         $method = $config->Authentication->method ?? 'Database';
         $this->legalAuthOptions = [$method];   // mark it as legal
         $this->setAuthMethod($method);         // load it
+    }
+
+    /**
+     * Set ILS Authenticator
+     *
+     * @param ILSAuthenticator $ilsAuthenticator ILS authenticator
+     *
+     * @return void
+     */
+    public function setILSAuthenticator(ILSAuthenticator $ilsAuthenticator): void
+    {
+        $this->ilsAuthenticator = $ilsAuthenticator;
     }
 
     /**
@@ -533,10 +552,14 @@ class Manager implements
                     $this->logout('');
                 }
                 // Temporary backward-compatibility shim while we transition from Laminas to Doctrine:
-                if (!($this->currentUser instanceof \VuFind\Db\Row\User)) {
+                if ($this->currentUser && !($this->currentUser instanceof \VuFind\Db\Row\User)) {
                     $this->currentUser = $this->getDbTable('User')->getById($this->currentUser->getId());
                 }
             } elseif ($user = $this->loginTokenManager->tokenLogin($this->sessionManager->getId())) {
+                // Temporary backward-compatibility shim while we transition from Laminas to Doctrine:
+                if ($user && !($user instanceof \VuFind\Db\Row\User)) {
+                    $user = $this->getDbTable('User')->getById($user->getId());
+                }
                 if ($this->getAuth() instanceof ChoiceAuth) {
                     $this->getAuth()->setStrategy($user->getAuthMethod());
                 }
@@ -760,6 +783,34 @@ class Manager implements
                 throw new AuthException('authentication_error_technical', 0, $e);
             }
 
+            // Attempt catalog login so that any bad credentials are cleared before further processing
+            // (avoids e.g. multiple login attempts by account AJAX checks).
+            if (
+                ($this->config->Catalog->checkILSCredentialsOnLogin ?? true)
+                && $this->ilsAuthenticator
+                && $this->allowsUserIlsLogin()
+                && ($catUsername = $user->getCatUsername())
+                // If ILS authentication was used, catalog username must not be the same as the username just used for
+                // authentication:
+                && (!in_array($user->getAuthMethod(), ['ils', 'multiils']) || $catUsername !== $user->getUsername())
+                && !$this->ils->getOfflineMode()
+            ) {
+                try {
+                    $patron = $this->ils->patronLogin(
+                        $catUsername,
+                        $this->ilsAuthenticator->getCatPasswordForUser($user)
+                    );
+                    if (empty($patron)) {
+                        // Problem logging in -- clear user credentials so they can be
+                        // prompted again; perhaps their password has changed in the
+                        // system!
+                        $user->setCatUsername(null)->setRawCatPassword(null)->setCatPassEnc(null);
+                    }
+                } catch (\Exception $e) {
+                    // Ignore exceptions here so that the login can continue
+                }
+            }
+
             // Update user object
             $this->updateUser($user, $mainAuthMethod);
 
@@ -771,8 +822,11 @@ class Manager implements
                     throw new AuthException('authentication_error_technical', 0, $e);
                 }
             }
-            // Store the user in the session and send it back to the caller:
+
+            // Store the user in the session:
             $this->updateSession($user);
+
+            // Send user back to caller:
             return $user;
         } catch (\Exception $e) {
             $this->getAuth()->resetState();

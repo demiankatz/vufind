@@ -87,7 +87,7 @@ class User extends RowGateway implements
     /**
      * VuFind configuration
      *
-     * @var \Laminas\Config\Config
+     * @var \VuFind\Config\Config
      */
     protected $config = null;
 
@@ -111,13 +111,13 @@ class User extends RowGateway implements
     /**
      * Configuration setter
      *
-     * @param \Laminas\Config\Config $config VuFind configuration
+     * @param \VuFind\Config\Config $config VuFind configuration
      *
      * @return void
      *
      * @deprecated
      */
-    public function setConfig(\Laminas\Config\Config $config)
+    public function setConfig(\VuFind\Config\Config $config)
     {
         $this->config = $config;
     }
@@ -798,7 +798,7 @@ class User extends RowGateway implements
      */
     public function getRawCatPassword(): ?string
     {
-        return $this->cat_password;
+        return $this->cat_password ?? null;
     }
 
     /**
@@ -821,7 +821,7 @@ class User extends RowGateway implements
      */
     public function getCatPassEnc(): ?string
     {
-        return $this->cat_pass_enc;
+        return $this->cat_pass_enc ?? null;
     }
 
     /**

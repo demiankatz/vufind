@@ -63,7 +63,7 @@ class ManagerFactory implements FactoryInterface
     public function __invoke(
         ContainerInterface $container,
         $requestedName,
-        array $options = null
+        ?array $options = null
     ) {
         if (!empty($options)) {
             throw new \Exception('Unexpected options sent to factory.');
@@ -92,6 +92,7 @@ class ManagerFactory implements FactoryInterface
             $ils
         );
         $manager->setDbTableManager($container->get(\VuFind\Db\Table\PluginManager::class));
+        $manager->setIlsAuthenticator($container->get(\VuFind\Auth\ILSAuthenticator::class));
         $manager->checkForExpiredCredentials();
         return $manager;
     }
