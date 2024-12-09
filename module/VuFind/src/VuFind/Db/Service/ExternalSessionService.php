@@ -46,7 +46,6 @@ class ExternalSessionService extends AbstractDbService implements
     ExternalSessionServiceInterface,
     Feature\DeleteExpiredInterface
 {
-
     /**
      * Create a new external session entity.
      *
@@ -124,17 +123,17 @@ class ExternalSessionService extends AbstractDbService implements
     public function deleteExpired(DateTime $dateLimit, ?int $limit = null): int
     {
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
-        $subQueryBuilder->select('es.externalSessionId')
+        $subQueryBuilder->select('es.id')
             ->from($this->getEntityClass(ExternalSession::class), 'es')
             ->where('es.created < :dateLimit')
-            ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
+            ->setParameter('dateLimit', $dateLimit);
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
         }
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->delete($this->getEntityClass(ExternalSessionEntityInterface::class), 'es')
-            ->where('es.externalSessionId IN (:esids)')
-            ->setParameter('esids', $subQueryBuilder->getQuery()->getResult());
+            ->where('es.id IN (:ids)')
+            ->setParameter('ids', $subQueryBuilder->getQuery()->getResult());
         return $queryBuilder->getQuery()->execute();
     }
 }
