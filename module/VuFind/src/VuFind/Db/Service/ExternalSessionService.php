@@ -93,8 +93,8 @@ class ExternalSessionService extends AbstractDbService implements
             . 'WHERE es.externalSessionId = :esid ';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('esid', $sid);
-        $result = $query->getArrayResult();
-        return $result[0] ?? null;
+        $result = $query->getResult();
+        return $result;
     }
 
     /**
