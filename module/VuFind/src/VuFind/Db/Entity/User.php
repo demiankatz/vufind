@@ -761,4 +761,28 @@ class User implements UserEntityInterface
     {
         return $this->emailVerified;
     }
+
+    /**
+     * Populate entity data from an associative array.
+     *
+     * @param array $data Key-value pairs representing entity properties.
+     */
+    public function exchangeArray(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
+        }
+    }
+
+    /**
+     * Get an array representation of the entity.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
 }

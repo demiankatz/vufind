@@ -29,6 +29,7 @@
 
 namespace VuFind\Db\Service;
 
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use Laminas\Log\LoggerAwareInterface;
 use Laminas\Session\Container as SessionContainer;
@@ -77,6 +78,17 @@ class UserService extends AbstractDbService implements
     }
 
     /**
+     * Create an access_token entity object.
+     *
+     * @return UserEntityInterface
+     */
+    public function createEntity(): UserEntityInterface
+    {
+        $class = $this->getEntityClass(User::class);
+        return new $class();
+    }
+
+    /**
      * Create an entity for the specified username.
      *
      * @param string $username Username
@@ -85,7 +97,11 @@ class UserService extends AbstractDbService implements
      */
     public function createEntityForUsername(string $username): UserEntityInterface
     {
-        return $this->getDbTable('User')->createRowForUsername($username);
+        $user = $this->createEntity()
+            ->setUsername($username)
+            ->setCreated(new DateTime())
+            ->setHasUserProvidedEmail(false);
+        return $user;
     }
 
     /**
@@ -98,7 +114,11 @@ class UserService extends AbstractDbService implements
     public function deleteUser(UserEntityInterface|int $userOrId): void
     {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $this->getDbTable('User')->delete(['id' => $userId]);
+        $dql = 'DELETE FROM ' . $this->getEntityClass(User::class) . ' u'
+            . ' WHERE u.id = :id';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('id', $userId);
+        $query->execute();
     }
 
     /**
@@ -110,7 +130,13 @@ class UserService extends AbstractDbService implements
      */
     public function getUserById(int $id): ?UserEntityInterface
     {
-        return $this->entityManager->find($this->getEntityClass(User::class), $id);
+        $dql = 'SELECT u '
+                . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
+                . 'WHERE u.id = :id';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('id', $id);
+        $result = $query->getResult();
+        return $result;
     }
 
     /**
@@ -228,7 +254,7 @@ class UserService extends AbstractDbService implements
      */
     public function addUserDataToSession(UserEntityInterface $user): void
     {
-        if ($user instanceof UserRow) {
+        if ($user) {
             $this->userSessionContainer->userDetails = $user->toArray();
         } else {
             throw new \Exception($user::class . ' not supported by addUserDataToSession()');
@@ -296,10 +322,12 @@ class UserService extends AbstractDbService implements
      */
     public function getAllUsersWithCatUsernames(): array
     {
-        $callback = function ($select) {
-            $select->where->isNotNull('cat_username');
-        };
-        return iterator_to_array($this->getDbTable('User')->select($callback));
+        $dql = 'SELECT u '
+                . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
+                . 'WHERE u.catUsername IS NOT NULL';
+        $query = $this->entityManager->createQuery($dql);
+        $result = $query->getResult();
+        return $result;
     }
 
     /**
@@ -309,16 +337,12 @@ class UserService extends AbstractDbService implements
      */
     public function getInsecureRows(): array
     {
-        return iterator_to_array($this->getDbTable('User')->getInsecureRows());
-    }
-
-    /**
-     * Create a new user entity.
-     *
-     * @return UserEntityInterface
-     */
-    public function createEntity(): UserEntityInterface
-    {
-        return $this->getDbTable('User')->createRow();
+        $dql = 'SELECT u '
+                . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
+                . 'WHERE u.password != \'\' '
+                . 'AND u.catPassword IS NOT NULL';
+        $query = $this->entityManager->createQuery($dql);
+        $result = $query->getResult();
+        return $result;
     }
 }
