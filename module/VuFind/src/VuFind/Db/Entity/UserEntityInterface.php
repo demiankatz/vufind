@@ -384,5 +384,4 @@ interface UserEntityInterface extends EntityInterface, ExchangeArrayInterface
      * @return ?DateTime
      */
     public function getEmailVerified(): ?DateTime;
-
 }

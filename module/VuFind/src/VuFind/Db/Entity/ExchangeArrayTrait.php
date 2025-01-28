@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Entity model for user table
+ * Trait providing a basic implementation of ExchangeArrayInterface.
  *
  * PHP version 8
  *
- * Copyright (C) Villanova University 2023.
+ * Copyright (C) Villanova University 2025.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,7 +22,7 @@
  *
  * @category VuFind
  * @package  Database
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Padmasree Gade <pgade@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
@@ -33,7 +33,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Array of records.
+ * Trait providing a basic implementation of ExchangeArrayInterface.
  *
  * @category VuFind
  * @package  Database

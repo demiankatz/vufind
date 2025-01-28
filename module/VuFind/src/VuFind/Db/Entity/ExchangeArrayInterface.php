@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Interface for representing a user account record.
+ * Interface for translating an entity to and from array format.
  *
  * PHP version 8
  *
@@ -32,7 +32,7 @@ namespace VuFind\Db\Entity;
 use DateTime;
 
 /**
- * Interface for representing an array of records.
+ * Interface for translating an entity to and from array format.
  *
  * @category VuFind
  * @package  Db_Interface

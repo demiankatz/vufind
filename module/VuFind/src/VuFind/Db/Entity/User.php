@@ -158,7 +158,7 @@ class User extends ExchangeArrayTrait implements UserEntityInterface
      *
      * @var ?string
      *
-     * @ORM\Column(name="catUsername", type="string", length=50, nullable=true)
+     * @ORM\Column(name="cat_username", type="string", length=50, nullable=true)
      */
     protected $catUsername;
 
@@ -167,7 +167,7 @@ class User extends ExchangeArrayTrait implements UserEntityInterface
      *
      * @var ?string
      *
-     * @ORM\Column(name="catPassword", type="string", length=70, nullable=true)
+     * @ORM\Column(name="cat_password", type="string", length=70, nullable=true)
      */
     protected $catPassword;
 
