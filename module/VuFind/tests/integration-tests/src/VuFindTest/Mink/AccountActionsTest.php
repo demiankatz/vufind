@@ -31,7 +31,7 @@
 
 namespace VuFindTest\Mink;
 
-use VuFind\Db\Table\User;
+use VuFind\Db\Entity\UserEntityInterface;
 
 use function count;
 
@@ -329,7 +329,7 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
         $this->submitCatalogLoginForm($page, 'catuser', 'catpass');
 
         // Check the default library and possible values:
-        $userTable = $this->getTable(User::class);
+        $userTable = $this->getTable(UserEntityInterface::class);
         $this->assertSame('', $userTable->getByUsername('username2')->getHomeLibrary());
         $this->assertEquals(
             '',

@@ -182,7 +182,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectException(\VuFind\Exception\Auth::class);
 
-        // VuFind requires the ILS driver to return a value in cat_username
+        // VuFind requires the ILS driver to return a value in catUsername
         // by default -- if that is missing, we should fail.
         $response = [];
         $driver = $this->getMockDriver();
@@ -200,7 +200,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
     public function testLogin()
     {
         $response = [
-            'cat_username' => 'testuser', 'cat_password' => 'testpass',
+            'catUsername' => 'testuser', 'catPassword' => 'testpass',
             'email' => 'user@test.com',
         ];
         $driver = $this->getMockDriver();
@@ -223,7 +223,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('authentication_error_technical');
 
         $response = [
-            'cat_username' => 'testuser', 'cat_password' => 'testpass',
+            'catUsername' => 'testuser', 'catPassword' => 'testpass',
             'email' => 'user@test.com',
         ];
         $driver = $this->getMockDriver();
@@ -248,7 +248,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
         $this->expectException(\VuFind\Exception\Auth::class);
         $this->expectExceptionMessage('Password cannot be blank');
 
-        $patron = ['cat_username' => 'testuser'];
+        $patron = ['catUsername' => 'testuser'];
         $request = $this->getLoginRequest(
             [
                 'oldpwd' => 'foo',
@@ -296,7 +296,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
                 'password2' => 'fail',
             ]
         );
-        $patron = ['cat_username' => 'testuser'];
+        $patron = ['catUsername' => 'testuser'];
         $this->getAuth(null, $patron)->updatePassword($request);
     }
 
@@ -317,7 +317,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
         $driver = $this->getMockDriver('Demo', ['changePassword']);
         $driver->expects($this->once())->method('changePassword')
             ->will($this->returnValue(['success' => true]));
-        $patron = ['cat_username' => 'testuser'];
+        $patron = ['catUsername' => 'testuser'];
         $user = $this->getAuth($driver, $patron)->updatePassword($request);
         $this->assertEquals('testuser', $user->getUsername());
         $this->assertEquals('newpass', $user->getRawCatPassword());
@@ -340,7 +340,7 @@ final class ILSTest extends \PHPUnit\Framework\TestCase
         $driver = $this->getMockDriver('Demo', ['changePassword']);
         $driver->expects($this->once())->method('changePassword')
             ->will($this->returnValue(['success' => true]));
-        $patron = ['cat_username' => 'testuser', 'cat_id' => '1234'];
+        $patron = ['catUsername' => 'testuser', 'cat_id' => '1234'];
         $auth = $this->getAuth($driver, $patron);
         $config = ['Authentication' => ['ILS_username_field' => 'cat_id']];
         $auth->setConfig(new \VuFind\Config\Config($config));

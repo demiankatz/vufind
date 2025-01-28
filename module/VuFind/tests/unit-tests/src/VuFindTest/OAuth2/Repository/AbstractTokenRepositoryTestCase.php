@@ -32,11 +32,11 @@ namespace VuFindTest\OAuth2\Repository;
 use PHPUnit\Framework\MockObject\MockObject;
 use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
-use VuFind\Db\Row\User as UserRow;
+use VuFind\Db\Entity\User as UserRow;
+use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Service\AccessTokenService;
 use VuFind\Db\Service\AccessTokenServiceInterface;
 use VuFind\Db\Service\UserServiceInterface;
-use VuFind\Db\Table\User;
 use VuFind\OAuth2\Entity\ClientEntity;
 use VuFind\OAuth2\Repository\AccessTokenRepository;
 use VuFind\OAuth2\Repository\AuthCodeRepository;
@@ -112,46 +112,49 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
     }
 
     /**
-     * Create User table
-     *
-     * @return MockObject&User
-     */
-    protected function getMockUserTable(): User
-    {
-        $getByIdCallback = function (
-            $id
-        ): ?UserRow {
-            $username = 'test';
-            return $this->createUserRow(compact('id', 'username'));
-        };
+ * Create User table
+ *
+ * @return MockObject&UserServiceInterface
+ */
+protected function getMockUserTable(): UserServiceInterface
+{
+    $getByIdCallback = function ($id): ?UserRow {
+        $username = 'test_user'; // Sample username
+        return $this->createUserRow(compact('id', 'username'));
+    };
 
-        $accessTokenTable = $this->getMockBuilder(User::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getById'])
-            ->getMock();
-        $accessTokenTable->expects($this->any())
-            ->method('getById')
-            ->willReturnCallback($getByIdCallback);
+    // Mock the User class
+    $userTable = $this->getMockBuilder(UserServiceInterface::class)
+        ->disableOriginalConstructor()
+        ->getMock();
 
-        return $accessTokenTable;
-    }
+    $userTable->expects($this->any())
+        ->method('getUserById')
+        ->willReturnCallback($getByIdCallback);
 
-    /**
-     * Create User row
-     *
-     * @param array $data Row data
-     *
-     * @return MockObject&UserRow
-     */
-    protected function createUserRow(array $data): UserRow
-    {
-        $result = $this->getMockBuilder(UserRow::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['initialize'])
-            ->getMock();
-        $result->populate($data);
-        return $result;
-    }
+    return $userTable;
+}
+
+/**
+ * Create User row
+ *
+ * @param array $data Row data
+ *
+ * @return MockObject&UserRow
+ */
+protected function createUserRow(array $data): UserRow
+{
+    // Mock the UserRow class
+    $result = $this->getMockBuilder(UserRow::class)->getMock();
+
+    // Populate the mock with the provided data
+    $result->expects($this->any())
+    ->method('getId')
+        ->willReturnCallback(fn() => $data['id']);
+
+    return $result;
+}
+
 
     /**
      * Mock entity manager.
@@ -209,8 +212,8 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $mock->method('getUser')->willReturnCallback(function () use ($i) {
             $userId = $this->accessTokenTable[$i]['user_id'] ?? null;
             if ($userId) {
-                $userTable = $this->getMockUserTable();
-                return $userTable->getById($userId);
+                $userTable = $this->getMockUserTable()->getUserById($userId);
+                return $userTable;
             }
             return null;
         });
@@ -369,7 +372,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             ->willReturnCallback(
                 function ($fieldName, $fieldValue) use ($userTable) {
                     $this->assertEquals('id', $fieldName);
-                    return $userTable->getById($fieldValue);
+                    return $userTable->getUserById($fieldValue);
                 }
             );
         return $userService;

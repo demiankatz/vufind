@@ -37,10 +37,7 @@ use VuFind\Auth\UserSessionPersistenceInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
 use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Row\User as UserRow;
-use VuFind\Db\Table\DbTableAwareInterface;
-use VuFind\Db\Table\DbTableAwareTrait;
-use VuFind\Log\LoggerAwareTrait;
+
 
 /**
  * Database service for user.
@@ -52,15 +49,10 @@ use VuFind\Log\LoggerAwareTrait;
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
 class UserService extends AbstractDbService implements
-    DbTableAwareInterface,
-    LoggerAwareInterface,
-    DbServiceAwareInterface,
     UserServiceInterface,
     UserSessionPersistenceInterface
 {
-    use DbTableAwareTrait;
-    use LoggerAwareTrait;
-    use DbServiceAwareTrait;
+
 
     /**
      * Constructor
@@ -254,11 +246,7 @@ class UserService extends AbstractDbService implements
      */
     public function addUserDataToSession(UserEntityInterface $user): void
     {
-        if ($user) {
-            $this->userSessionContainer->userDetails = $user->toArray();
-        } else {
-            throw new \Exception($user::class . ' not supported by addUserDataToSession()');
-        }
+        $this->userSessionContainer->userDetails = $user->toArray();
     }
 
     /**
@@ -339,7 +327,7 @@ class UserService extends AbstractDbService implements
     {
         $dql = 'SELECT u '
                 . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
-                . 'WHERE u.password != \'\' '
+                . "WHERE u.password != '' "
                 . 'AND u.catPassword IS NOT NULL';
         $query = $this->entityManager->createQuery($dql);
         $result = $query->getResult();

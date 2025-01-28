@@ -47,7 +47,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\UniqueConstraint(name="username", columns={"username"})})
  * @ORM\Entity
  */
-class User implements UserEntityInterface
+class User extends ExchangeArrayTrait implements UserEntityInterface
 {
     /**
      * Unique ID.
@@ -158,7 +158,7 @@ class User implements UserEntityInterface
      *
      * @var ?string
      *
-     * @ORM\Column(name="cat_username", type="string", length=50, nullable=true)
+     * @ORM\Column(name="catUsername", type="string", length=50, nullable=true)
      */
     protected $catUsername;
 
@@ -167,7 +167,7 @@ class User implements UserEntityInterface
      *
      * @var ?string
      *
-     * @ORM\Column(name="cat_password", type="string", length=70, nullable=true)
+     * @ORM\Column(name="catPassword", type="string", length=70, nullable=true)
      */
     protected $catPassword;
 
@@ -760,29 +760,5 @@ class User implements UserEntityInterface
     public function getEmailVerified(): ?DateTime
     {
         return $this->emailVerified;
-    }
-
-    /**
-     * Populate entity data from an associative array.
-     *
-     * @param array $data Key-value pairs representing entity properties.
-     */
-    public function exchangeArray(array $data): void
-    {
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-    }
-
-    /**
-     * Get an array representation of the entity.
-     *
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return get_object_vars($this);
     }
 }

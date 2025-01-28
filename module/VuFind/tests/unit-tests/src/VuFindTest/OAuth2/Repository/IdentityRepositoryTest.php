@@ -35,7 +35,7 @@ use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use VuFind\Auth\ILSAuthenticator;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Row\User;
+use VuFind\Db\Entity\User;
 use VuFind\Db\Service\UserServiceInterface;
 use VuFind\ILS\Connection;
 use VuFind\OAuth2\Entity\UserEntity;
@@ -268,8 +268,8 @@ class IdentityRepositoryTest extends AbstractTokenRepositoryTestCase
             'id' => 1,
             'firstname'    => 'Lib',
             'lastname'     => 'Rarian',
-            'cat_username' => 'user',
-            'cat_password' => 'pass',
+            'catUsername' => 'user',
+            'catPassword' => 'pass',
             'email'        => 'Lib.Rarian@library.not',
             'major'        => null,
             'college'      => null,

@@ -40,7 +40,7 @@ use DateTime;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Site
  */
-interface UserEntityInterface extends EntityInterface
+interface UserEntityInterface extends EntityInterface, ExchangeArrayInterface
 {
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
@@ -385,17 +385,4 @@ interface UserEntityInterface extends EntityInterface
      */
     public function getEmailVerified(): ?DateTime;
 
-    /**
-     * Populate entity data from an associative array.
-     *
-     * @param array $data Key-value pairs representing entity properties.
-     */
-    public function exchangeArray(array $data): void;
-
-    /**
-     * Get an array representation of the entity.
-     *
-     * @return array
-     */
-    public function toArray(): array;
 }

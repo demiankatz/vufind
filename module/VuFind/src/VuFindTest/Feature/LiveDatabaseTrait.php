@@ -31,6 +31,8 @@
 
 namespace VuFindTest\Feature;
 
+use Doctrine\ORM\EntityManager as ORMEntityManager;
+use DoctrineORMModule\Options\EntityManager;
 use Throwable;
 use VuFind\Account\UserAccountService;
 use VuFind\Db\Service\DbServiceInterface;
@@ -38,6 +40,7 @@ use VuFind\Db\Service\PluginManager as ServiceManager;
 use VuFind\Db\Service\ResourceTagsServiceInterface;
 use VuFind\Db\Service\TagServiceInterface;
 use VuFind\Db\Service\UserListServiceInterface;
+use VuFind\Db\Service\UserService;
 use VuFind\Db\Table\Gateway;
 use VuFind\Db\Table\PluginManager as TableManager;
 use VuFind\Favorites\FavoritesService;
@@ -217,6 +220,7 @@ trait LiveDatabaseTrait
             );
             $liveTableManager = new TableManager($container, []);
             $container->set(TableManager::class, $liveTableManager);
+            $container->set(TableManager::class, $liveTableManager);
             $liveServiceManager = new ServiceManager($container, []);
             $container->set(ServiceManager::class, $liveServiceManager);
             $container->set(
@@ -362,9 +366,9 @@ trait LiveDatabaseTrait
                 return;
             }
             // Delete test user
-            $userTable = $test->getTable(\VuFind\Db\Table\User::class);
+            $userTable = $test->getDbService(UserService::class);
             foreach ((array)$users as $username) {
-                $user = $userTable->getByUsername($username, false);
+                $user = $userTable->getUserByUsername($username);
                 if (!empty($user)) {
                     $purgeService = new UserAccountService($test->getFavoritesService());
                     $purgeService->setDbServiceManager($test->getLiveDbServiceManager());
