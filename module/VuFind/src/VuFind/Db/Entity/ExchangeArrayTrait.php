@@ -29,9 +29,6 @@
 
 namespace VuFind\Db\Entity;
 
-use DateTime;
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Trait providing a basic implementation of ExchangeArrayInterface.
  *
@@ -47,6 +44,8 @@ class ExchangeArrayTrait implements ExchangeArrayInterface
      * Populate entity data from an associative array.
      *
      * @param array $data Key-value pairs representing entity properties.
+     *
+     * @return void
      */
     public function exchangeArray(array $data): void
     {

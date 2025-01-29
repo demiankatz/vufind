@@ -31,6 +31,8 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use LmcRbacMvc\Identity\IdentityInterface;
+
 
 /**
  * User
@@ -47,7 +49,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\UniqueConstraint(name="username", columns={"username"})})
  * @ORM\Entity
  */
-class User extends ExchangeArrayTrait implements UserEntityInterface
+class User extends ExchangeArrayTrait implements UserEntityInterface, IdentityInterface
 {
     /**
      * Unique ID.
@@ -760,5 +762,15 @@ class User extends ExchangeArrayTrait implements UserEntityInterface
     public function getEmailVerified(): ?DateTime
     {
         return $this->emailVerified;
+    }
+
+    /**
+     * Get the list of roles of this identity
+     *
+     * @return string[]|\Rbac\Role\RoleInterface[]
+     */
+    public function getRoles()
+    {
+        return ['loggedin'];
     }
 }

@@ -31,8 +31,6 @@
 
 namespace VuFindTest\Feature;
 
-use Doctrine\ORM\EntityManager as ORMEntityManager;
-use DoctrineORMModule\Options\EntityManager;
 use Throwable;
 use VuFind\Account\UserAccountService;
 use VuFind\Db\Service\DbServiceInterface;

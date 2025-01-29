@@ -29,8 +29,6 @@
 
 namespace VuFind\Db\Entity;
 
-use DateTime;
-
 /**
  * Interface for translating an entity to and from array format.
  *
@@ -46,6 +44,8 @@ interface ExchangeArrayInterface extends EntityInterface
      * Populate entity data from an associative array.
      *
      * @param array $data Key-value pairs representing entity properties.
+     *
+     * @return void
      */
     public function exchangeArray(array $data): void;
 

@@ -33,7 +33,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use VuFind\Db\Entity\AccessToken;
 use VuFind\Db\Entity\AccessTokenEntityInterface;
 use VuFind\Db\Entity\User as UserRow;
-use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Service\AccessTokenService;
 use VuFind\Db\Service\AccessTokenServiceInterface;
 use VuFind\Db\Service\UserServiceInterface;
@@ -112,49 +111,48 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
     }
 
     /**
- * Create User table
- *
- * @return MockObject&UserServiceInterface
- */
-protected function getMockUserTable(): UserServiceInterface
-{
-    $getByIdCallback = function ($id): ?UserRow {
-        $username = 'test_user'; // Sample username
-        return $this->createUserRow(compact('id', 'username'));
-    };
+     * Create User table
+     *
+     * @return MockObject&UserServiceInterface
+     */
+    protected function getMockUserTable(): UserServiceInterface
+    {
+        $getByIdCallback = function ($id): ?UserRow {
+            $username = 'test_user'; // Sample username
+            return $this->createUserRow(compact('id', 'username'));
+        };
 
-    // Mock the User class
-    $userTable = $this->getMockBuilder(UserServiceInterface::class)
-        ->disableOriginalConstructor()
-        ->getMock();
+        // Mock the User class
+        $userTable = $this->getMockBuilder(UserServiceInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-    $userTable->expects($this->any())
-        ->method('getUserById')
-        ->willReturnCallback($getByIdCallback);
+        $userTable->expects($this->any())
+            ->method('getUserById')
+            ->willReturnCallback($getByIdCallback);
 
-    return $userTable;
-}
+        return $userTable;
+    }
 
-/**
- * Create User row
- *
- * @param array $data Row data
- *
- * @return MockObject&UserRow
- */
-protected function createUserRow(array $data): UserRow
-{
-    // Mock the UserRow class
-    $result = $this->getMockBuilder(UserRow::class)->getMock();
+    /**
+     * Create User row
+     *
+     * @param array $data Row data
+     *
+     * @return MockObject&UserRow
+     */
+    protected function createUserRow(array $data): UserRow
+    {
+        // Mock the UserRow class
+        $result = $this->getMockBuilder(UserRow::class)->getMock();
 
-    // Populate the mock with the provided data
-    $result->expects($this->any())
-    ->method('getId')
-        ->willReturnCallback(fn() => $data['id']);
+        // Populate the mock with the provided data
+        $result->expects($this->any())
+        ->method('getId')
+            ->willReturnCallback(fn () => $data['id']);
 
-    return $result;
-}
-
+        return $result;
+    }
 
     /**
      * Mock entity manager.
