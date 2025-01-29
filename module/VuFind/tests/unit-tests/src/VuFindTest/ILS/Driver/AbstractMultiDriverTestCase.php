@@ -224,13 +224,13 @@ abstract class AbstractMultiDriverTestCase extends \PHPUnit\Framework\TestCase
      */
     protected function getPatron($username, $instance = null)
     {
-        $catUsername = $instance ? $instance . '.' . $username : $username;
+        $cat_username = $instance ? $instance . '.' . $username : $username;
         return [
             'id' => 1,
             'firstname' => 'JANE',
             'lastname' => 'DOE',
-            'catUsername' => $catUsername,
-            'catPassword' => 'password',
+            'cat_username' => $cat_username,
+            'cat_password' => 'password',
             'email' => '',
             'major' => '',
             'college' => '',
