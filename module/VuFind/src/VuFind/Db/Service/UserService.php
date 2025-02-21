@@ -127,7 +127,7 @@ class UserService extends AbstractDbService implements
                 . 'WHERE u.id = :id';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('id', $id);
-        $result = $query->getResult();
+        $result = $query->getOneOrNullResult();
         return $result;
     }
 
