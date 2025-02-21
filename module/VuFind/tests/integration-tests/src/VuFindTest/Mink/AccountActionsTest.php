@@ -31,7 +31,7 @@
 
 namespace VuFindTest\Mink;
 
-use VuFind\Db\Entity\UserEntityInterface;
+use VuFind\Db\Service\UserServiceInterface;
 
 use function count;
 
@@ -329,8 +329,8 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
         $this->submitCatalogLoginForm($page, 'catuser', 'catpass');
 
         // Check the default library and possible values:
-        $userTable = $this->getTable(UserEntityInterface::class);
-        $this->assertSame('', $userTable->getByUsername('username2')->getHomeLibrary());
+        $userTable = $this->getDbService(UserServiceInterface::class);
+        $this->assertSame('', $userTable->getUserByUsername('username2')->getHomeLibrary());
         $this->assertEquals(
             '',
             $this->findCssAndGetValue($page, '#home_library')
@@ -357,7 +357,7 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
         $this->assertEquals('B', $this->findCssAndGetValue($page, '#home_library'));
         $this->assertEquals(
             'B',
-            $userTable->getByUsername('username2')->getHomeLibrary()
+            $userTable->getUserByUsername('username2')->getHomeLibrary()
         );
 
         // Change to "Always ask me":

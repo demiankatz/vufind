@@ -33,7 +33,6 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use LmcRbacMvc\Identity\IdentityInterface;
 
-
 /**
  * User
  *

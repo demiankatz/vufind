@@ -31,13 +31,11 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use Doctrine\ORM\EntityManager;
-use Laminas\Log\LoggerAwareInterface;
 use Laminas\Session\Container as SessionContainer;
 use VuFind\Auth\UserSessionPersistenceInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
 use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-
 
 /**
  * Database service for user.
@@ -52,8 +50,6 @@ class UserService extends AbstractDbService implements
     UserServiceInterface,
     UserSessionPersistenceInterface
 {
-
-
     /**
      * Constructor
      *
