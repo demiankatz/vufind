@@ -29,8 +29,8 @@
 
 namespace VuFindTest\Role\PermissionProvider;
 
-use LmcRbacMvc\Service\AuthorizationService;
 use VuFind\Db\Entity\UserEntityInterface;
+use VuFind\View\Helper\Root\Auth;
 
 /**
  * PermissionProvider User Test Class
@@ -133,19 +133,15 @@ class UserTest extends \PHPUnit\Framework\TestCase
     /**
      * Get a mock authorization service object
      *
-     * @return AuthorizationService
+     * @return Auth
      */
     protected function getMockAuthorizationService()
     {
-        $authorizationService
-            = $this->getMockBuilder(\LmcRbacMvc\Service\AuthorizationService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $authorizationService
-            ->method('getIdentity')
+        $auth = $this->createMock(Auth::class);
+        $auth->method('getUserObject')
             ->will($this->returnValue($this->getMockUser()));
 
-        return $authorizationService;
+        return $auth;
     }
 
     /**
@@ -153,23 +149,13 @@ class UserTest extends \PHPUnit\Framework\TestCase
      *
      * @return \VuFind\Db\Entity\UserEntityInterface
      */
-    protected function getMockUser()
+    protected function getMockUser(): UserEntityInterface
     {
         $user = $this->createMock(UserEntityInterface::class);
-        if (!isset($this->userValueMap[$this->testuser])) {
-            return $user; // Return the mock as is if there's no test data
-        }
-
-        // Extract values correctly
-        $userData = [];
-        foreach ($this->userValueMap[$this->testuser] as $entry) {
-            if (isset($entry[0], $entry[1])) {
-                $userData[$entry[0]] = $entry[1];
-            }
-        }
 
         // Dynamically mock getter methods
-        foreach ($userData as $property => $value) {
+        foreach ($this->userValueMap[$this->testuser] ?? [] as $entry) {
+            [$property, $value] = $entry;
             $user->method('get' . ucfirst($property))->willReturn($value);
         }
 

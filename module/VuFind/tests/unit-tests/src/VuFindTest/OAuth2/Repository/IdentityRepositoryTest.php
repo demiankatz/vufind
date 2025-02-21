@@ -34,7 +34,6 @@ use PHPUnit\Framework\InvalidArgumentException;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use VuFind\Auth\ILSAuthenticator;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Service\UserServiceInterface;
 use VuFind\ILS\Connection;
@@ -225,7 +224,7 @@ class IdentityRepositoryTest extends AbstractTokenRepositoryTestCase
      */
     protected function getMockUser(): UserEntityInterface
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(UserEntityInterface::class);
         $user->expects($this->any())->method('getId')->willReturn(2);
         $user->expects($this->any())->method('getFirstname')->willReturn('Lib');
         $user->expects($this->any())->method('getLastname')->willReturn('Rarian');
