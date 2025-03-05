@@ -29,7 +29,7 @@
 
 namespace VuFind\Role\PermissionProvider;
 
-use VuFind\View\Helper\Root\Auth;
+use LmcRbacMvc\Service\AuthorizationService;
 
 use function call_user_func;
 use function count;
@@ -53,16 +53,16 @@ class User implements
     /**
      * Authorization object
      *
-     * @var Auth
+     * @var AuthorizationService
      */
     protected $auth;
 
     /**
      * Constructor
      *
-     * @param Auth $authorization Authorization service
+     * @param AuthorizationService $authorization Authorization service
      */
-    public function __construct(Auth $authorization)
+    public function __construct(AuthorizationService $authorization)
     {
         $this->auth = $authorization;
     }
@@ -79,7 +79,7 @@ class User implements
     {
         // If no user is logged in, or the user doesn't match the passed-in
         // filter, we can't grant the permission to any roles.
-        if (!($user = $this->auth->getUserObject())) {
+        if (!($user = $this->auth->getIdentity())) {
             return [];
         }
 
