@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Fake database row to represent a user in privacy mode.
+ * Entity model for user table
  *
  * PHP version 8
  *
- * Copyright (C) Villanova University 2015.
+ * Copyright (C) Villanova University 2023.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -21,65 +21,40 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Db_Row
+ * @package  Database
  * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Site
+ * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
 
-namespace VuFind\Db\Row;
+namespace VuFind\Db\Entity;
 
 use VuFind\Auth\UserSessionPersistenceInterface;
+use VuFind\Db\Service\DbServiceAwareTrait;
 
 use function array_key_exists;
 
 /**
- * Fake database row to represent a user in privacy mode.
+ * User
  *
  * @category VuFind
- * @package  Db_Row
+ * @package  Database
  * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Site
+ * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
 class PrivateUser extends User
 {
-    /**
-     * __get
-     *
-     * @param string $name Field to retrieve.
-     *
-     * @throws \Laminas\Db\RowGateway\Exception\InvalidArgumentException
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return array_key_exists($name, $this->data) ? parent::__get($name) : null;
-    }
+    use DbServiceAwareTrait;
 
     /**
-     * Save
-     *
-     * @return int
-     */
-    public function save()
+      * Save
+      *
+      * @return int
+      */
+    public function save(): void
     {
-        $this->initialize();
-        $this->id = -1; // fake ID
+        $this->id = -1;
         $this->getDbService(UserSessionPersistenceInterface::class)->addUserDataToSession($this);
-        return 1;
-    }
-
-    /**
-     * Set session container
-     *
-     * @param \Laminas\Session\Container $session Session container
-     *
-     * @return void
-     *
-     * @deprecated No longer used or needed
-     */
-    public function setSession(\Laminas\Session\Container $session)
-    {
     }
 }

@@ -219,7 +219,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
      *
      * @return MockObject&AccessTokenServiceInterface
      */
-    protected function getMockAccessTokenService(): AccessTokenServiceInterface|MockObject
+    protected function getMockAccessTokenService(): AccessTokenServiceInterface&MockObject
     {
         $entityManager = $this->getEntityManager();
         $pluginManager = $this->getPluginManager(true);
@@ -321,15 +321,15 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
      *
      * @return MockObject&UserEntityInterface
      */
-    protected function createMockUserEntity(int $id, string $username): UserEntityInterface|MockObject
+    protected function createMockUserEntity(int $id, string $username): UserEntityInterface&MockObject
     {
         $mockUser = $this->createMock(UserEntityInterface::class);
         $mockUser->expects($this->any())
-        ->method('getId')
-        ->willReturn($id);
+            ->method('getId')
+            ->willReturn($id);
         $mockUser->expects($this->any())
-        ->method('getUsername')
-        ->willReturn($username);
+            ->method('getUsername')
+            ->willReturn($username);
         return $mockUser;
     }
 
@@ -338,15 +338,15 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
      *
      * @return MockObject&UserServiceInterface
      */
-    protected function getMockUserService(): UserServiceInterface|MockObject
+    protected function getMockUserService(): UserServiceInterface&MockObject
     {
         $mockUserService = $this->createMock(UserServiceInterface::class);
         $mockUserService->expects($this->any())
-        ->method('getUserByField')
-        ->willReturnCallback(function (string $fieldName, $fieldValue) {
-            $this->assertEquals('id', $fieldName);
-            return $this->createMockUserEntity(2, 'test');
-        });
+            ->method('getUserByField')
+            ->willReturnCallback(function (string $fieldName, $fieldValue) {
+                $this->assertEquals('id', $fieldName);
+                return $this->createMockUserEntity(2, 'test');
+            });
 
         return $mockUserService;
     }
