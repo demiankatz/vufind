@@ -5,7 +5,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Villanova University 2023.
+ * Copyright (C) Villanova University 2025.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -35,7 +35,7 @@ use VuFind\Db\Service\DbServiceAwareTrait;
 use function array_key_exists;
 
 /**
- * User
+ * Fake database row to represent a user in privacy mode.
  *
  * @category VuFind
  * @package  Database
