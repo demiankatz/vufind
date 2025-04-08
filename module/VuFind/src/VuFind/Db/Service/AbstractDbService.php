@@ -33,6 +33,8 @@ use Doctrine\ORM\EntityManager;
 use Laminas\Db\RowGateway\AbstractRowGateway;
 use VuFind\Db\Entity\EntityInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
+use VuFind\Db\Entity\UserEntityInterface;
+use VuFind\Auth\UserSessionPersistenceInterface;
 
 use function is_callable;
 use function is_int;
@@ -48,6 +50,7 @@ use function is_int;
  */
 abstract class AbstractDbService implements DbServiceInterface
 {
+    use DbServiceAwareTrait;
     /**
      * Constructor
      *
@@ -82,6 +85,11 @@ abstract class AbstractDbService implements DbServiceInterface
      */
     public function persistEntity(EntityInterface $entity): void
     {
+        $config = $this->entityManager->getConfiguration();
+        $privacy = $config->Authentication->privacy ?? false;
+        if($privacy && $entity instanceof UserEntityInterface){
+            $this->getDbService(UserSessionPersistenceInterface::class)->addUserDataToSession($entity);
+        }
         // Compatibility with legacy \VuFind\Db\Row objects:
         if ($entity instanceof AbstractRowGateway) {
             $entity->save();

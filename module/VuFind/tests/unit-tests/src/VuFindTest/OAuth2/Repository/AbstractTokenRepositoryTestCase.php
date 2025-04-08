@@ -167,7 +167,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $mock->method('getUser')->willReturnCallback(function () use ($i) {
             $userId = $this->accessTokenTable[$i]['user_id'] ?? null;
             if ($userId) {
-                $userTable = $this->getMockUserService()->getUserById($userId);
+                $userTable = $this->getMockUserService()->getUserByField('id',$userId);
                 return $userTable;
             }
             return null;
@@ -221,20 +221,6 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
      */
     protected function getMockAccessTokenService(): AccessTokenServiceInterface&MockObject
     {
-        $entityManager = $this->getEntityManager();
-        $pluginManager = $this->getPluginManager(true);
-        $accessTokenService = $this->getMockBuilder(AccessTokenService::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(
-                [
-                    'createEntity',
-                    'getByIdAndType',
-                    'getNonce',
-                    'storeNonce',
-                ]
-            )
-            ->setConstructorArgs([$entityManager, $pluginManager])
-            ->getMock();
         $accessTokenService = $this->getMockBuilder(AccessTokenService::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getByIdAndType', 'persistEntity', 'storeNonce', 'getNonce'])
@@ -254,7 +240,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
                 }
             }
             $revoked = false;
-            $user_id = null;
+            $user_id = $this->createMockUserEntity(1, 'test');
             return $create
                 ? $this->createAccessTokenEntity(
                     compact('id', 'type', 'revoked', 'user_id')
