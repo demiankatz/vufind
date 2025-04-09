@@ -31,10 +31,10 @@ namespace VuFind\Db\Service;
 
 use Doctrine\ORM\EntityManager;
 use Laminas\Db\RowGateway\AbstractRowGateway;
+use VuFind\Auth\UserSessionPersistenceInterface;
 use VuFind\Db\Entity\EntityInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Auth\UserSessionPersistenceInterface;
 
 use function is_callable;
 use function is_int;
@@ -48,18 +48,23 @@ use function is_int;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
-abstract class AbstractDbService implements DbServiceInterface
+abstract class AbstractDbService implements
+    DbServiceInterface,
+    DbServiceAwareInterface
 {
     use DbServiceAwareTrait;
+
     /**
      * Constructor
      *
      * @param EntityManager       $entityManager       Doctrine ORM entity manager
      * @param EntityPluginManager $entityPluginManager VuFind entity plugin manager
+     * @param bool                $privacy             Boolean flag to check if User is in private mode
      */
     public function __construct(
         protected EntityManager $entityManager,
-        protected EntityPluginManager $entityPluginManager
+        protected EntityPluginManager $entityPluginManager,
+        protected bool $privacy = false
     ) {
     }
 
@@ -85,10 +90,9 @@ abstract class AbstractDbService implements DbServiceInterface
      */
     public function persistEntity(EntityInterface $entity): void
     {
-        $config = $this->entityManager->getConfiguration();
-        $privacy = $config->Authentication->privacy ?? false;
-        if($privacy && $entity instanceof UserEntityInterface){
+        if ($this->privacy && $entity instanceof UserEntityInterface) {
             $this->getDbService(UserSessionPersistenceInterface::class)->addUserDataToSession($entity);
+            return;
         }
         // Compatibility with legacy \VuFind\Db\Row objects:
         if ($entity instanceof AbstractRowGateway) {
