@@ -223,7 +223,6 @@ trait LiveDatabaseTrait
             );
             $liveTableManager = new TableManager($container, []);
             $container->set(TableManager::class, $liveTableManager);
-            $container->set(TableManager::class, $liveTableManager);
             $liveServiceManager = new ServiceManager($container, []);
             $container->set(ServiceManager::class, $liveServiceManager);
             $container->set(
@@ -369,9 +368,9 @@ trait LiveDatabaseTrait
                 return;
             }
             // Delete test user
-            $userTable = $test->getDbService(UserService::class);
+            $userService = $test->getDbService(UserService::class);
             foreach ((array)$users as $username) {
-                $user = $userTable->getUserByUsername($username);
+                $user = $userService->getUserByUsername($username);
                 if (!empty($user)) {
                     $purgeService = new UserAccountService($test->getFavoritesService());
                     $purgeService->setDbServiceManager($test->getLiveDbServiceManager());
