@@ -80,11 +80,15 @@ final class PrivateUserTest extends \VuFindTest\Integration\MinkTestCase
      */
     protected function setUpPrivateUser(): void
     {
-        $this->changeConfigs([
-            'config' => [
-                'Authentication' => ['privacy' => true],
-            ],
-        ]);
+        $this->changeConfigs(
+            [
+                'config' => [
+                    'Authentication' => [
+                        'privacy' => true,
+                    ],
+                ],
+            ]
+        );
     }
 
     /**
@@ -94,8 +98,11 @@ final class PrivateUserTest extends \VuFindTest\Integration\MinkTestCase
      */
     public function testCommentsDisabled(): void
     {
+        // Set up configs:
         $this->setUpPrivateUser();
+        // Go to a record view
         $page = $this->gotoRecord();
+        // Comment control should not be present
         $this->unfindCss($page, '.record-tabs .usercomments a');
     }
 
@@ -106,8 +113,11 @@ final class PrivateUserTest extends \VuFindTest\Integration\MinkTestCase
      */
     public function testTagsDisabled(): void
     {
+        // Set up configs:
         $this->setUpPrivateUser();
+        // Go to a record view
         $page = $this->gotoRecord();
+        // Click to add tag
         $this->unfindCss($page, '.tag-record');
     }
 
@@ -118,22 +128,30 @@ final class PrivateUserTest extends \VuFindTest\Integration\MinkTestCase
      */
     public function testLoginDoesNotAddUserToDatabase(): void
     {
-        $this->changeConfigs([
-            'config' => [
-                'Authentication' => [
-                    'method' => 'SimulatedSSO',
-                    'privacy' => true,
+        $this->changeConfigs(
+            [
+                'config' => [
+                    'Authentication' => [
+                        'method' => 'SimulatedSSO',
+                        'privacy' => true,
+                    ],
                 ],
-            ],
-            'SimulatedSSO' => [
-                'General' => ['username' => 'ssofakeuser1'],
-            ],
-        ]);
+                'SimulatedSSO' => [
+                    'General' => [
+                        'username' => 'ssofakeuser1',
+                    ],
+                ],
+            ]
+        );
 
+        // Login
         $page = $this->gotoRecord();
         $this->clickCss($page, '#loginOptions a');
+        // Log out
         $this->clickCss($page, '.logoutOptions a.logout');
+        // Check that login link is back
         $this->assertNotEmpty($this->findCss($page, '#loginOptions a'));
+        // Assert that nothing was added to the user database:
         static::failIfDataExists('User data should not have been created in private user mode.');
     }
 }
