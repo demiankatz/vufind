@@ -31,6 +31,7 @@ namespace VuFindTest\Db\Service;
 
 use Doctrine\ORM\Configuration;
 use VuFind\Db\Entity\Feedback;
+use VuFind\Db\PersistenceManager;
 use VuFind\Db\Service\FeedbackService;
 
 /**
@@ -116,9 +117,7 @@ class FeedbackServiceTest extends \PHPUnit\Framework\TestCase
         $mocks = $this->getConfiguredFeedbackService();
         $entityManager = $mocks['entityManager'];
         $feedbackService = $mocks['feedbackService'];
-        $queryStmt = "SELECT f AS feedback_entity, CONCAT(u.firstname, ' ', u.lastname) AS user_name, "
-            . "CONCAT(m.firstname, ' ', m.lastname) AS manager_name FROM "
-            . "VuFind\Db\Entity\Feedback f LEFT JOIN f.user u LEFT JOIN f.updatedBy m "
+        $queryStmt = "SELECT f AS feedback_entity FROM VuFind\Db\Entity\Feedback f "
             . 'WHERE f.formName = :formName AND f.siteUrl = :siteUrl AND '
             . 'f.status = :status ORDER BY f.created DESC';
 
@@ -154,7 +153,8 @@ class FeedbackServiceTest extends \PHPUnit\Framework\TestCase
         $entityPluginManager->expects($this->once())->method('get')
             ->with($this->equalTo(Feedback::class))
             ->willReturn(new Feedback());
-        $feedbackService = new FeedbackService($entityManager, $entityPluginManager);
+        $persistenceManager = $this->createMock(PersistenceManager::class);
+        $feedbackService = new FeedbackService($entityManager, $entityPluginManager, $persistenceManager);
         return compact('entityManager', 'entityPluginManager', 'feedbackService');
     }
 }

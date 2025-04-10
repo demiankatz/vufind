@@ -36,6 +36,7 @@ use VuFind\Auth\UserSessionPersistenceInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
 use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
+use VuFind\Db\PersistenceManager;
 
 /**
  * Database service for user.
@@ -55,14 +56,16 @@ class UserService extends AbstractDbService implements
      *
      * @param EntityManager       $entityManager        Doctrine ORM entity manager
      * @param EntityPluginManager $entityPluginManager  VuFind entity plugin manager
+     * @param PersistenceManager  $persistenceManager   Entity persistence manager
      * @param SessionContainer    $userSessionContainer Session container for user data
      */
     public function __construct(
         EntityManager $entityManager,
         EntityPluginManager $entityPluginManager,
+        PersistenceManager $persistenceManager,
         protected SessionContainer $userSessionContainer
     ) {
-        parent::__construct($entityManager, $entityPluginManager);
+        parent::__construct($entityManager, $entityPluginManager, $persistenceManager);
     }
 
     /**

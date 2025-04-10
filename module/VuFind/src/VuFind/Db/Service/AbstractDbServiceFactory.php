@@ -34,6 +34,7 @@ use Laminas\ServiceManager\Exception\ServiceNotFoundException;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface;
+use VuFind\Db\PersistenceManager;
 
 /**
  * Database service factory
@@ -68,6 +69,7 @@ class AbstractDbServiceFactory implements FactoryInterface
         return new $requestedName(
             $container->get('doctrine.entitymanager.orm_vufind'),
             $container->get(\VuFind\Db\Entity\PluginManager::class),
+            $container->get(PersistenceManager::class),
             ...($options ?? [])
         );
     }

@@ -41,6 +41,7 @@ use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Entity\UserResource;
+use VuFind\Db\PersistenceManager;
 use VuFind\Log\LoggerAwareTrait;
 
 use function in_array;
@@ -75,15 +76,17 @@ class ResourceService extends AbstractDbService implements
      *
      * @param EntityManager       $entityManager           Doctrine ORM entity manager
      * @param EntityPluginManager $entityPluginManager     VuFind entity plugin manager
+     * @param PersistenceManager  $persistenceManager      Entity persistence manager
      * @param callable            $resourcePopulatorLoader Resource populator
      */
     public function __construct(
         EntityManager $entityManager,
         EntityPluginManager $entityPluginManager,
+        PersistenceManager $persistenceManager,
         callable $resourcePopulatorLoader
     ) {
         $this->resourcePopulatorLoader = $resourcePopulatorLoader;
-        parent::__construct($entityManager, $entityPluginManager);
+        parent::__construct($entityManager, $entityPluginManager, $persistenceManager);
     }
 
     /**
@@ -363,6 +366,6 @@ class ResourceService extends AbstractDbService implements
      */
     public function deleteResource(ResourceEntityInterface|int $resourceOrId): void
     {
-        $this->deleteEntity($this->getDoctrineReference(UserResource::class, $resourceOrId));
+        $this->deleteEntity($this->getDoctrineReference(Resource::class, $resourceOrId));
     }
 }
