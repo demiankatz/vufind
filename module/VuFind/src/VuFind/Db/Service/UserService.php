@@ -149,7 +149,7 @@ class UserService extends AbstractDbService implements
             'cat_id' => 'catId',
             'verify_hash' => 'verifyHash',
         ];
-        if ($fieldName == 'id' && $fieldValue == null) {
+        if ($fieldName === 'id' && $fieldValue === null) {
             return null;
         }
         if (isset($legalFieldMap[$fieldName])) {
