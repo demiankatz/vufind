@@ -50,7 +50,7 @@ use Doctrine\ORM\Mapping as ORM;
 class User implements UserEntityInterface
 {
     use ExchangeArrayTrait;
-    
+
     /**
      * Unique ID.
      *
