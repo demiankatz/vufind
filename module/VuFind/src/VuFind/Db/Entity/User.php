@@ -31,7 +31,6 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use LmcRbacMvc\Identity\IdentityInterface;
 
 /**
  * User
@@ -48,7 +47,7 @@ use LmcRbacMvc\Identity\IdentityInterface;
  * @ORM\UniqueConstraint(name="username", columns={"username"})})
  * @ORM\Entity
  */
-class User extends ExchangeArrayTrait implements UserEntityInterface, IdentityInterface
+class User extends ExchangeArrayTrait implements UserEntityInterface
 {
     /**
      * Unique ID.
