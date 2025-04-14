@@ -31,6 +31,7 @@
 
 namespace VuFindTest\Mink;
 
+use Doctrine\ORM\EntityManager;
 use VuFind\Db\Service\UserService;
 
 use function count;
@@ -355,6 +356,8 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
         $this->clickCss($page, '#profile_form .btn');
         $this->waitForPageLoad($page);
         $this->assertEquals('B', $this->findCssAndGetValue($page, '#home_library'));
+        $entityManager = $this->getLiveDatabaseContainer()->get(EntityManager::class);
+        $entityManager->clear();
         $this->assertEquals(
             'B',
             $userTable->getUserByUsername('username2')->getHomeLibrary()
@@ -368,6 +371,7 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
             ' ** ',
             $this->findCssAndGetValue($page, '#home_library')
         );
+        $entityManager->clear();
         $this->assertNull($userTable->getUserByUsername('username2')->getHomeLibrary());
 
         // Back to default:
@@ -378,7 +382,8 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
             '',
             $this->findCssAndGetValue($page, '#home_library')
         );
-        $this->assertSame('', $userTable->getByUsername('username2')->getHomeLibrary());
+        $entityManager->clear();
+        $this->assertSame('', $userTable->getUserByUsername('username2')->getHomeLibrary());
     }
 
     /**

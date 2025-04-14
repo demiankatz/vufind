@@ -47,8 +47,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\UniqueConstraint(name="username", columns={"username"})})
  * @ORM\Entity
  */
-class User extends ExchangeArrayTrait implements UserEntityInterface
+class User implements UserEntityInterface
 {
+    use ExchangeArrayTrait;
+    
     /**
      * Unique ID.
      *
