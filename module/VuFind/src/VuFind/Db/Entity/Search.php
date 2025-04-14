@@ -32,6 +32,7 @@ namespace VuFind\Db\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
+use function is_object;
 use function is_resource;
 
 /**
@@ -317,14 +318,12 @@ class Search implements SearchEntityInterface
         if (!$this->searchObject) {
             return null;
         }
-        // Convert resource to string if needed
+        // Normalize resource
         if (is_resource($this->searchObject)) {
-            $data = stream_get_contents($this->searchObject);
-        } else {
-            $data = $this->searchObject;
+            $this->searchObject = stream_get_contents($this->searchObject);
         }
-        $unserialized = @unserialize($data); // @ suppresses warnings, but use with care
-        return ($unserialized instanceof \VuFind\Search\Minified) ? $unserialized : null;
+        $unserialized = @unserialize($this->searchObject);
+        return is_object($unserialized) ? $unserialized : null;
     }
 
     /**

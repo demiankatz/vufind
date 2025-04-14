@@ -105,18 +105,11 @@ class SearchService extends AbstractDbService implements
      */
     public function destroySession(string $sessionId, UserEntityInterface|int|null $userOrId = null): void
     {
-        $uid = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $entityClass = $this->getEntityClass(SearchEntityInterface::class);
-        $dql = 'DELETE FROM ' . $entityClass . ' s WHERE s.sessionId = :sessionId AND s.saved = 0';
-        $params = ['sessionId' => $sessionId];
-
-        if ($uid !== null) {
-            $dql .= ' AND s.user = :userId';
-            $params['userId'] = $uid;
-        }
-
+        $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
+        $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
+        . 'WHERE s.sessionId = :sessionId AND s.saved = 0 AND s.user = :userId';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters($params);
+        $query->setParameters(compact('sessionId', 'userId'));
         $query->execute();
     }
 
@@ -148,23 +141,10 @@ class SearchService extends AbstractDbService implements
     ): ?SearchEntityInterface {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
-
-        $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE s.id = :id';
-        $params = ['id' => $id];
-
-        if (!empty($sessionId)) {
-            $dql .= ' AND s.sessionId = :sessionId';
-            $params['sessionId'] = $sessionId;
-        }
-
-        if (!empty($userId)) {
-            $dql .= ' AND s.user = :userId';
-            $params['userId'] = $userId;
-        }
-
+        $dql = 'SELECT s FROM ' . $entityClass . ' s '
+            . 'WHERE s.id = :id AND s.sessionId = :sessionId AND s.user = :userId';
         $query = $this->entityManager->createQuery($dql);
-        $query->setParameters($params);
-
+        $query->setParameters(compact('id', 'sessionId', 'userId'));
         return $query->getOneOrNullResult();
     }
 
@@ -178,36 +158,37 @@ class SearchService extends AbstractDbService implements
      */
     public function getSearches(?string $sessionId, UserEntityInterface|int|null $userOrId = null): array
     {
-        // If we don't get a session id or user id, don't return anything:
-        if (null === $sessionId && null === $userOrId) {
+
+        $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
+
+        if (!$sessionId && !$userId) {
             return [];
         }
-        $uid = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
 
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
-        $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE ';
+        $dql = 'SELECT s FROM ' . $entityClass . ' s';
         $conditions = [];
         $params = [];
-
-        if ($sessionId !== null) {
+        if ($sessionId) {
             $conditions[] = '(s.sessionId = :sessionId AND s.saved = 0)';
             $params['sessionId'] = $sessionId;
         }
 
-        if ($uid !== null) {
+        if ($userId) {
             $conditions[] = 's.user = :userId';
-            $params['userId'] = $uid;
+            $params['userId'] = $userId;
         }
 
-        if (!empty($conditions)) {
-            $dql .= '(' . implode(' OR ', $conditions) . ')';
+        if ($conditions) {
+            $dql .= ' WHERE ' . implode(' OR ', $conditions);
         }
+
         $dql .= ' ORDER BY s.created ASC';
 
-        $query = $this->entityManager->createQuery($dql);
-        $query->setParameters($params);
-
-        return $query->getResult();
+        return $this->entityManager
+            ->createQuery($dql)
+            ->setParameters($params)
+            ->getResult();
     }
 
     /**
@@ -249,10 +230,10 @@ class SearchService extends AbstractDbService implements
             . 'AND s.sessionId = :sessionId '
             . 'AND s.saved = 0';
 
-        $params = ['checksum' => $checksum, 'sessionId' => $sessionId];
+        $params = compact('checksum', 'sessionId');
 
         if (!empty($userId)) {
-            $dql .= ' AND (s.userId = :userId)';
+            $dql .= ' AND (s.user = :userId)';
             $params['userId'] = $userId;
         }
 
@@ -271,31 +252,22 @@ class SearchService extends AbstractDbService implements
         $dql = 'SELECT u.id FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u';
         $query = $this->entityManager->createQuery($dql);
         $validUserIds = $query->getResult();
-
-        // Extract just the IDs for comparison
         $validUserIds = array_map(fn ($user) => $user['id'], $validUserIds);
 
+        // If there are no valid users, we can skip the update
         if (empty($validUserIds)) {
             return 0;
         }
 
-        $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-             . 'WHERE s.userId IS NOT NULL '
-             . 'AND s.userId NOT IN (:validUserIds)';
+        // Update invalid user IDs to NULL in a single query
+        $dql = 'UPDATE ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
+            . 'SET s.user = NULL '
+            . 'WHERE s.user NOT IN (:validUserIds)';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('validUserIds', $validUserIds);
-        $invalidSearches = $query->getResult();
 
-        $count = count($invalidSearches);
-        if ($count > 0) {
-            // Update invalid records to set userId to null
-            $dql = 'UPDATE ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-                 . 'SET s.userId = NULL '
-                 . 'WHERE s.userId NOT IN (:validUserIds)';
-            $updateQuery = $this->entityManager->createQuery($dql);
-            $updateQuery->setParameter('validUserIds', $validUserIds);
-            $updateQuery->execute();
-        }
+        //Number of updated records
+        $count = $query->execute();
         return $count;
     }
 
