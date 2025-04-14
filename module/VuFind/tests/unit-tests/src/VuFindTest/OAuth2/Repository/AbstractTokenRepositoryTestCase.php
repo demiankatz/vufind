@@ -302,14 +302,17 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
     /**
      * Create User entity mock.
      *
-     * @param int    $id       User ID
-     * @param string $username User's name
+     * @param int|null $id       User ID
+     * @param string   $username User's name
      *
-     * @return MockObject&UserEntityInterface
+     * @return MockObject&UserEntityInterface&null
      */
-    protected function createMockUserEntity(int $id, string $username): UserEntityInterface&MockObject
+    protected function createMockUserEntity(int|null $id, string $username): UserEntityInterface&MockObject
     {
         $mockUser = $this->createMock(UserEntityInterface::class);
+        if ($id == null) {
+            return $mockUser;
+        }
         $mockUser->expects($this->any())
             ->method('getId')
             ->willReturn($id);
@@ -331,7 +334,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
             ->method('getUserByField')
             ->willReturnCallback(function (string $fieldName, $fieldValue) {
                 $this->assertEquals('id', $fieldName);
-                return $this->createMockUserEntity(2, 'test');
+                return $this->createMockUserEntity($fieldValue, 'test');
             });
 
         return $mockUserService;

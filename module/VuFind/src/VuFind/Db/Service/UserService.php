@@ -149,6 +149,9 @@ class UserService extends AbstractDbService implements
             'cat_id' => 'catId',
             'verify_hash' => 'verifyHash',
         ];
+        if ($fieldName == 'id' && $fieldValue == null) {
+            return null;
+        }
         if (isset($legalFieldMap[$fieldName])) {
             $dql = 'SELECT U FROM ' . $this->getEntityClass(User::class) . ' U '
                 . 'WHERE U.' . $legalFieldMap[$fieldName] . ' = :fieldValue';
