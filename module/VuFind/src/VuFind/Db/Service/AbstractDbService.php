@@ -46,12 +46,8 @@ use function is_int;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
-abstract class AbstractDbService implements
-    DbServiceInterface,
-    DbServiceAwareInterface
+abstract class AbstractDbService implements DbServiceInterface
 {
-    use DbServiceAwareTrait;
-
     /**
      * Variable to allow multiple functions to use the same retry count if necessary.
      * How many times can a function try, before continuing?

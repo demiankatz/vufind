@@ -167,8 +167,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
         $mock->method('getUser')->willReturnCallback(function () use ($i) {
             $userId = $this->accessTokenTable[$i]['user_id'] ?? null;
             if ($userId) {
-                $userTable = $this->getMockUserService()->getUserByField('id', $userId);
-                return $userTable;
+                return $this->getMockUserService()->getUserByField('id', $userId);
             }
             return null;
         });

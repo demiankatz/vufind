@@ -330,8 +330,8 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
         $this->submitCatalogLoginForm($page, 'catuser', 'catpass');
 
         // Check the default library and possible values:
-        $userTable = $this->getDbService(UserService::class);
-        $this->assertSame('', $userTable->getUserByUsername('username2')->getHomeLibrary());
+        $userService = $this->getDbService(UserService::class);
+        $this->assertSame('', $userService->getUserByUsername('username2')->getHomeLibrary());
         $this->assertEquals(
             '',
             $this->findCssAndGetValue($page, '#home_library')
@@ -360,7 +360,7 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
         $entityManager->clear();
         $this->assertEquals(
             'B',
-            $userTable->getUserByUsername('username2')->getHomeLibrary()
+            $userService->getUserByUsername('username2')->getHomeLibrary()
         );
 
         // Change to "Always ask me":
@@ -372,7 +372,7 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
             $this->findCssAndGetValue($page, '#home_library')
         );
         $entityManager->clear();
-        $this->assertNull($userTable->getUserByUsername('username2')->getHomeLibrary());
+        $this->assertNull($userService->getUserByUsername('username2')->getHomeLibrary());
 
         // Back to default:
         $this->findCssAndSetValue($page, '#home_library', '');
@@ -383,7 +383,7 @@ final class AccountActionsTest extends \VuFindTest\Integration\MinkTestCase
             $this->findCssAndGetValue($page, '#home_library')
         );
         $entityManager->clear();
-        $this->assertSame('', $userTable->getUserByUsername('username2')->getHomeLibrary());
+        $this->assertSame('', $userService->getUserByUsername('username2')->getHomeLibrary());
     }
 
     /**
