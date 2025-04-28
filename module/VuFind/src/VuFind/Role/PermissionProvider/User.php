@@ -31,7 +31,6 @@ namespace VuFind\Role\PermissionProvider;
 
 use LmcRbacMvc\Service\AuthorizationService;
 
-use function call_user_func;
 use function count;
 
 /**
@@ -96,9 +95,10 @@ class User implements
                 if (! preg_match('/^\/.*\/$/', $pattern)) {
                     $pattern = '/' . $pattern . '/';
                 }
-
-                if (method_exists($user, 'get' . ucfirst($attribute))) {
-                    $userValue = call_user_func([$user, 'get' . ucfirst($attribute)]);
+                $methodMap = ['cat_id' => 'getCatId', 'cat_username' => 'getCatUsername'];
+                $method = $methodMap[$attribute] ?? 'get' . ucfirst($attribute);
+                if (method_exists($user, $method)) {
+                    $userValue = $user->$method();
                     if (preg_match($pattern, $userValue)) {
                         return ['loggedin'];
                     }

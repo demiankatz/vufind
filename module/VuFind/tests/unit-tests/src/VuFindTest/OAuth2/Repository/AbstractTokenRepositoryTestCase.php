@@ -239,7 +239,7 @@ abstract class AbstractTokenRepositoryTestCase extends \PHPUnit\Framework\TestCa
                 }
             }
             $revoked = false;
-            $user_id = $this->createMockUserEntity(1, 'test');
+            $user_id = null;
             return $create
                 ? $this->createAccessTokenEntity(
                     compact('id', 'type', 'revoked', 'user_id')
