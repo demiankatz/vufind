@@ -81,6 +81,9 @@ class User implements
         if (!($user = $this->auth->getIdentity())) {
             return [];
         }
+        if (!($user instanceof \VuFind\Db\Entity\UserEntityInterface)) {
+            throw new \Exception('Unexpected user object provided!');
+        }
 
         // which user attribute has to match which pattern to get permissions?
         foreach ((array)$options as $option) {

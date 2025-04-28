@@ -30,6 +30,7 @@
 namespace VuFindTest\Role\PermissionProvider;
 
 use LmcRbacMvc\Service\AuthorizationService;
+use PHPUnit\Framework\MockObject\MockObject;
 use VuFind\Db\Entity\UserEntityInterface;
 
 /**
@@ -151,9 +152,9 @@ class UserTest extends \PHPUnit\Framework\TestCase
     /**
      * Get a mock user object
      *
-     * @return \VuFind\Db\Entity\UserEntityInterface
+     * @return UserEntityInterface&MockObject
      */
-    protected function getMockUser(): UserEntityInterface
+    protected function getMockUser(): UserEntityInterface&MockObject
     {
         $user = $this->createMock(UserEntityInterface::class);
 
