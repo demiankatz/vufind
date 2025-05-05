@@ -41,11 +41,13 @@ use Doctrine\ORM\Mapping as ORM;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  *
- * @ORM\Table(name="search"),
+ * @ORM\Table(name="search",
+ * indexes={
  * @ORM\Index(name="notification_base_url",  columns={"notification_base_url"}),
  * @ORM\Index(name="notification_frequency", columns={"notification_frequency"}),
  * @ORM\Index(name="session_id",             columns={"session_id"}),
- * @ORM\Index(name="user_id",                columns={"user_id"})})
+ * @ORM\Index(name="user_id",                columns={"user_id"})}
+ * )
  * @ORM\Entity
  */
 class Search implements SearchEntityInterface
@@ -90,15 +92,14 @@ class Search implements SearchEntityInterface
     /**
      * Created date.
      *
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created",
      *          type="datetime",
-     *          nullable=false,
-     *          options={"default"="2000-01-01 00:00:00"}
+     *          nullable=false       
      * )
      */
-    protected $created = '2000-01-01 00:00:00';
+    protected $created;
 
     /**
      * Title.
@@ -153,10 +154,9 @@ class Search implements SearchEntityInterface
      * @ORM\Column(name="last_notification_sent",
      *          type="datetime",
      *          nullable=false,
-     *          options={"default"="2000-01-01 00:00:00"}
      * )
      */
-    protected $lastNotificationSent = '2000-01-01 00:00:00';
+    protected $lastNotificationSent;
 
     /**
      * Notification base URL.
@@ -169,6 +169,16 @@ class Search implements SearchEntityInterface
      * )
      */
     protected $notificationBaseUrl = '';
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->created = DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
+        $this->lastNotificationSent = DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
+    }
 
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
@@ -302,7 +312,20 @@ class Search implements SearchEntityInterface
      */
     public function getSearchObject(): ?\VuFind\Search\Minified
     {
-        return $this->searchObject ? unserialize($this->searchObject) : null;
+        if (!$this->searchObject) {
+            return null;
+        }
+    
+        // Convert resource to string if needed
+        if (is_resource($this->searchObject)) {
+            $data = stream_get_contents($this->searchObject);
+        } else {
+            $data = $this->searchObject;
+        }
+    
+        $unserialized = @unserialize($data); // @ suppresses warnings, but use with care
+    
+        return ($unserialized instanceof \VuFind\Search\Minified) ? $unserialized : null;
     }
 
     /**
