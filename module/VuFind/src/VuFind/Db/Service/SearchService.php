@@ -81,17 +81,17 @@ class SearchService extends AbstractDbService implements
         $entity = $this->createEntity();
         $entity->setCreated(new \DateTime());
         $entity->setChecksum($checksum);
-    
+
         $this->persistEntity($entity);
         $this->entityManager->flush();
-    
+
         $id = $entity->getId();
         $retrieved = $this->getSearchById($id);
-    
+
         if (!$retrieved) {
             throw new \Exception('Cannot find id ' . $id);
         }
-    
+
         return $retrieved;
     }
 
@@ -109,12 +109,12 @@ class SearchService extends AbstractDbService implements
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
         $dql = 'DELETE FROM ' . $entityClass . ' s WHERE s.sessionId = :sessionId AND s.saved = 0';
         $params = ['sessionId' => $sessionId];
-        
+
         if ($uid !== null) {
             $dql .= ' AND s.user = :userId';
             $params['userId'] = $uid;
         }
-    
+
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($params);
         $query->execute();
@@ -147,27 +147,26 @@ class SearchService extends AbstractDbService implements
         UserEntityInterface|int|null $userOrId
     ): ?SearchEntityInterface {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-    $entityClass = $this->getEntityClass(SearchEntityInterface::class);
-    
-    $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE s.id = :id';
-    $params = ['id' => $id];
+        $entityClass = $this->getEntityClass(SearchEntityInterface::class);
 
-    if (!empty($sessionId)) {
-        $dql .= ' AND s.sessionId = :sessionId';
-        $params['sessionId'] = $sessionId;
+        $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE s.id = :id';
+        $params = ['id' => $id];
+
+        if (!empty($sessionId)) {
+            $dql .= ' AND s.sessionId = :sessionId';
+            $params['sessionId'] = $sessionId;
+        }
+
+        if (!empty($userId)) {
+            $dql .= ' AND s.user = :userId';
+            $params['userId'] = $userId;
+        }
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($params);
+
+        return $query->getOneOrNullResult();
     }
-
-    if (!empty($userId)) {
-        $dql .= ' AND s.user = :userId';
-        $params['userId'] = $userId;
-    }
-
-    $query = $this->entityManager->createQuery($dql);
-    $query->setParameters($params);
-
-    return $query->getOneOrNullResult();
-    }
-    
 
     /**
      * Get an array of rows for the specified user.
@@ -184,7 +183,7 @@ class SearchService extends AbstractDbService implements
             return [];
         }
         $uid = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-    
+
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
         $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE ';
         $conditions = [];
@@ -194,7 +193,7 @@ class SearchService extends AbstractDbService implements
             $conditions[] = '(s.sessionId = :sessionId AND s.saved = 0)';
             $params['sessionId'] = $sessionId;
         }
-    
+
         if ($uid !== null) {
             $conditions[] = 's.user = :userId';
             $params['userId'] = $uid;
@@ -204,10 +203,10 @@ class SearchService extends AbstractDbService implements
             $dql .= '(' . implode(' OR ', $conditions) . ')';
         }
         $dql .= ' ORDER BY s.created ASC';
-    
+
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($params);
-    
+
         return $query->getResult();
     }
 
@@ -219,11 +218,11 @@ class SearchService extends AbstractDbService implements
     public function getScheduledSearches(): array
     {
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
-        $dql = 'SELECT s FROM ' . $entityClass 
+        $dql = 'SELECT s FROM ' . $entityClass
             . ' s WHERE s.saved = 1'
             . ' AND s.notificationFrequency > 0'
             . ' ORDER BY s.user ASC';
-    
+
         $query = $this->entityManager->createQuery($dql);
         return $query->getResult();
     }
@@ -273,8 +272,8 @@ class SearchService extends AbstractDbService implements
         $query = $this->entityManager->createQuery($dql);
         $validUserIds = $query->getResult();
 
-    // Extract just the IDs for comparison
-        $validUserIds = array_map(fn($user) => $user['id'], $validUserIds);
+        // Extract just the IDs for comparison
+        $validUserIds = array_map(fn ($user) => $user['id'], $validUserIds);
 
         if (empty($validUserIds)) {
             return 0;
@@ -309,7 +308,7 @@ class SearchService extends AbstractDbService implements
     {
         $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
         . 'WHERE s.checksum IS NULL AND s.saved = 1';
-   
+
         $query = $this->entityManager->createQuery($dql);
         return $query->getResult();
     }
@@ -329,15 +328,15 @@ class SearchService extends AbstractDbService implements
             ->from($this->getEntityClass(SearchEntityInterface::class), 's')
             ->where('s.created < :dateLimit')
             ->setParameter('dateLimit', $dateLimit->format('Y-m-d H:i:s'));
-    
+
         if ($limit) {
-            $subQueryBuilder->setMaxResults($limit); 
+            $subQueryBuilder->setMaxResults($limit);
         }
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->delete($this->getEntityClass(SearchEntityInterface::class), 's')
             ->where('s.id IN (:searches)')
             ->setParameter('searches', $subQueryBuilder->getQuery()->getResult());
-    
+
         return $queryBuilder->getQuery()->execute();
     }
 }
