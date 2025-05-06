@@ -172,7 +172,7 @@ class SearchService extends AbstractDbService implements
     {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
 
-        if ($sessionId == null && $userId == null) {
+        if ($sessionId === null && $userId === null) {
             return [];
         }
 
@@ -240,10 +240,7 @@ class SearchService extends AbstractDbService implements
         $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
             . 'WHERE s.checksum = :checksum AND ';
         $extraClauses = ['(s.sessionId = :sessionId AND s.saved = 0)'];
-        $params = [
-            'checksum' => $checksum,
-            'sessionId' => $sessionId,
-           ];
+        $params = compact('checksum','sessionId');
         if ($userId !== null) {
             $extraClauses[] = 's.user = :userId';
             $params['userId'] = $userId;
