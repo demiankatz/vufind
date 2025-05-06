@@ -132,6 +132,13 @@ class Search implements SearchEntityInterface
     protected $searchObject;
 
     /**
+     * Normalized search object after loading.
+     *
+     * @var \VuFind\Search\Minified|null
+     */
+    private $deserializedSearchObject = null;
+
+    /**
      * Checksum
      *
      * @var ?int
@@ -309,21 +316,33 @@ class Search implements SearchEntityInterface
     }
 
     /**
+     * Post-load normalization (deserialization).
+     *
+     * @ORM\PostLoad
+     */
+    public function postLoadNormalize(): void
+    {
+        // Only deserialize if searchObject is not null and not already deserialized
+        if ($this->searchObject && !is_object($this->searchObject)) {
+            // If it's a resource (stream), convert it to a string first
+            if (is_resource($this->searchObject)) {
+                $this->searchObject = stream_get_contents($this->searchObject);
+            }
+            $unserialized = @unserialize($this->searchObject);
+            if ($unserialized && is_object($unserialized)) {
+                $this->searchObject = $unserialized; 
+            }
+        }
+    }
+
+    /**
      * Get the search object from the row.
      *
      * @return ?\VuFind\Search\Minified
      */
     public function getSearchObject(): ?\VuFind\Search\Minified
     {
-        if (!$this->searchObject) {
-            return null;
-        }
-        // Normalize resource
-        if (is_resource($this->searchObject)) {
-            $this->searchObject = stream_get_contents($this->searchObject);
-        }
-        $unserialized = @unserialize($this->searchObject);
-        return is_object($unserialized) ? $unserialized : null;
+        return $this->deserializedSearchObject;
     }
 
     /**
@@ -336,6 +355,7 @@ class Search implements SearchEntityInterface
     public function setSearchObject(?\VuFind\Search\Minified $searchObject): static
     {
         $this->searchObject = $searchObject ? serialize($searchObject) : null;
+        $this->deserializedSearchObject = null;  
         return $this;
     }
 
