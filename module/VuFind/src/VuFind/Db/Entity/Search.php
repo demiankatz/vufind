@@ -325,14 +325,16 @@ class Search implements SearchEntityInterface
     public function postLoadNormalize(): void
     {
         // Only deserialize if searchObject is not null and not already deserialized
-        if ($this->searchObject && !is_object($this->searchObject)) {
+        if ($this->searchObject && !is_object($this->deserializedSearchObject)) {
             // If it's a resource (stream), convert it to a string first
             if (is_resource($this->searchObject)) {
                 $this->searchObject = stream_get_contents($this->searchObject);
             }
             $unserialized = @unserialize($this->searchObject);
             if ($unserialized && is_object($unserialized)) {
-                $this->searchObject = $unserialized;
+                $this->deserializedSearchObject = $unserialized;
+            } else {
+                $this->deserializedSearchObject = null;
             }
         }
     }
@@ -344,6 +346,10 @@ class Search implements SearchEntityInterface
      */
     public function getSearchObject(): ?\VuFind\Search\Minified
     {
+        // If the search object has not been resolved, do so now:
+        if (is_resource($this->searchObject)) {
+            $this->postLoadNormalize();
+        }
         return $this->deserializedSearchObject;
     }
 
