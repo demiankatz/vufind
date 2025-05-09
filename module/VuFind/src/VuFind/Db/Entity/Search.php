@@ -134,9 +134,9 @@ class Search implements SearchEntityInterface
     /**
      * Normalized search object after loading.
      *
-     * @var \VuFind\Search\Minified|null
+     * @var ?\VuFind\Search\Minified
      */
-    private $deserializedSearchObject = null;
+    protected $deserializedSearchObject = null;
 
     /**
      * Checksum
@@ -319,6 +319,8 @@ class Search implements SearchEntityInterface
      * Post-load normalization (deserialization).
      *
      * @ORM\PostLoad
+     *
+     * @return static
      */
     public function postLoadNormalize(): void
     {
@@ -330,7 +332,7 @@ class Search implements SearchEntityInterface
             }
             $unserialized = @unserialize($this->searchObject);
             if ($unserialized && is_object($unserialized)) {
-                $this->searchObject = $unserialized; 
+                $this->searchObject = $unserialized;
             }
         }
     }
@@ -355,7 +357,7 @@ class Search implements SearchEntityInterface
     public function setSearchObject(?\VuFind\Search\Minified $searchObject): static
     {
         $this->searchObject = $searchObject ? serialize($searchObject) : null;
-        $this->deserializedSearchObject = null;  
+        $this->deserializedSearchObject = $searchObject;
         return $this;
     }
 

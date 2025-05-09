@@ -240,7 +240,7 @@ class SearchService extends AbstractDbService implements
         $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
             . 'WHERE s.checksum = :checksum AND ';
         $extraClauses = ['(s.sessionId = :sessionId AND s.saved = 0)'];
-        $params = compact('checksum','sessionId');
+        $params = compact('checksum', 'sessionId');
         if ($userId !== null) {
             $extraClauses[] = 's.user = :userId';
             $params['userId'] = $userId;
