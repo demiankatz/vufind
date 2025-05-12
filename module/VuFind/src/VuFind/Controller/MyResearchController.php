@@ -44,6 +44,7 @@ use VuFind\Db\Entity\SearchEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Service\SearchServiceInterface;
+use VuFind\Db\Service\SessionServiceInterface;
 use VuFind\Db\Service\UserListServiceInterface;
 use VuFind\Db\Service\UserResourceServiceInterface;
 use VuFind\Db\Service\UserServiceInterface;
@@ -463,21 +464,21 @@ class MyResearchController extends AbstractBase
      * Support method for savesearchAction(): set the saved flag in a secure
      * fashion, throwing an exception if somebody attempts something invalid.
      *
-     * @param int  $searchId The search ID to save/unsave
-     * @param bool $saved    The new desired state of the saved flag
-     * @param int  $userId   The user ID requesting the change
+     * @param int                 $searchId The search ID to save/unsave
+     * @param bool                $saved    The new desired state of the saved flag
+     * @param UserEntityInterface $user     The user requesting the change
      *
      * @throws \Exception
      * @return void
      */
-    protected function setSavedFlagSecurely($searchId, $saved, $userId)
+    protected function setSavedFlagSecurely($searchId, $saved, $user)
     {
-        $row = $this->getSearchRowSecurely($searchId, $userId);
+        $row = $this->getSearchRowSecurely($searchId, $user->getId());
         $row->setSaved($saved ? 1 : 0);
         if (!$saved) {
             $row->setNotificationFrequency(0);
         }
-        $row->user_id = $userId;
+        $row->setUser($user);
         $this->getDbService(SearchServiceInterface::class)->persistEntity($row);
     }
 
@@ -523,14 +524,14 @@ class MyResearchController extends AbstractBase
             $userId
         );
         if ($duplicateId) {
-            $savedRow->delete();
+            $this->getDbService(SessionServiceInterface::class)->destroySession($duplicateId);
             $sid = $duplicateId;
             $savedRow = $this->getSearchRowSecurely($sid, $userId);
         }
 
         // If we didn't find an already-saved row, let's save and retry:
         if (!($savedRow->saved ?? false)) {
-            $this->setSavedFlagSecurely($sid, true, $userId);
+            $this->setSavedFlagSecurely($sid, true, $user);
             $savedRow = $this->getSearchRowSecurely($sid, $userId);
         }
         if (!($this->getConfig()->Account->force_first_scheduled_email ?? false)) {
@@ -583,7 +584,7 @@ class MyResearchController extends AbstractBase
             $user->getId()
         );
         if ($duplicateId) {
-            $search->delete();
+            $this->getDbService(SessionServiceInterface::class)->destroySession($duplicateId);
             $this->redirect()->toRoute(
                 'myresearch-schedulesearch',
                 [],
@@ -679,14 +680,14 @@ class MyResearchController extends AbstractBase
                 $user->getId()
             );
             if ($duplicateId) {
-                $rowToCheck->delete();
+                $searchService->deleteSearch($rowToCheck);
                 $id = $duplicateId;
             } else {
-                $this->setSavedFlagSecurely($id, true, $user->getId());
+                $this->setSavedFlagSecurely($id, true, $user);
             }
             $this->flashMessenger()->addMessage('search_save_success', 'success');
         } elseif (($id = $this->params()->fromQuery('delete', false)) !== false) {
-            $this->setSavedFlagSecurely($id, false, $user->getId());
+            $this->setSavedFlagSecurely($id, false, $user);
             $this->flashMessenger()->addMessage('search_unsave_success', 'success');
         } else {
             throw new \Exception('Missing save and delete parameters.');

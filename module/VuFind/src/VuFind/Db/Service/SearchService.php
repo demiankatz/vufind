@@ -31,6 +31,7 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use Exception;
+use VuFind\Db\Entity\Search;
 use VuFind\Db\Entity\SearchEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Table\DbTableAwareInterface;
@@ -257,6 +258,23 @@ class SearchService extends AbstractDbService implements
             ->createQuery($dql)
             ->setParameters($params)
             ->getResult();
+    }
+
+    /**
+     * Delete a search entity.
+     *
+     * @param SearchEntityInterface|int $searchOrId Search entity object or ID to delete
+     *
+     * @return void
+     */
+    public function deleteSearch(SearchEntityInterface|int $searchOrId): void
+    {
+        $searchId = $searchOrId instanceof SearchEntityInterface ? $searchOrId->getId() : $searchOrId;
+        $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s'
+            . ' WHERE s.id = :searchId';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('searchId', $searchId);
+        $query->execute();
     }
 
     /**
