@@ -31,7 +31,6 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use Exception;
-use VuFind\Db\Entity\Search;
 use VuFind\Db\Entity\SearchEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Table\DbTableAwareInterface;
@@ -148,15 +147,23 @@ class SearchService extends AbstractDbService implements
     ): ?SearchEntityInterface {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
-        $parameters = compact('id', 'sessionId');
-        $dql = 'SELECT s FROM ' . $entityClass . ' s '
-            . 'WHERE s.id = :id AND s.sessionId = :sessionId';
+
+        $dql = 'SELECT s FROM ' . $entityClass . ' s WHERE s.id = :id AND (s.sessionId = :sessionId';
+        $parameters = [
+            'id' => $id,
+            'sessionId' => $sessionId,
+        ];
+
         if ($userId !== null) {
-            $dql .= ' AND s.user = :userId';
+            $dql .= ' OR s.user = :userId';
             $parameters['userId'] = $userId;
         }
+
+        $dql .= ')';
+
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);
+
         return $query->getOneOrNullResult();
     }
 
