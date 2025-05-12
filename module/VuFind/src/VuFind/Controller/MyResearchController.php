@@ -44,7 +44,6 @@ use VuFind\Db\Entity\SearchEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Service\SearchServiceInterface;
-use VuFind\Db\Service\SessionServiceInterface;
 use VuFind\Db\Service\UserListServiceInterface;
 use VuFind\Db\Service\UserResourceServiceInterface;
 use VuFind\Db\Service\UserServiceInterface;
@@ -524,7 +523,7 @@ class MyResearchController extends AbstractBase
             $userId
         );
         if ($duplicateId) {
-            $this->getDbService(SessionServiceInterface::class)->destroySession($duplicateId);
+            $this->getDbService(SearchServiceInterface::class)->deleteSearch($duplicateId);
             $sid = $duplicateId;
             $savedRow = $this->getSearchRowSecurely($sid, $userId);
         }
@@ -584,7 +583,7 @@ class MyResearchController extends AbstractBase
             $user->getId()
         );
         if ($duplicateId) {
-            $this->getDbService(SessionServiceInterface::class)->destroySession($duplicateId);
+            $this->getDbService(SearchServiceInterface::class)->deleteSearch($duplicateId);
             $this->redirect()->toRoute(
                 'myresearch-schedulesearch',
                 [],
