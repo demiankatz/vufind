@@ -261,23 +261,6 @@ class SearchService extends AbstractDbService implements
     }
 
     /**
-     * Delete a search entity.
-     *
-     * @param SearchEntityInterface|int $searchOrId Search entity object or ID to delete
-     *
-     * @return void
-     */
-    public function deleteSearch(SearchEntityInterface|int $searchOrId): void
-    {
-        $searchId = $searchOrId instanceof SearchEntityInterface ? $searchOrId->getId() : $searchOrId;
-        $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s'
-            . ' WHERE s.id = :searchId';
-        $query = $this->entityManager->createQuery($dql);
-        $query->setParameter('searchId', $searchId);
-        $query->execute();
-    }
-
-    /**
      * Set invalid user_id values in the table to null; return count of affected rows.
      *
      * @return int
@@ -330,7 +313,11 @@ class SearchService extends AbstractDbService implements
     public function deleteSearch(SearchEntityInterface|int $searchOrId): void
     {
         $searchId = $searchOrId instanceof SearchEntityInterface ? $searchOrId->getId() : $searchOrId;
-        $this->getDbTable('search')->delete(['id' => $searchId]);
+        $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s'
+            . ' WHERE s.id = :searchId';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('searchId', $searchId);
+        $query->execute();
     }
 
     /**
