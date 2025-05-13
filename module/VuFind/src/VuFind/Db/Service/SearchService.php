@@ -31,7 +31,6 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use Exception;
-use VuFind\Db\Entity\Search;
 use VuFind\Db\Entity\SearchEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Table\DbTableAwareInterface;
@@ -106,13 +105,14 @@ class SearchService extends AbstractDbService implements
     public function destroySession(string $sessionId, UserEntityInterface|int|null $userOrId = null): void
     {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $parameters = compact('sessionId');
+        $parameters = ['saved' => false, 'sessionId' => $sessionId];
         $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-            . 'WHERE (s.sessionId = :sessionId AND s.saved = 0)';
+            . 'WHERE s.saved = :saved AND (s.sessionId = :sessionId';
         if ($userId !== null) {
-            $dql .= ' OR (s.user = :userId AND s.saved = 0)';
+            $dql .= ' OR s.user = :userId';
             $parameters['userId'] = $userId;
         }
+        $dql .= ')';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);
         $query->execute();
@@ -188,8 +188,9 @@ class SearchService extends AbstractDbService implements
         $params = [];
 
         if ($sessionId !== null) {
-            $conditions[] = '(s.sessionId = :sessionId AND s.saved = 0)';
+            $conditions[] = '(s.sessionId = :sessionId AND s.saved = :saved)';
             $params['sessionId'] = $sessionId;
+            $params['saved'] = false;
         }
 
         if ($userId !== null) {
@@ -218,11 +219,12 @@ class SearchService extends AbstractDbService implements
     {
         $entityClass = $this->getEntityClass(SearchEntityInterface::class);
         $dql = 'SELECT s FROM ' . $entityClass
-            . ' s WHERE s.saved = 1'
+            . ' s WHERE s.saved = :saved'
             . ' AND s.notificationFrequency > 0'
             . ' ORDER BY s.user ASC';
 
         $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('saved', true);
         return $query->getResult();
     }
 
@@ -245,8 +247,8 @@ class SearchService extends AbstractDbService implements
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
         $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
             . 'WHERE s.checksum = :checksum AND ';
-        $extraClauses = ['(s.sessionId = :sessionId AND s.saved = 0)'];
-        $params = compact('checksum', 'sessionId');
+        $extraClauses = ['(s.sessionId = :sessionId AND s.saved = :saved)'];
+        $params = ['checksum' => $checksum, 'saved' => false, 'sessionId' => $sessionId];
         if ($userId !== null) {
             $extraClauses[] = 's.user = :userId';
             $params['userId'] = $userId;
@@ -295,9 +297,10 @@ class SearchService extends AbstractDbService implements
     public function getSavedSearchesWithMissingChecksums(): array
     {
         $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-        . 'WHERE s.checksum IS NULL AND s.saved = 1';
+        . 'WHERE s.checksum IS NULL AND s.saved = :saved';
 
         $query = $this->entityManager->createQuery($dql);
+        $query->setParameter('saved', true);
         return $query->getResult();
     }
 

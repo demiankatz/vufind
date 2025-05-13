@@ -120,7 +120,7 @@ class Search implements SearchEntityInterface
      *
      * @ORM\Column(name="saved", type="boolean", nullable=false)
      */
-    protected $saved = '0';
+    protected $saved = false;
 
     /**
      * Search object.
@@ -311,7 +311,7 @@ class Search implements SearchEntityInterface
      */
     public function setSaved(bool $saved): static
     {
-        $this->saved = $saved ? '1' : '0';
+        $this->saved = $saved;
         return $this;
     }
 
