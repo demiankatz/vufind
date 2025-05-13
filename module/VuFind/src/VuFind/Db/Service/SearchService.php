@@ -334,8 +334,9 @@ class SearchService extends AbstractDbService implements
         $subQueryBuilder = $this->entityManager->createQueryBuilder();
         $subQueryBuilder->select('s.id')
             ->from($this->getEntityClass(SearchEntityInterface::class), 's')
-            ->where('s.created < :dateLimit  AND saved = 0')
-            ->setParameter('dateLimit', $dateLimit);
+            ->where('s.created < :dateLimit AND s.saved = :saved')
+            ->setParameter('dateLimit', $dateLimit)
+            ->setParameter('saved', false);
 
         if ($limit) {
             $subQueryBuilder->setMaxResults($limit);
