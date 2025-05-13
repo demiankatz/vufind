@@ -106,13 +106,11 @@ class SearchService extends AbstractDbService implements
     public function destroySession(string $sessionId, UserEntityInterface|int|null $userOrId = null): void
     {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-        . 'WHERE s.sessionId = :sessionId AND s.saved = 0 AND s.user = :userId';
         $parameters = compact('sessionId');
         $dql = 'DELETE FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-            . 'WHERE s.sessionId = :sessionId AND s.saved = 0';
+            . 'WHERE (s.sessionId = :sessionId AND s.saved = 0)';
         if ($userId !== null) {
-            $dql .= ' AND s.user = :userId';
+            $dql .= ' OR (s.user = :userId AND s.saved = 0)';
             $parameters['userId'] = $userId;
         }
         $query = $this->entityManager->createQuery($dql);
