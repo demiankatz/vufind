@@ -284,7 +284,7 @@ class SearchService extends AbstractDbService implements
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('validUserIds', $validUserIds);
 
-        //Number of updated records
+        // Number of updated records
         $count = $query->execute();
         return $count;
     }
@@ -297,7 +297,7 @@ class SearchService extends AbstractDbService implements
     public function getSavedSearchesWithMissingChecksums(): array
     {
         $dql = 'SELECT s FROM ' . $this->getEntityClass(SearchEntityInterface::class) . ' s '
-        . 'WHERE s.checksum IS NULL AND s.saved = :saved';
+            . 'WHERE s.checksum IS NULL AND s.saved = :saved';
 
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('saved', true);
