@@ -234,7 +234,7 @@ class User implements UserEntityInterface
      */
     public function __construct()
     {
-        // Set the default values as \DateTime objects
+        // Set the default values as DateTime objects
         $this->created = $this->getUnassignedDefaultDateTime();
         $this->lastLogin = $this->getUnassignedDefaultDateTime();
     }

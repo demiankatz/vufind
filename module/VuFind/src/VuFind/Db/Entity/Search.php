@@ -158,7 +158,7 @@ class Search implements SearchEntityInterface
      */
     public function __construct()
     {
-        // Set the default value as a DateTime object
+        // Set the default values as DateTime objects
         $this->created = $this->getUnassignedDefaultDateTime();
         $this->lastNotificationSent = $this->getUnassignedDefaultDateTime();
     }
