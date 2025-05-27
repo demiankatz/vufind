@@ -59,37 +59,6 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
     use LoggerAwareTrait;
 
     /**
-     * Get resources associated with a particular tag.
-     *
-     * @param string $tag               Tag to match
-     * @param string $user              ID of user owning favorite list
-     * @param string $list              ID of list to retrieve (null for all favorites)
-     * @param bool   $caseSensitiveTags Should tags be treated case sensitively?
-     *
-     * @return array
-     */
-    public function getResourceIDsForTag($tag, $user, $list = null, $caseSensitiveTags = false)
-    {
-        $dql = 'SELECT DISTINCT(rt.resource) AS resource_id '
-            . 'FROM ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt '
-            . 'JOIN rt.tag t '
-            . 'WHERE ' . ($caseSensitiveTags ? 't.tag = :tag' : 'LOWER(t.tag) = LOWER(:tag) ')
-            . 'AND rt.user = :user ';
-
-        $user = $this->getDoctrineReference(User::class, $user);
-        $parameters = compact('tag', 'user');
-        if (null !== $list) {
-            $list = $this->getDoctrineReference(UserList::class, $list);
-            $dql .= 'AND rt.list = :list';
-            $parameters['list'] = $list;
-        }
-        $query = $this->entityManager->createQuery($dql);
-        $query->setParameters($parameters);
-        $result =  $query->getSingleColumnResult();
-        return $result;
-    }
-
-    /**
      * Get statistics on use of tags.
      *
      * @param bool $extended          Include extended (unique/anonymous) stats.
@@ -395,7 +364,8 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
             $sort,
             $ownerOrId,
             $extraClauses,
-            $extraParams
+            $extraParams,
+            $caseSensitive
         );
     }
 
@@ -482,14 +452,14 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
     }
 
     /**
-     * Support method for fixDuplicateTag() -- merge $source into $target.
+     * Merge source tag into target tag.
      *
-     * @param TagsEntityInterface $target Target ID
-     * @param TagsEntityInterface $source Source ID
+     * @param TagsEntityInterface $target Target tag
+     * @param TagsEntityInterface $source Source tag
      *
      * @return void
      */
-    protected function mergeTags($target, $source)
+    public function mergeTags(TagsEntityInterface $target, TagsEntityInterface $source): void
     {
         // Don't merge a tag with itself!
         if ($target->getId() === $source->getId()) {
@@ -519,42 +489,6 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
         } catch (\Exception $e) {
             $this->logError('Clean up operation failed: ' . $e->getMessage());
             throw $e;
-        }
-    }
-
-    /**
-     * Support method for fixDuplicateTags()
-     *
-     * @param string $tag           Tag to deduplicate.
-     * @param bool   $caseSensitive Treat tags as case-sensitive?
-     *
-     * @return void
-     */
-    protected function fixDuplicateTag($tag, $caseSensitive)
-    {
-        // Make sure this really is a duplicate.
-        $result = $this->getTagsByText($tag, $caseSensitive);
-        if (count($result) < 2) {
-            return;
-        }
-
-        $first = current($result);
-        foreach ($result as $current) {
-            $this->mergeTags($first, $current);
-        }
-    }
-
-    /**
-     * Repair duplicate tags in the database (if any).
-     *
-     * @param bool $caseSensitive Treat tags as case-sensitive?
-     *
-     * @return void
-     */
-    public function fixDuplicateTags($caseSensitive = false)
-    {
-        foreach ($this->getDuplicateTags() as $dupe) {
-            $this->fixDuplicateTag($dupe['tag'], $caseSensitive);
         }
     }
 

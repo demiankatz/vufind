@@ -451,14 +451,12 @@ class UpgradeController extends AbstractBase
      */
     public function showsqlAction()
     {
-        $recheck = $this->params()->fromPost('recheck');
-        if ($recheck) {
-            unset($this->session->sql);
-            return $this->redirect()->toRoute('upgrade-fixdatabase');
-        }
         $continue = $this->params()->fromPost('continue', 'nope');
-        if ($continue == 'Next') {
-            unset($this->session->sql);
+        if (str_contains($continue, 'Next')) {
+            // Clear the SQL out but leave it set; this will prevent the user from
+            // getting caught in a loop -- we won't show them the migrations another
+            // time this session.
+            $this->session->sql = '';
             return $this->redirect()->toRoute('upgrade-home');
         }
 
@@ -559,7 +557,10 @@ class UpgradeController extends AbstractBase
 
         // Handle submit action:
         if ($this->formWasSubmitted()) {
-            $this->getService(TagsService::class)->fixDuplicateTags();
+            $fixed = $this->getService(TagsService::class)->fixDuplicateTags();
+            if ($fixed > 0) {
+                $this->session->warnings->append("Merged $fixed duplicate tag(s)");
+            }
             return $this->forwardTo('Upgrade', 'FixDatabase');
         }
 
