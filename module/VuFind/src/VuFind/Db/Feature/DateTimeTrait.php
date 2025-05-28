@@ -52,7 +52,10 @@ trait DateTimeTrait
      */
     protected function getNullableDateTimeFromNonNullable(DateTime $date): ?DateTime
     {
-        return $date !== $this->getUnassignedDefaultDateTime() ? $date : null;
+        // Compare strings to avoid trouble with time zones:
+        return $date->format('Y-m-d H:i:s') !== $this->getUnassignedDefaultDateTime()->format('Y-m-d H:i:s')
+            ? $date
+            : null;
     }
 
     /**
