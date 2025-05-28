@@ -30,6 +30,7 @@
 namespace VuFind\Db\Feature;
 
 use DateTime;
+use DateTimeZone;
 
 /**
  * Trait providing date handling support functions.
@@ -73,6 +74,6 @@ trait DateTimeTrait
      */
     protected function getUnassignedDefaultDateTime(): DateTime
     {
-        return DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
+        return DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00', new DateTimeZone('UTC'));
     }
 }
