@@ -61,8 +61,7 @@ class CommentsService extends AbstractDbService implements
      */
     public function createEntity(): CommentsEntityInterface
     {
-        $class = $this->getEntityClass(CommentsEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(CommentsEntityInterface::class);
     }
 
     /**
@@ -111,7 +110,7 @@ class CommentsService extends AbstractDbService implements
             return [];
         }
         $dql = 'SELECT c '
-            . 'FROM ' . $this->getEntityClass(CommentsEntityInterface::class) . ' c '
+            . 'FROM ' . CommentsEntityInterface::class . ' c '
             . 'LEFT JOIN c.user u '
             . 'WHERE c.resource = :resource '
             . 'ORDER BY c.created ASC';
@@ -143,7 +142,7 @@ class CommentsService extends AbstractDbService implements
             return false;
         }
 
-        $del = 'DELETE FROM ' . $this->getEntityClass(CommentsEntityInterface::class) . ' c '
+        $del = 'DELETE FROM ' . CommentsEntityInterface::class . ' c '
         . 'WHERE c.id = :id AND c.user = :user';
         $query = $this->entityManager->createQuery($del);
         $query->setParameters(['id' => $id, 'user' => $userId]);
@@ -160,7 +159,7 @@ class CommentsService extends AbstractDbService implements
      */
     public function deleteByUser(UserEntityInterface|int $userOrId): void
     {
-        $dql = 'DELETE FROM ' . $this->getEntityClass(CommentsEntityInterface::class) . ' c '
+        $dql = 'DELETE FROM ' . CommentsEntityInterface::class . ' c '
         . 'WHERE c.user = :user';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(['user' => is_int($userOrId) ? $userOrId : $userOrId->getId()]);
@@ -177,7 +176,7 @@ class CommentsService extends AbstractDbService implements
         $dql = 'SELECT COUNT(DISTINCT(c.user)) AS users, '
             . 'COUNT(DISTINCT(c.resource)) AS resources, '
             . 'COUNT(c.id) AS total '
-            . 'FROM ' . $this->getEntityClass(CommentsEntityInterface::class) . ' c';
+            . 'FROM ' . CommentsEntityInterface::class . ' c';
         $query = $this->entityManager->createQuery($dql);
         $stats = current($query->getResult());
         return $stats;
@@ -192,10 +191,7 @@ class CommentsService extends AbstractDbService implements
      */
     public function getCommentById(int $id): ?CommentsEntityInterface
     {
-        return $this->entityManager->find(
-            $this->getEntityClass(CommentsEntityInterface::class),
-            $id
-        );
+        return $this->entityManager->find(CommentsEntityInterface::class, $id);
     }
 
     /**
@@ -208,7 +204,7 @@ class CommentsService extends AbstractDbService implements
      */
     public function changeResourceId(int $old, int $new): void
     {
-        $dql = 'UPDATE ' . $this->getEntityClass(CommentsEntityInterface::class) . ' e '
+        $dql = 'UPDATE ' . CommentsEntityInterface::class . ' e '
             . 'SET e.resource = :new WHERE e.resource = :old';
         $parameters = compact('new', 'old');
         $query = $this->entityManager->createQuery($dql);

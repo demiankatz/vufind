@@ -84,7 +84,7 @@ class EntityManagerFactory extends AbstractFactory
         }
 
         // Add the ResolveTargetEntityListener
-        $evm->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, $rtel);
+        $evm->addEventSubscriber($rtel);
 
         return new EntityManager($connection, $config, $evm);
     }

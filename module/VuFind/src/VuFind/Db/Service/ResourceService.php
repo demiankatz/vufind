@@ -128,10 +128,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function getResourceById(int $id): ?ResourceEntityInterface
     {
-        $resource = $this->entityManager->find(
-            $this->getEntityClass(ResourceEntityInterface::class),
-            $id
-        );
+        $resource = $this->entityManager->find(ResourceEntityInterface::class, $id);
         return $resource;
     }
 
@@ -142,8 +139,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function createEntity(): ResourceEntityInterface
     {
-        $class = $this->getEntityClass(ResourceEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(ResourceEntityInterface::class);
     }
 
     /**
@@ -155,7 +151,7 @@ class ResourceService extends AbstractDbService implements
     public function findMissingMetadata(): array
     {
         $dql = 'SELECT r '
-            . 'FROM ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
+            . 'FROM ' . ResourceEntityInterface::class . ' r '
             . "WHERE r.title = '' OR r.author IS NULL OR r.year IS NULL";
 
         $query = $this->entityManager->createQuery($dql);
@@ -186,7 +182,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function getResourcesByRecordIds(array $ids, string $source = DEFAULT_SEARCH_BACKEND): array
     {
-        $repo = $this->entityManager->getRepository($this->getEntityClass(ResourceEntityInterface::class));
+        $repo = $this->entityManager->getRepository(ResourceEntityInterface::class);
         $criteria = [
             'recordId' => $ids,
             'source' => $source,
@@ -211,7 +207,7 @@ class ResourceService extends AbstractDbService implements
         bool $caseSensitiveTags = false
     ): array {
         $dql = 'SELECT DISTINCT(rt.resource) AS resource_id '
-            . 'FROM ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt '
+            . 'FROM ' . ResourceTagsEntityInterface::class . ' rt '
             . 'JOIN rt.tag t '
             . 'WHERE ' . ($caseSensitiveTags ? 't.tag = :tag' : 'LOWER(t.tag) = LOWER(:tag) ')
             . 'AND rt.user = :user';
@@ -258,8 +254,8 @@ class ResourceService extends AbstractDbService implements
         if (!empty($orderByDetails['extraSelect'])) {
             $dql .= ', ' . $orderByDetails['extraSelect'];
         }
-        $dql .= ' FROM ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
-            . 'JOIN ' . $this->getEntityClass(UserResourceEntityInterface::class) . ' ur WITH r.id = ur.resource ';
+        $dql .= ' FROM ' . ResourceEntityInterface::class . ' r '
+            . 'JOIN ' . UserResourceEntityInterface::class . ' ur WITH r.id = ur.resource ';
         $dqlWhere = [];
         $dqlWhere[] = 'ur.user = :user';
         $parameters = compact('user');
@@ -312,7 +308,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function deleteResourceByRecordId(string $id, string $source): bool
     {
-        $dql = 'DELETE FROM ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
+        $dql = 'DELETE FROM ' . ResourceEntityInterface::class . ' r '
             . 'WHERE r.recordId = :id AND r.source = :source';
         $parameters = compact('id', 'source');
         $query = $this->entityManager->createQuery($dql);
@@ -330,7 +326,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function renameSource(string $old, string $new): int
     {
-        $dql = 'UPDATE ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
+        $dql = 'UPDATE ' . ResourceEntityInterface::class . ' r '
             . 'SET r.source=:new WHERE r.source=:old';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(compact('new', 'old'));

@@ -88,7 +88,7 @@ class UserCardService extends AbstractDbService implements
      */
     public function getInsecureRows(): array
     {
-        $dql = 'SELECT UC FROM ' . $this->getEntityClass(UserCardEntityInterface::class)
+        $dql = 'SELECT UC FROM ' . UserCardEntityInterface::class
             . ' UC WHERE UC.catPassword IS NOT NULL';
         $query = $this->entityManager->createQuery($dql);
         return $query->getResult();
@@ -101,7 +101,7 @@ class UserCardService extends AbstractDbService implements
      */
     public function getAllRowsWithUsernames(): array
     {
-        $dql = 'SELECT UC FROM ' . $this->getEntityClass(UserCardEntityInterface::class)
+        $dql = 'SELECT UC FROM ' . UserCardEntityInterface::class
             . ' UC WHERE UC.catUsername IS NOT NULL';
         $query = $this->entityManager->createQuery($dql);
         return $query->getResult();
@@ -124,7 +124,7 @@ class UserCardService extends AbstractDbService implements
         if (!$this->capabilities->libraryCardsEnabled()) {
             return [];
         }
-        $dql = 'SELECT UC FROM ' . $this->getEntityClass(UserCardEntityInterface::class) . ' UC ';
+        $dql = 'SELECT UC FROM ' . UserCardEntityInterface::class . ' UC ';
         $dqlWhere = ['UC.user = :user'];
         $parameters['user'] = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         if (null !== $id) {
@@ -372,7 +372,6 @@ class UserCardService extends AbstractDbService implements
      */
     public function createEntity(): UserCardEntityInterface
     {
-        $class = $this->getEntityClass(UserCardEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(UserCardEntityInterface::class);
     }
 }

@@ -71,19 +71,6 @@ abstract class AbstractDbService implements DbServiceInterface
     }
 
     /**
-     * Resolve an entity class name using the plugin manager.
-     *
-     * @param string $entity Entity class name or alias
-     *
-     * @return string
-     */
-    protected function getEntityClass(string $entity): string
-    {
-        $entity = $this->entityPluginManager->get($entity);
-        return $entity::class;
-    }
-
-    /**
      * Persist an entity.
      *
      * @param EntityInterface $entity Entity to persist.
@@ -130,10 +117,7 @@ abstract class AbstractDbService implements DbServiceInterface
             }
             $id = $objectOrId->getId();
         }
-        return $this->entityManager->getReference(
-            $this->getEntityClass($desiredClass),
-            $id
-        );
+        return $this->entityManager->getReference($desiredClass, $id);
     }
 
     /**
@@ -146,10 +130,7 @@ abstract class AbstractDbService implements DbServiceInterface
      */
     public function getEntityById($entityClass, $id)
     {
-        return $this->entityManager->find(
-            $this->getEntityClass($entityClass),
-            $id
-        );
+        return $this->entityManager->find($entityClass, $id);
     }
 
     /**
@@ -161,7 +142,7 @@ abstract class AbstractDbService implements DbServiceInterface
      */
     public function getRowCountForTable($entityClass)
     {
-        $dql = 'SELECT COUNT(e) FROM ' . $this->getEntityClass($entityClass) . ' e ';
+        $dql = 'SELECT COUNT(e) FROM ' . $entityClass . ' e ';
         $query = $this->entityManager->createQuery($dql);
         $count = $query->getSingleScalarResult();
         return $count;

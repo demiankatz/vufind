@@ -67,8 +67,7 @@ class UserListService extends AbstractDbService implements
      */
     public function createEntity(): UserListEntityInterface
     {
-        $class = $this->getEntityClass(UserListEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(UserListEntityInterface::class);
     }
 
     /**
@@ -110,7 +109,7 @@ class UserListService extends AbstractDbService implements
      */
     public function getPublicLists(array $includeFilter = [], array $excludeFilter = []): array
     {
-        $dql = 'SELECT ul FROM ' . $this->getEntityClass(UserListEntityInterface::class) . ' ul ';
+        $dql = 'SELECT ul FROM ' . UserListEntityInterface::class . ' ul ';
 
         $parameters = [];
         $where = ["ul.public = '1'"];
@@ -142,8 +141,8 @@ class UserListService extends AbstractDbService implements
     public function getUserListsAndCountsByUser(UserEntityInterface|int $userOrId): array
     {
         $dql = 'SELECT ul AS list_entity, COUNT(DISTINCT(ur.resource)) AS count '
-            . 'FROM ' . $this->getEntityClass(UserListEntityInterface::class) . ' ul '
-            . 'LEFT JOIN ' . $this->getEntityClass(UserResourceEntityInterface::class) . ' ur WITH ur.list = ul.id '
+            . 'FROM ' . UserListEntityInterface::class . ' ul '
+            . 'LEFT JOIN ' . UserResourceEntityInterface::class . ' ur WITH ur.list = ul.id '
             . 'WHERE ul.user = :user '
             . 'GROUP BY ul '
             . 'ORDER BY ul.title';
@@ -177,7 +176,7 @@ class UserListService extends AbstractDbService implements
         $tag = $tag ? (array)$tag : null;
         $listId = $listId ? (array)$listId : null;
         $dql = 'SELECT IDENTITY(rt.list) '
-            . 'FROM ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt '
+            . 'FROM ' . ResourceTagsEntityInterface::class . ' rt '
             . 'JOIN rt.tag t '
             . 'JOIN rt.list l '
             // Discard tags assigned to a user resource:
@@ -228,7 +227,7 @@ class UserListService extends AbstractDbService implements
     public function getUserListsByUser(UserEntityInterface|int $userOrId): array
     {
         $dql = 'SELECT ul '
-            . 'FROM ' . $this->getEntityClass(UserListEntityInterface::class) . ' ul '
+            . 'FROM ' . UserListEntityInterface::class . ' ul '
             . 'WHERE ul.user = :user '
             . 'ORDER BY ul.title';
 
@@ -248,7 +247,7 @@ class UserListService extends AbstractDbService implements
      */
     protected function getUserListsById(array $ids): array
     {
-        $dql = 'SELECT ul FROM ' . $this->getEntityClass(UserListEntityInterface::class) . ' ul '
+        $dql = 'SELECT ul FROM ' . UserListEntityInterface::class . ' ul '
             . 'WHERE ul.id IN (:ids)';
         $parameters = compact('ids');
         $query = $this->entityManager->createQuery($dql);
@@ -272,9 +271,9 @@ class UserListService extends AbstractDbService implements
         string $source = DEFAULT_SEARCH_BACKEND,
         UserEntityInterface|int|null $userOrId = null
     ): array {
-        $dql = 'SELECT ul FROM ' . $this->getEntityClass(UserListEntityInterface::class) . ' ul '
-            . 'JOIN ' . $this->getEntityClass(UserResourceEntityInterface::class) . ' ur WITH ur.list = ul.id '
-            . 'JOIN ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r WITH r.id = ur.resource '
+        $dql = 'SELECT ul FROM ' . UserListEntityInterface::class . ' ul '
+            . 'JOIN ' . UserResourceEntityInterface::class . ' ur WITH ur.list = ul.id '
+            . 'JOIN ' . ResourceEntityInterface::class . ' r WITH r.id = ur.resource '
             . 'WHERE r.recordId = :recordId AND r.source = :source ';
 
         $parameters = compact('recordId', 'source');
