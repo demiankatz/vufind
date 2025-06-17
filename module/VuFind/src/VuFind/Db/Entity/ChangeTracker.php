@@ -94,7 +94,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'deleted', type: 'datetime', nullable: true)]
-    protected ?DateTime $deleted;
+    protected ?DateTime $deleted = null;
 
     /**
      * Setter for identifier.
