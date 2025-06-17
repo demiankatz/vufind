@@ -34,9 +34,7 @@ use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\ResourceEntityInterface;
 use VuFind\Db\Entity\ResourceTagsEntityInterface;
 use VuFind\Db\Entity\TagsEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Entity\UserResourceEntityInterface;
 use VuFind\Log\LoggerAwareTrait;
@@ -280,7 +278,7 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
         // if the selected resource is tagged by the specified user.
         if (!empty($ownerOrId)) {
             $fieldList .= ', MAX(CASE WHEN rt.user = :userToCheck THEN 1 ELSE 0 END) AS is_me';
-            $parameters['userToCheck'] = $this->getDoctrineReference(User::class, $ownerOrId);
+            $parameters['userToCheck'] = $this->getDoctrineReference(UserEntityInterface::class, $ownerOrId);
         }
         $dql = 'SELECT ' . $fieldList . ' FROM ' . $this->getEntityClass(TagsEntityInterface::class) . ' t '
             . 'JOIN ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt WITH t.id = rt.tag '
@@ -293,7 +291,7 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
 
         if (null !== $userOrId) {
             $dql .= 'AND rt.user = :user ';
-            $parameters['user'] = $this->getDoctrineReference(User::class, $userOrId);
+            $parameters['user'] = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         }
 
         $dql .= 'GROUP BY t.id, t.tag ';
@@ -354,7 +352,7 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
         $extraClauses = $extraParams = [];
         if ($listOrId) {
             $extraClauses[] = 'rt.list = :list';
-            $extraParams['list'] = $this->getDoctrineReference(UserList::class, $listOrId);
+            $extraParams['list'] = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
         }
         return $this->getRecordTagsWithDoctrine(
             $id,
@@ -398,7 +396,7 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
         $extraClauses = $extraParams = [];
         if ($listOrId) {
             $extraClauses[] = 'rt.list = :list';
-            $extraParams['list'] = $this->getDoctrineReference(UserList::class, $listOrId);
+            $extraParams['list'] = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
         } else {
             $extraClauses[] = 'rt.list IS NOT NULL';
         }
@@ -582,7 +580,7 @@ class TagService extends AbstractDbService implements TagServiceInterface, DbSer
         $caseSensitive = false
     ): array {
         $listId = $listOrId instanceof UserListEntityInterface ? $listOrId->getId() : $listOrId;
-        $user = $this->getDoctrineReference(User::class, $userOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         $tag = $caseSensitive ? 't.tag' : 'lower(t.tag)';
 
         $dql = 'SELECT MIN(t.id) AS id, ' . $tag . ' AS tag '

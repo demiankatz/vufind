@@ -33,14 +33,10 @@ use DateTime;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 use DoctrineORMModule\Paginator\Adapter\DoctrinePaginator as DoctrinePaginatorAdapter;
 use Laminas\Paginator\Paginator;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
 use VuFind\Db\Entity\ResourceTagsEntityInterface;
-use VuFind\Db\Entity\Tags;
 use VuFind\Db\Entity\TagsEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 
 use function count;
@@ -215,13 +211,13 @@ class ResourceTagsService extends AbstractDbService implements
         UserListEntityInterface|int|null $listOrId = null,
         ?DateTime $posted = null
     ) {
-        $tag = $this->getDoctrineReference(Tags::class, $tagOrId);
+        $tag = $this->getDoctrineReference(TagsEntityInterface::class, $tagOrId);
         $dql = ' SELECT rt FROM ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt ';
         $dqlWhere = ['rt.tag = :tag '];
         $parameters = compact('tag');
 
         if (null !== $resourceOrId) {
-            $resource = $this->getDoctrineReference(Resource::class, $resourceOrId);
+            $resource = $this->getDoctrineReference(ResourceEntityInterface::class, $resourceOrId);
             $dqlWhere[] = 'rt.resource = :resource ';
             $parameters['resource'] = $resource;
         } else {
@@ -230,7 +226,7 @@ class ResourceTagsService extends AbstractDbService implements
         }
 
         if (null !== $listOrId) {
-            $list = $this->getDoctrineReference(UserList::class, $listOrId);
+            $list = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
             $dqlWhere[] = 'rt.list = :list ';
             $parameters['list'] = $list;
         } else {
@@ -239,7 +235,7 @@ class ResourceTagsService extends AbstractDbService implements
         }
 
         if (null !== $userOrId) {
-            $user = $this->getDoctrineReference(User::class, $userOrId);
+            $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
             $dqlWhere[] = 'rt.user = :user';
             $parameters['user'] = $user;
         } else {
@@ -308,7 +304,7 @@ class ResourceTagsService extends AbstractDbService implements
         $dql = 'DELETE FROM ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt ';
 
         $dqlWhere = ['rt.user = :user '];
-        $parameters = ['user' => $this->getDoctrineReference(User::class, $userOrId)];
+        $parameters = ['user' => $this->getDoctrineReference(UserEntityInterface::class, $userOrId)];
         if (null !== $resourceId) {
             $dqlWhere[] = 'rt.resource IN (:resource) ';
             $parameters['resource'] = (array)$resourceId;
@@ -404,8 +400,8 @@ class ResourceTagsService extends AbstractDbService implements
         UserEntityInterface|int $userOrId,
         int|array|null $tagId = null
     ): void {
-        $list = $this->getDoctrineReference(UserList::class, $listOrId);
-        $user = $this->getDoctrineReference(User::class, $userOrId);
+        $list = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         $dql = 'DELETE FROM ' . $this->getEntityClass(ResourceTagsEntityInterface::class) . ' rt '
             . 'WHERE rt.user = :user AND rt.resource IS NULL AND rt.list = :list ';
         $parameters = compact('user', 'list');

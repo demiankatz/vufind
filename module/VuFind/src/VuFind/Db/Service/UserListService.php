@@ -32,12 +32,9 @@ namespace VuFind\Db\Service;
 
 use Exception;
 use Laminas\Log\LoggerAwareInterface;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
 use VuFind\Db\Entity\ResourceTagsEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Entity\UserResourceEntityInterface;
 use VuFind\Exception\RecordMissing as RecordMissingException;
@@ -151,7 +148,7 @@ class UserListService extends AbstractDbService implements
             . 'GROUP BY ul '
             . 'ORDER BY ul.title';
 
-        $parameters = ['user' => $this->getDoctrineReference(User::class, $userOrId)];
+        $parameters = ['user' => $this->getDoctrineReference(UserEntityInterface::class, $userOrId)];
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);
         $results = $query->getResult();
@@ -235,7 +232,7 @@ class UserListService extends AbstractDbService implements
             . 'WHERE ul.user = :user '
             . 'ORDER BY ul.title';
 
-        $parameters = ['user' => $this->getDoctrineReference(User::class, $userOrId)];
+        $parameters = ['user' => $this->getDoctrineReference(UserEntityInterface::class, $userOrId)];
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);
         $results = $query->getResult();

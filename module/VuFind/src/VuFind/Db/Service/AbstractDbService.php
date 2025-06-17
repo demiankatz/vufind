@@ -130,7 +130,10 @@ abstract class AbstractDbService implements DbServiceInterface
             }
             $id = $objectOrId->getId();
         }
-        return $this->entityManager->getReference($desiredClass, $id);
+        return $this->entityManager->getReference(
+            $this->getEntityClass($desiredClass),
+            $id
+        );
     }
 
     /**

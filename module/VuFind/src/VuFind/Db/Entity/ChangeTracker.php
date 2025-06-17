@@ -53,7 +53,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      */
     #[ORM\Column(name: 'core', type: 'string', length: 30, nullable: false)]
     #[ORM\Id]
-    protected $core;
+    protected string $core;
 
     /**
      * Id of record within core.
@@ -62,7 +62,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      */
     #[ORM\Column(name: 'id', type: 'string', length: 120, nullable: false)]
     #[ORM\Id]
-    protected $id;
+    protected string $id;
 
     /**
      * First time added to index
@@ -70,7 +70,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'first_indexed', type: 'datetime', nullable: true)]
-    protected $firstIndexed;
+    protected ?DateTime $firstIndexed;
 
     /**
      * Last time changed in index.
@@ -78,7 +78,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'last_indexed', type: 'datetime', nullable: true)]
-    protected $lastIndexed;
+    protected ?DateTime $lastIndexed;
 
     /**
      * Last time original record was edited.
@@ -86,7 +86,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'last_record_change', type: 'datetime', nullable: true)]
-    protected $lastRecordChange;
+    protected ?DateTime $lastRecordChange;
 
     /**
      * Time record was removed from index.
@@ -94,7 +94,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'deleted', type: 'datetime', nullable: true)]
-    protected $deleted;
+    protected ?DateTime $deleted;
 
     /**
      * Setter for identifier.

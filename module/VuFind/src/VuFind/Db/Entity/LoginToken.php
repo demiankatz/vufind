@@ -56,16 +56,16 @@ class LoginToken implements LoginTokenEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    protected UserEntityInterface $user;
 
     /**
      * Token.
@@ -73,7 +73,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'token', type: 'string', length: 255, nullable: false)]
-    protected $token;
+    protected string $token;
 
     /**
      * Series.
@@ -81,7 +81,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'series', type: 'string', length: 255, nullable: false)]
-    protected $series;
+    protected string $series;
 
     /**
      * Last login date.
@@ -89,7 +89,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var DateTime
      */
     #[ORM\Column(name: 'last_login', type: 'datetime', nullable: false)]
-    protected $lastLogin;
+    protected DateTime $lastLogin;
 
     /**
      * Browser.
@@ -97,7 +97,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'browser', type: 'string', length: 255, nullable: true)]
-    protected $browser;
+    protected ?string $browser;
 
     /**
      * Platform.
@@ -105,7 +105,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'platform', type: 'string', length: 255, nullable: true)]
-    protected $platform;
+    protected ?string $platform;
 
     /**
      * Expires.
@@ -113,7 +113,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var int
      */
     #[ORM\Column(name: 'expires', type: 'integer', nullable: false)]
-    protected $expires;
+    protected int $expires;
 
     /**
      * Last session ID.
@@ -121,7 +121,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'last_session_id', type: 'string', length: 255, nullable: true)]
-    protected $lastSessionId;
+    protected ?string $lastSessionId;
 
     /**
      * Constructor.

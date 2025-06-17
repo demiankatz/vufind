@@ -33,7 +33,6 @@ use DateTime;
 use Laminas\Session\Container;
 use Laminas\Stdlib\Parameters;
 use VuFind\Db\Entity\ResourceEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Service\Feature\TransactionInterface;
@@ -116,7 +115,7 @@ class FavoritesService implements TranslatorAwareInterface
         return $this->userListService->createEntity()
             ->setCreated(new DateTime())
             // Stopgap until we've fully converted to Doctrine:
-            ->setUser($this->userListService->getDoctrineReference(User::class, $user));
+            ->setUser($this->userListService->getDoctrineReference(UserEntityInterface::class, $user));
     }
 
     /**

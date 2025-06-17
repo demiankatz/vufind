@@ -52,7 +52,7 @@ class Tags implements TagsEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Name of tag.
@@ -60,7 +60,7 @@ class Tags implements TagsEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'tag', type: 'string', length: 64, nullable: false)]
-    protected $tag = '';
+    protected string $tag = '';
 
     /**
      * Id getter

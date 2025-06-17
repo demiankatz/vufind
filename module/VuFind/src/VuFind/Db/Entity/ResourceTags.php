@@ -53,7 +53,7 @@ class ResourceTags implements ResourceTagsEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Posted time.
@@ -61,43 +61,43 @@ class ResourceTags implements ResourceTagsEntityInterface
      * @var DateTime
      */
     #[ORM\Column(name: 'posted', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
-    protected $posted;
+    protected DateTime $posted;
 
     /**
      * Resource ID.
      *
-     * @var Resource
+     * @var ResourceEntityInterface
      */
     #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\Resource::class)]
-    protected $resource;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\ResourceEntityInterface::class)]
+    protected ResourceEntityInterface $resource;
 
     /**
      * Tag ID.
      *
-     * @var Tags
+     * @var TagsEntityInterface
      */
     #[ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\Tags::class)]
-    protected $tag;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\TagsEntityInterface::class)]
+    protected TagsEntityInterface $tag;
 
     /**
      * List ID.
      *
-     * @var UserList
+     * @var UserListEntityInterface
      */
     #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserList::class)]
-    protected $list;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserListEntityInterface::class)]
+    protected UserListEntityInterface $list;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    protected UserEntityInterface $user;
 
     /**
      * Constructor

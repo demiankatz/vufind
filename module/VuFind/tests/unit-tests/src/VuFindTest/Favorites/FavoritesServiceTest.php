@@ -30,7 +30,6 @@
 namespace VuFindTest\Favorites;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Service\ResourceServiceInterface;
@@ -115,7 +114,7 @@ class FavoritesServiceTest extends \PHPUnit\Framework\TestCase
         $newList->expects($this->once())->method('setUser')->with($user)->willReturn($newList);
         $listService = $this->createMock(UserListService::class);
         $listService->expects($this->once())->method('createEntity')->willReturn($newList);
-        $listService->expects($this->once())->method('getDoctrineReference')->with(User::class, $user)
+        $listService->expects($this->once())->method('getDoctrineReference')->with(UserEntityInterface::class, $user)
             ->willReturn($user);
         $service = $this->getFavoritesService($listService);
         $service->createListForUser($user);

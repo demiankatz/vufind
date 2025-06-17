@@ -30,11 +30,8 @@
 namespace VuFind\Db\Service;
 
 use Laminas\Log\LoggerAwareInterface;
-use VuFind\Db\Entity\Ratings;
 use VuFind\Db\Entity\RatingsEntityInterface;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Log\LoggerAwareTrait;
 
@@ -213,8 +210,8 @@ class RatingsService extends AbstractDbService implements
         $dql = 'SELECT r '
             . 'FROM ' . $this->getEntityClass(RatingsEntityInterface::class) . ' r '
             . 'WHERE r.user = :user AND r.resource = :resource';
-        $resource = $this->getDoctrineReference(Resource::class, $resourceOrId);
-        $user = $this->getDoctrineReference(User::class, $userOrId);
+        $resource = $this->getDoctrineReference(ResourceEntityInterface::class, $resourceOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         $parameters = compact('resource', 'user');
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);

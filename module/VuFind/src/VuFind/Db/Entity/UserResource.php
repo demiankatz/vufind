@@ -56,7 +56,7 @@ class UserResource implements UserResourceEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Notes associated with the resource.
@@ -64,7 +64,7 @@ class UserResource implements UserResourceEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'notes', type: 'text', length: 65535, nullable: true)]
-    protected $notes;
+    protected ?string $notes;
 
     /**
      * Date saved.
@@ -72,34 +72,34 @@ class UserResource implements UserResourceEntityInterface
      * @var DateTime
      */
     #[ORM\Column(name: 'saved', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
-    protected $saved;
+    protected DateTime $saved;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    protected UserEntityInterface $user;
 
     /**
      * Resource.
      *
-     * @var Resource
+     * @var ResourceEntityInterface
      */
     #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\Resource::class)]
-    protected $resource;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\ResourceEntityInterface::class)]
+    protected ResourceEntityInterface $resource;
 
     /**
      * User list ID.
      *
-     * @var UserList
+     * @var UserListEntityInterface
      */
     #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserList::class)]
-    protected $list;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserListEntityInterface::class)]
+    protected UserListEntityInterface $list;
 
     /**
      * Constructor

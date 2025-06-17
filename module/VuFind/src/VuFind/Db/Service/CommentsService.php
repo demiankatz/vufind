@@ -30,11 +30,8 @@
 namespace VuFind\Db\Service;
 
 use Laminas\Log\LoggerAwareInterface;
-use VuFind\Db\Entity\Comments;
 use VuFind\Db\Entity\CommentsEntityInterface;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Log\LoggerAwareTrait;
 
@@ -83,10 +80,10 @@ class CommentsService extends AbstractDbService implements
         ResourceEntityInterface|int $resourceOrId
     ): ?int {
         $data = $this->createEntity()
-            ->setUser($this->getDoctrineReference(User::class, $userOrId))
+            ->setUser($this->getDoctrineReference(UserEntityInterface::class, $userOrId))
             ->setComment($comment)
             ->setCreated(new \DateTime())
-            ->setResource($this->getDoctrineReference(Resource::class, $resourceOrId));
+            ->setResource($this->getDoctrineReference(ResourceEntityInterface::class, $resourceOrId));
 
         try {
             $this->persistEntity($data);

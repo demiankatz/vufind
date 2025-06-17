@@ -57,7 +57,7 @@ class UserList implements UserListEntityInterface
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Title of the list.
@@ -65,7 +65,7 @@ class UserList implements UserListEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'title', type: 'string', length: 200, nullable: false)]
-    protected $title = '';
+    protected string $title = '';
 
     /**
      * Description of the list.
@@ -73,7 +73,7 @@ class UserList implements UserListEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
-    protected $description;
+    protected ?string $description;
 
     /**
      * Creation date.
@@ -81,7 +81,7 @@ class UserList implements UserListEntityInterface
      * @var DateTime
      */
     #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
-    protected $created;
+    protected DateTime $created;
 
     /**
      * Flag to indicate whether or not the list is public.
@@ -89,16 +89,16 @@ class UserList implements UserListEntityInterface
      * @var bool
      */
     #[ORM\Column(name: 'public', type: 'boolean', nullable: false)]
-    protected $public = false;
+    protected bool $public = false;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    protected UserEntityInterface $user;
 
     /**
      * Constructor.
@@ -208,7 +208,7 @@ class UserList implements UserListEntityInterface
      */
     public function isPublic(): bool
     {
-        return (bool)($this->public ?? false);
+        return $this->public;
     }
 
     /**

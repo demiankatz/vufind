@@ -30,11 +30,8 @@
 namespace VuFind\Db\Service;
 
 use Laminas\Log\LoggerAwareInterface;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Entity\UserResource;
 use VuFind\Db\Entity\UserResourceEntityInterface;
@@ -100,11 +97,11 @@ class UserResourceService extends AbstractDbService implements
         $parameters = compact('source', 'recordId');
         if (null !== $userOrId) {
             $dql .= 'AND ur.user = :user ';
-            $parameters['user'] = $this->getDoctrineReference(User::class, $userOrId);
+            $parameters['user'] = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         }
         if (null !== $listOrId) {
             $dql .= 'AND ur.list = :list';
-            $parameters['list'] = $this->getDoctrineReference(UserList::class, $listOrId);
+            $parameters['list'] = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
         }
 
         $query = $this->entityManager->createQuery($dql);
@@ -145,9 +142,9 @@ class UserResourceService extends AbstractDbService implements
         UserListEntityInterface|int $listOrId,
         string $notes = ''
     ): UserResourceEntityInterface {
-        $resource = $this->getDoctrineReference(Resource::class, $resourceOrId);
-        $user = $this->getDoctrineReference(User::class, $userOrId);
-        $list = $this->getDoctrineReference(UserList::class, $listOrId);
+        $resource = $this->getDoctrineReference(ResourceEntityInterface::class, $resourceOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
+        $list = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
         $params = compact('resource', 'list', 'user');
         $result = current($this->entityManager->getRepository($this->getEntityClass(UserResourceEntityInterface::class))
             ->findBy($params));
@@ -185,7 +182,7 @@ class UserResourceService extends AbstractDbService implements
         UserEntityInterface|int $userOrId,
         UserListEntityInterface|int|null $listOrId = null
     ): void {
-        $user = $this->getDoctrineReference(User::class, $userOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         $dql = 'DELETE FROM ' . $this->getEntityClass(UserResourceEntityInterface::class) . ' ur ';
         $dqlWhere = ['ur.user = :user '];
         $parameters = compact('user');
@@ -195,7 +192,7 @@ class UserResourceService extends AbstractDbService implements
         }
         if (null !== $listOrId) {
             $dqlWhere[] = ' ur.list = :list ';
-            $parameters['list'] = $this->getDoctrineReference(UserList::class, $listOrId);
+            $parameters['list'] = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
         }
         $dql .= ' WHERE ' . implode(' AND ', $dqlWhere);
         $query = $this->entityManager->createQuery($dql);

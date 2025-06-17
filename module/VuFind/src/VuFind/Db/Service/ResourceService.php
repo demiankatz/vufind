@@ -34,12 +34,9 @@ use Doctrine\ORM\EntityManager;
 use Exception;
 use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
 use VuFind\Db\Entity\ResourceTagsEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Entity\UserResourceEntityInterface;
 use VuFind\Db\PersistenceManager;
@@ -219,10 +216,10 @@ class ResourceService extends AbstractDbService implements
             . 'WHERE ' . ($caseSensitiveTags ? 't.tag = :tag' : 'LOWER(t.tag) = LOWER(:tag) ')
             . 'AND rt.user = :user';
 
-        $user = $this->getDoctrineReference(User::class, $user);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $user);
         $parameters = compact('tag', 'user');
         if (null !== $list) {
-            $list = $this->getDoctrineReference(UserList::class, $list);
+            $list = $this->getDoctrineReference(UserListEntityInterface::class, $list);
             $dql .= ' AND rt.list = :list';
             $parameters['list'] = $list;
         }
@@ -254,8 +251,8 @@ class ResourceService extends AbstractDbService implements
         ?int $limit = null,
         bool $caseSensitiveTags = false
     ): array {
-        $user = $this->getDoctrineReference(User::class, $userOrId);
-        $list = $listOrId ? $this->getDoctrineReference(UserList::class, $listOrId) : null;
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
+        $list = $listOrId ? $this->getDoctrineReference(UserListEntityInterface::class, $listOrId) : null;
         $orderByDetails = empty($sort) ? [] : $this->getResourceOrderByClause($sort);
         $dql = 'SELECT DISTINCT r';
         if (!empty($orderByDetails['extraSelect'])) {
@@ -349,6 +346,6 @@ class ResourceService extends AbstractDbService implements
      */
     public function deleteResource(ResourceEntityInterface|int $resourceOrId): void
     {
-        $this->deleteEntity($this->getDoctrineReference(Resource::class, $resourceOrId));
+        $this->deleteEntity($this->getDoctrineReference(ResourceEntityInterface::class, $resourceOrId));
     }
 }

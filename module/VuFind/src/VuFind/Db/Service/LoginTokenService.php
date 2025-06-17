@@ -31,7 +31,6 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use VuFind\Db\Entity\LoginTokenEntityInterface;
-use VuFind\Db\Entity\User;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Exception\LoginToken as LoginTokenException;
 
@@ -168,7 +167,7 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function deleteByUser(UserEntityInterface|int $userOrId): void
     {
-        $user = $this->getDoctrineReference(User::class, $userOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         $dql = 'DELETE FROM ' . $this->getEntityClass(LoginTokenEntityInterface::class) . ' lt '
             . 'WHERE lt.user = :user';
         $query = $this->entityManager->createQuery($dql);
@@ -186,7 +185,7 @@ class LoginTokenService extends AbstractDbService implements
      */
     public function getByUser(UserEntityInterface|int $userOrId, bool $grouped = true): array
     {
-        $user = $this->getDoctrineReference(User::class, $userOrId);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         if ($grouped) {
             // Use different DQL for grouping logic
             $dql = 'SELECT lt '
