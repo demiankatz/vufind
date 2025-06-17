@@ -147,7 +147,7 @@ class User implements UserEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_username', type: 'string', length: 50, nullable: true)]
-    protected ?string $catUsername;
+    protected ?string $catUsername = null;
 
     /**
      * Cat password.

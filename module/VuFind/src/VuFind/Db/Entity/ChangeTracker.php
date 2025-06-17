@@ -86,7 +86,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'last_record_change', type: 'datetime', nullable: true)]
-    protected ?DateTime $lastRecordChange;
+    protected ?DateTime $lastRecordChange = null;
 
     /**
      * Time record was removed from index.
