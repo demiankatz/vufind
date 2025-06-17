@@ -64,7 +64,7 @@ class Ratings implements RatingsEntityInterface
      * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
     protected UserEntityInterface $user;
 
     /**
@@ -73,7 +73,7 @@ class Ratings implements RatingsEntityInterface
      * @var ResourceEntityInterface
      */
     #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\ResourceEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
     protected ResourceEntityInterface $resource;
 
     /**

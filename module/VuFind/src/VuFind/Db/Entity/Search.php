@@ -72,7 +72,7 @@ class Search implements SearchEntityInterface
      * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
     protected UserEntityInterface $user;
 
     /**

@@ -80,7 +80,7 @@ class Comments implements CommentsEntityInterface
      * @var ?UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
     protected ?UserEntityInterface $user;
 
     /**
@@ -89,7 +89,7 @@ class Comments implements CommentsEntityInterface
      * @var ResourceEntityInterface
      */
     #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\ResourceEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
     protected ResourceEntityInterface $resource;
 
     /**

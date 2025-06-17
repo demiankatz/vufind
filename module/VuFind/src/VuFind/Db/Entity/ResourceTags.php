@@ -69,7 +69,7 @@ class ResourceTags implements ResourceTagsEntityInterface
      * @var ResourceEntityInterface
      */
     #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\ResourceEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
     protected ResourceEntityInterface $resource;
 
     /**
@@ -78,7 +78,7 @@ class ResourceTags implements ResourceTagsEntityInterface
      * @var TagsEntityInterface
      */
     #[ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\TagsEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: TagsEntityInterface::class)]
     protected TagsEntityInterface $tag;
 
     /**
@@ -87,7 +87,7 @@ class ResourceTags implements ResourceTagsEntityInterface
      * @var UserListEntityInterface
      */
     #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserListEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserListEntityInterface::class)]
     protected UserListEntityInterface $list;
 
     /**
@@ -96,7 +96,7 @@ class ResourceTags implements ResourceTagsEntityInterface
      * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
     protected UserEntityInterface $user;
 
     /**

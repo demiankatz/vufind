@@ -80,7 +80,7 @@ class UserResource implements UserResourceEntityInterface
      * @var UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
     protected UserEntityInterface $user;
 
     /**
@@ -89,7 +89,7 @@ class UserResource implements UserResourceEntityInterface
      * @var ResourceEntityInterface
      */
     #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\ResourceEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
     protected ResourceEntityInterface $resource;
 
     /**
@@ -98,7 +98,7 @@ class UserResource implements UserResourceEntityInterface
      * @var UserListEntityInterface
      */
     #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\UserListEntityInterface::class)]
+    #[ORM\ManyToOne(targetEntity: UserListEntityInterface::class)]
     protected UserListEntityInterface $list;
 
     /**
