@@ -65,7 +65,7 @@ class Record implements RecordEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'record_id', type: 'string', length: 255, nullable: true)]
-    protected ?string $recordId;
+    protected ?string $recordId = null;
 
     /**
      * Record source.
@@ -73,7 +73,7 @@ class Record implements RecordEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'source', type: 'string', length: 50, nullable: true)]
-    protected ?string $source;
+    protected ?string $source = null;
 
     /**
      * Record version.
@@ -89,7 +89,7 @@ class Record implements RecordEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'data', type: 'text', length: 0, nullable: true)]
-    protected ?string $data;
+    protected ?string $data = null;
 
     /**
      * Updated date.

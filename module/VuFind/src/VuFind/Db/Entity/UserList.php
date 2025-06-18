@@ -73,7 +73,7 @@ class UserList implements UserListEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
-    protected ?string $description;
+    protected ?string $description = null;
 
     /**
      * Creation date.

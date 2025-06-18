@@ -70,7 +70,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'first_indexed', type: 'datetime', nullable: true)]
-    protected ?DateTime $firstIndexed;
+    protected ?DateTime $firstIndexed = null;
 
     /**
      * Last time changed in index.
@@ -78,7 +78,7 @@ class ChangeTracker implements ChangeTrackerEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'last_indexed', type: 'datetime', nullable: true)]
-    protected ?DateTime $lastIndexed;
+    protected ?DateTime $lastIndexed = null;
 
     /**
      * Last time original record was edited.

@@ -81,7 +81,7 @@ class Search implements SearchEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'session_id', type: 'string', length: 128, nullable: true)]
-    protected ?string $sessionId;
+    protected ?string $sessionId = null;
 
     /**
      * Created date.
@@ -97,7 +97,7 @@ class Search implements SearchEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'title', type: 'string', length: 20, nullable: true)]
-    protected ?string $title;
+    protected ?string $title = null;
 
     /**
      * Saved.
@@ -113,7 +113,7 @@ class Search implements SearchEntityInterface
      * @var mixed
      */
     #[ORM\Column(name: 'search_object', type: 'blob', length: 65535, nullable: true)]
-    protected mixed $searchObject;
+    protected mixed $searchObject = null;
 
     /**
      * Normalized search object after loading.
@@ -128,7 +128,7 @@ class Search implements SearchEntityInterface
      * @var ?int
      */
     #[ORM\Column(name: 'checksum', type: 'integer', nullable: true)]
-    protected ?int $checksum;
+    protected ?int $checksum = null;
 
     /**
      * Notification frequency.

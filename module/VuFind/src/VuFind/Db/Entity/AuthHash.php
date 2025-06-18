@@ -64,7 +64,7 @@ class AuthHash implements AuthHashEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'session_id', type: 'string', length: 128, nullable: true)]
-    protected ?string $sessionId;
+    protected ?string $sessionId = null;
 
     /**
      * Hash value.
@@ -80,7 +80,7 @@ class AuthHash implements AuthHashEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'type', type: 'string', length: 50, nullable: true)]
-    protected ?string $type;
+    protected ?string $type = null;
 
     /**
      * Data.
@@ -88,7 +88,7 @@ class AuthHash implements AuthHashEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'data', type: 'text', length: 16777215, nullable: true)]
-    protected ?string $data;
+    protected ?string $data = null;
 
     /**
      * Creation date.

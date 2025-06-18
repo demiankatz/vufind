@@ -83,7 +83,7 @@ class User implements UserEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'pass_hash', type: 'string', length: 60, nullable: true)]
-    protected ?string $passHash;
+    protected ?string $passHash = null;
 
     /**
      * First Name.
@@ -115,7 +115,7 @@ class User implements UserEntityInterface
      * @var ?DateTime
      */
     #[ORM\Column(name: 'email_verified', type: 'datetime', nullable: true)]
-    protected ?DateTime $emailVerified;
+    protected ?DateTime $emailVerified = null;
 
     /**
      * Pending email.
@@ -139,7 +139,7 @@ class User implements UserEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_id', type: 'string', length: 255, nullable: true)]
-    protected ?string $catId;
+    protected ?string $catId = null;
 
     /**
      * Cat username.
@@ -155,7 +155,7 @@ class User implements UserEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_password', type: 'string', length: 70, nullable: true)]
-    protected ?string $catPassword;
+    protected ?string $catPassword = null;
 
     /**
      * Cat encrypted password.
@@ -163,7 +163,7 @@ class User implements UserEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_pass_enc', type: 'string', length: 255, nullable: true)]
-    protected ?string $catPassEnc;
+    protected ?string $catPassEnc = null;
 
     /**
      * College.
@@ -219,7 +219,7 @@ class User implements UserEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'auth_method', type: 'string', length: 50, nullable: true)]
-    protected ?string $authMethod;
+    protected ?string $authMethod = null;
 
     /**
      * Last known language.

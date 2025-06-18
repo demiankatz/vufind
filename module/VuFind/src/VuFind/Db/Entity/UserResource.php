@@ -64,7 +64,7 @@ class UserResource implements UserResourceEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'notes', type: 'text', length: 65535, nullable: true)]
-    protected ?string $notes;
+    protected ?string $notes = null;
 
     /**
      * Date saved.

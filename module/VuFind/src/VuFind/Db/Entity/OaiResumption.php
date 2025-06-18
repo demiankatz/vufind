@@ -66,7 +66,7 @@ class OaiResumption implements OaiResumptionEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'params', type: 'text', length: 65535, nullable: true)]
-    protected ?string $params;
+    protected ?string $params = null;
 
     /**
      * Expiry date.
@@ -82,7 +82,7 @@ class OaiResumption implements OaiResumptionEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'token', type: 'string', length: 255, nullable: true)]
-    protected ?string $token;
+    protected ?string $token = null;
 
     /**
      * Constructor.

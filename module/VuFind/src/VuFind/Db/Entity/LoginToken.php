@@ -97,7 +97,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'browser', type: 'string', length: 255, nullable: true)]
-    protected ?string $browser;
+    protected ?string $browser = null;
 
     /**
      * Platform.
@@ -105,7 +105,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'platform', type: 'string', length: 255, nullable: true)]
-    protected ?string $platform;
+    protected ?string $platform = null;
 
     /**
      * Expires.
@@ -121,7 +121,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'last_session_id', type: 'string', length: 255, nullable: true)]
-    protected ?string $lastSessionId;
+    protected ?string $lastSessionId = null;
 
     /**
      * Constructor.

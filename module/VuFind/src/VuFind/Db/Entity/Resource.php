@@ -77,7 +77,7 @@ class Resource implements ResourceEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'author', type: 'string', length: 255, nullable: true)]
-    protected ?string $author;
+    protected ?string $author = null;
 
     /**
      * Published year.
@@ -85,7 +85,7 @@ class Resource implements ResourceEntityInterface
      * @var ?int
      */
     #[ORM\Column(name: 'year', type: 'integer', nullable: true)]
-    protected ?int $year;
+    protected ?int $year = null;
 
     /**
      * Record source.
@@ -101,7 +101,7 @@ class Resource implements ResourceEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'extra_metadata', type: 'text', length: 16777215, nullable: true)]
-    protected ?string $extraMetadata;
+    protected ?string $extraMetadata = null;
 
     /**
      * Id getter

@@ -72,7 +72,7 @@ class Feedback implements FeedbackEntityInterface
      * @var ?array
      */
     #[ORM\Column(name: 'form_data', type: 'json', length: 0, nullable: true)]
-    protected ?array $formData;
+    protected ?array $formData = null;
 
     /**
      * Form name

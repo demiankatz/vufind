@@ -70,7 +70,7 @@ class Shortlinks implements ShortlinksEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'hash', type: 'string', length: 32, nullable: true)]
-    protected ?string $hash;
+    protected ?string $hash = null;
 
     /**
      * Creation timestamp.

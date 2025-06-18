@@ -91,7 +91,7 @@ class AccessToken implements AccessTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'data', type: 'text', length: 16777215, nullable: true)]
-    protected ?string $data;
+    protected ?string $data = null;
 
     /**
      * Flag indicating status of the token.

@@ -82,7 +82,7 @@ class UserCard implements UserCardEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_password', type: 'string', length: 70, nullable: true)]
-    protected ?string $catPassword;
+    protected ?string $catPassword = null;
 
     /**
      * Cat password (encrypted).
@@ -90,7 +90,7 @@ class UserCard implements UserCardEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_pass_enc', type: 'string', length: 255, nullable: true)]
-    protected ?string $catPassEnc;
+    protected ?string $catPassEnc = null;
 
     /**
      * Home library.
