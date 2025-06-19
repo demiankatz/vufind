@@ -84,20 +84,20 @@ class ResourceTags implements ResourceTagsEntityInterface
     /**
      * List ID.
      *
-     * @var UserListEntityInterface
+     * @var ?UserListEntityInterface
      */
     #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: UserListEntityInterface::class)]
-    protected UserListEntityInterface $list;
+    protected ?UserListEntityInterface $list;
 
     /**
      * User ID.
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $user;
+    protected ?UserEntityInterface $user;
 
     /**
      * Constructor

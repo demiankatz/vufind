@@ -117,20 +117,20 @@ class Feedback implements FeedbackEntityInterface
     /**
      * User that created request
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $user;
+    protected ?UserEntityInterface $user;
 
     /**
      * User that updated request
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
     #[ORM\JoinColumn(name: 'updated_by', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $updatedBy;
+    protected ?UserEntityInterface $updatedBy;
 
     /**
      * Id getter
