@@ -52,11 +52,11 @@ interface AccessTokenEntityInterface extends EntityInterface
     public function setId(string $id): static;
 
     /**
-     * Get identifier (returns null for an uninitialized or non-persisted object).
+     * Get identifier.
      *
-     * @return ?string
+     * @return string
      */
-    public function getId(): ?string;
+    public function getId(): string;
 
     /**
      * Get type of access token.

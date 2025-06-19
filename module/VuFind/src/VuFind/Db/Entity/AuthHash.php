@@ -108,11 +108,11 @@ class AuthHash implements AuthHashEntityInterface
     }
 
     /**
-     * Get identifier (returns null for an uninitialized or non-persisted object).
+     * Get identifier.
      *
-     * @return ?int
+     * @return int
      */
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

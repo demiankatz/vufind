@@ -58,7 +58,7 @@ class UserCard implements UserCardEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected ?int $id = null;
+    protected int $id;
 
     /**
      * Card name.
@@ -136,11 +136,11 @@ class UserCard implements UserCardEntityInterface
     }
 
     /**
-     * ID getter (returns null if the entity has not been saved/populated yet)
+     * ID getter
      *
-     * @return ?int
+     * @return int
      */
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

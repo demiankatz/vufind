@@ -124,11 +124,11 @@ class AccessToken implements AccessTokenEntityInterface
     }
 
     /**
-     * Get identifier (returns null for an uninitialized or non-persisted object).
+     * Get identifier.
      *
-     * @return ?string
+     * @return string
      */
-    public function getId(): ?string
+    public function getId(): string
     {
         return $this->id;
     }
