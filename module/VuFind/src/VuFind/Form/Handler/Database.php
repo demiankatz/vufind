@@ -85,7 +85,7 @@ class Database implements HandlerInterface, LoggerAwareInterface
         unset($formData['message']);
         $now = new \DateTime();
         $data = $this->feedbackService->createEntity()
-            ->setUser($user ? $this->userService->getDoctrineReference(UserEntityInterface::class, $user) : null)
+            ->setUser($user)
             ->setMessage($fields['message'] ?? '')
             ->setFormData($formData)
             ->setFormName($form->getFormId())

@@ -82,8 +82,6 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
         $feedbackService->expects($this->once())->method('createEntity')->willReturn($feedback);
         $feedbackService->expects($this->once())->method('persistEntity')->with($feedback);
         $userService = $this->createMock(UserService::class);
-        $userService->expects($this->once())->method('getDoctrineReference')->with(UserEntityInterface::class, $user)
-            ->willReturn($user);
         $handler = new Database($feedbackService, $userService, 'http://foo');
         $form = $this->createMock(Form::class);
         $form->expects($this->once())->method('mapRequestParamsToFieldValues')->willReturn([]);
@@ -106,7 +104,6 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
         $feedbackService->expects($this->once())->method('createEntity')->willReturn($feedback);
         $feedbackService->expects($this->once())->method('persistEntity')->with($feedback);
         $userService = $this->createMock(UserService::class);
-        $userService->expects($this->never())->method('getDoctrineReference');
         $handler = new Database($feedbackService, $userService, 'http://foo');
         $form = $this->createMock(Form::class);
         $form->expects($this->once())->method('mapRequestParamsToFieldValues')->willReturn([]);
