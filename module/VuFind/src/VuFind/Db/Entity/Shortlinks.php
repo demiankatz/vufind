@@ -90,11 +90,11 @@ class Shortlinks implements ShortlinksEntityInterface
     }
 
     /**
-     * Get identifier.
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

@@ -59,7 +59,7 @@ class User implements UserEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected int $id;
+    protected ?int $id = null;
 
     /**
      * Username
@@ -240,11 +240,11 @@ class User implements UserEntityInterface
     }
 
     /**
-     * Get identifier.
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

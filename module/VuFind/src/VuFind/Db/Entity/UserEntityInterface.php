@@ -47,11 +47,11 @@ interface UserEntityInterface extends
     \LmcRbacMvc\Identity\IdentityInterface
 {
     /**
-     * Get identifier.
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int;
+    public function getId(): ?int;
 
     /**
      * Username setter

@@ -43,11 +43,11 @@ use DateTime;
 interface UserCardEntityInterface extends EntityInterface
 {
     /**
-     * ID getter
+     * ID getter (returns null if the entity has not been saved/populated yet)
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int;
+    public function getId(): ?int;
 
     /**
      * Card name setter
