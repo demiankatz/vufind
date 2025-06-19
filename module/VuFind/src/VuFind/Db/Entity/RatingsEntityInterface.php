@@ -68,18 +68,18 @@ interface RatingsEntityInterface extends EntityInterface
     /**
      * Get resource.
      *
-     * @return ResourceEntityInterface
+     * @return ?ResourceEntityInterface
      */
-    public function getResource(): ResourceEntityInterface;
+    public function getResource(): ?ResourceEntityInterface;
 
     /**
      * Set resource.
      *
-     * @param ResourceEntityInterface $resource Resource
+     * @param ?ResourceEntityInterface $resource Resource
      *
      * @return static
      */
-    public function setResource(ResourceEntityInterface $resource): static;
+    public function setResource(?ResourceEntityInterface $resource): static;
 
     /**
      * Get rating.

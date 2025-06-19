@@ -71,11 +71,11 @@ class AccessToken implements AccessTokenEntityInterface
     /**
      * User.
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $user;
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Creation date.

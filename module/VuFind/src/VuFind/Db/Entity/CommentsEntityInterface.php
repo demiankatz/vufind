@@ -100,9 +100,9 @@ interface CommentsEntityInterface extends EntityInterface
     /**
      * Resource setter.
      *
-     * @param ResourceEntityInterface $resource Resource id.
+     * @param ?ResourceEntityInterface $resource Resource
      *
      * @return static
      */
-    public function setResource(ResourceEntityInterface $resource): static;
+    public function setResource(?ResourceEntityInterface $resource): static;
 }

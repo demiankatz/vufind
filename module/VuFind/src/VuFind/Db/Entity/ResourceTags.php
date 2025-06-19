@@ -68,36 +68,36 @@ class ResourceTags implements ResourceTagsEntityInterface
      *
      * @var ?ResourceEntityInterface
      */
-    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
-    protected ?ResourceEntityInterface $resource;
+    protected ?ResourceEntityInterface $resource = null;
 
     /**
      * Tag ID.
      *
-     * @var TagsEntityInterface
+     * @var ?TagsEntityInterface
      */
-    #[ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: TagsEntityInterface::class)]
-    protected TagsEntityInterface $tag;
+    protected ?TagsEntityInterface $tag;
 
     /**
      * List ID.
      *
      * @var ?UserListEntityInterface
      */
-    #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserListEntityInterface::class)]
-    protected ?UserListEntityInterface $list;
+    protected ?UserListEntityInterface $list = null;
 
     /**
      * User ID.
      *
      * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected ?UserEntityInterface $user;
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Constructor
@@ -144,9 +144,9 @@ class ResourceTags implements ResourceTagsEntityInterface
     /**
      * Get tag.
      *
-     * @return TagsEntityInterface
+     * @return ?TagsEntityInterface
      */
-    public function getTag(): TagsEntityInterface
+    public function getTag(): ?TagsEntityInterface
     {
         return $this->tag;
     }
@@ -154,11 +154,11 @@ class ResourceTags implements ResourceTagsEntityInterface
     /**
      * Set tag.
      *
-     * @param TagsEntityInterface $tag Tag
+     * @param ?TagsEntityInterface $tag Tag
      *
      * @return static
      */
-    public function setTag(TagsEntityInterface $tag): static
+    public function setTag(?TagsEntityInterface $tag): static
     {
         $this->tag = $tag;
         return $this;

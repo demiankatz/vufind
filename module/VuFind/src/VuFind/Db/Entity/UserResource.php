@@ -77,29 +77,29 @@ class UserResource implements UserResourceEntityInterface
     /**
      * User ID.
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $user;
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Resource.
      *
-     * @var ResourceEntityInterface
+     * @var ?ResourceEntityInterface
      */
-    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
-    protected ResourceEntityInterface $resource;
+    protected ?ResourceEntityInterface $resource = null;
 
     /**
      * User list ID.
      *
-     * @var UserListEntityInterface
+     * @var ?UserListEntityInterface
      */
-    #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'list_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserListEntityInterface::class)]
-    protected UserListEntityInterface $list;
+    protected ?UserListEntityInterface $list = null;
 
     /**
      * Constructor
@@ -123,9 +123,9 @@ class UserResource implements UserResourceEntityInterface
     /**
      * Get user.
      *
-     * @return UserEntityInterface
+     * @return ?UserEntityInterface
      */
-    public function getUser(): UserEntityInterface
+    public function getUser(): ?UserEntityInterface
     {
         return $this->user;
     }
@@ -133,11 +133,11 @@ class UserResource implements UserResourceEntityInterface
     /**
      * Set user.
      *
-     * @param UserEntityInterface $user User
+     * @param ?UserEntityInterface $user User
      *
      * @return static
      */
-    public function setUser(UserEntityInterface $user): static
+    public function setUser(?UserEntityInterface $user): static
     {
         $this->user = $user;
         return $this;
@@ -146,9 +146,9 @@ class UserResource implements UserResourceEntityInterface
     /**
      * Get resource.
      *
-     * @return ResourceEntityInterface
+     * @return ?ResourceEntityInterface
      */
-    public function getResource(): ResourceEntityInterface
+    public function getResource(): ?ResourceEntityInterface
     {
         return $this->resource;
     }
@@ -156,11 +156,11 @@ class UserResource implements UserResourceEntityInterface
     /**
      * Set resource.
      *
-     * @param ResourceEntityInterface $resource Resource
+     * @param ?ResourceEntityInterface $resource Resource
      *
      * @return static
      */
-    public function setResource(ResourceEntityInterface $resource): static
+    public function setResource(?ResourceEntityInterface $resource): static
     {
         $this->resource = $resource;
         return $this;
@@ -169,9 +169,9 @@ class UserResource implements UserResourceEntityInterface
     /**
      * Get user list.
      *
-     * @return UserListEntityInterface
+     * @return ?UserListEntityInterface
      */
-    public function getUserList(): UserListEntityInterface
+    public function getUserList(): ?UserListEntityInterface
     {
         return $this->list;
     }

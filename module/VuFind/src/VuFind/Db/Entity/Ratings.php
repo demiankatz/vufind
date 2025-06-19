@@ -61,20 +61,20 @@ class Ratings implements RatingsEntityInterface
     /**
      * User ID.
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $user;
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Resource ID.
      *
-     * @var ResourceEntityInterface
+     * @var ?ResourceEntityInterface
      */
-    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
-    protected ResourceEntityInterface $resource;
+    protected ?ResourceEntityInterface $resource = null;
 
     /**
      * Rating.
@@ -137,9 +137,9 @@ class Ratings implements RatingsEntityInterface
     /**
      * Get resource.
      *
-     * @return Resource
+     * @return ?ResourceEntityInterface
      */
-    public function getResource(): Resource
+    public function getResource(): ?ResourceEntityInterface
     {
         return $this->resource;
     }
@@ -147,11 +147,11 @@ class Ratings implements RatingsEntityInterface
     /**
      * Set resource.
      *
-     * @param ResourceEntityInterface $resource Resource
+     * @param ?ResourceEntityInterface $resource Resource
      *
      * @return static
      */
-    public function setResource(ResourceEntityInterface $resource): static
+    public function setResource(?ResourceEntityInterface $resource): static
     {
         $this->resource = $resource;
         return $this;

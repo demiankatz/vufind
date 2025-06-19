@@ -94,11 +94,11 @@ class UserList implements UserListEntityInterface
     /**
      * User ID.
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected UserEntityInterface $user;
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Constructor.
