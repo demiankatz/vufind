@@ -52,34 +52,34 @@ interface UserResourceEntityInterface extends EntityInterface
     /**
      * Get user.
      *
-     * @return ?UserEntityInterface
+     * @return UserEntityInterface
      */
-    public function getUser(): ?UserEntityInterface;
+    public function getUser(): UserEntityInterface;
 
     /**
      * Set user.
      *
-     * @param ?UserEntityInterface $user User
+     * @param UserEntityInterface $user User
      *
      * @return static
      */
-    public function setUser(?UserEntityInterface $user): static;
+    public function setUser(UserEntityInterface $user): static;
 
     /**
      * Get resource.
      *
-     * @return ?ResourceEntityInterface
+     * @return ResourceEntityInterface
      */
-    public function getResource(): ?ResourceEntityInterface;
+    public function getResource(): ResourceEntityInterface;
 
     /**
      * Set resource.
      *
-     * @param ?ResourceEntityInterface $resource Resource
+     * @param ResourceEntityInterface $resource Resource
      *
      * @return static
      */
-    public function setResource(?ResourceEntityInterface $resource): static;
+    public function setResource(ResourceEntityInterface $resource): static;
 
     /**
      * Get user list.

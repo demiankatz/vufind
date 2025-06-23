@@ -164,16 +164,16 @@ interface UserCardEntityInterface extends EntityInterface
     /**
      * User setter.
      *
-     * @param ?UserEntityInterface $user User that owns card
+     * @param UserEntityInterface $user User that owns card
      *
      * @return static
      */
-    public function setUser(?UserEntityInterface $user): static;
+    public function setUser(UserEntityInterface $user): static;
 
     /**
      * User getter
      *
-     * @return ?UserEntityInterface
+     * @return UserEntityInterface
      */
-    public function getUser(): ?UserEntityInterface;
+    public function getUser(): UserEntityInterface;
 }

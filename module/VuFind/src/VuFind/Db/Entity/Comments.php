@@ -86,11 +86,11 @@ class Comments implements CommentsEntityInterface
     /**
      * Resource ID.
      *
-     * @var ?ResourceEntityInterface
+     * @var ResourceEntityInterface
      */
-    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
-    protected ?ResourceEntityInterface $resource = null;
+    protected ResourceEntityInterface $resource;
 
     /**
      * Constructor.
@@ -183,11 +183,11 @@ class Comments implements CommentsEntityInterface
     /**
      * Resource setter.
      *
-     * @param ?ResourceEntityInterface $resource Resource
+     * @param ResourceEntityInterface $resource Resource
      *
      * @return static
      */
-    public function setResource(?ResourceEntityInterface $resource): static
+    public function setResource(ResourceEntityInterface $resource): static
     {
         $this->resource = $resource;
         return $this;

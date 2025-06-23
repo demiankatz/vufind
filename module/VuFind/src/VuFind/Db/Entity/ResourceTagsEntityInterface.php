@@ -68,18 +68,18 @@ interface ResourceTagsEntityInterface extends EntityInterface
     /**
      * Get tag.
      *
-     * @return ?TagsEntityInterface
+     * @return TagsEntityInterface
      */
-    public function getTag(): ?TagsEntityInterface;
+    public function getTag(): TagsEntityInterface;
 
     /**
      * Set tag.
      *
-     * @param ?TagsEntityInterface $tag Tag
+     * @param TagsEntityInterface $tag Tag
      *
      * @return static
      */
-    public function setTag(?TagsEntityInterface $tag): static;
+    public function setTag(TagsEntityInterface $tag): static;
 
     /**
      * Get user list.

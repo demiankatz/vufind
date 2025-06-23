@@ -61,11 +61,11 @@ class LoginToken implements LoginTokenEntityInterface
     /**
      * User ID.
      *
-     * @var ?UserEntityInterface
+     * @var UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
-    protected ?UserEntityInterface $user = null;
+    protected UserEntityInterface $user;
 
     /**
      * Token.
@@ -156,11 +156,11 @@ class LoginToken implements LoginTokenEntityInterface
     }
 
     /**
-     * User getter (only null if entity has not been populated yet).
+     * User getter.
      *
-     * @return ?UserEntityInterface
+     * @return UserEntityInterface
      */
-    public function getUser(): ?UserEntityInterface
+    public function getUser(): UserEntityInterface
     {
         return $this->user;
     }
