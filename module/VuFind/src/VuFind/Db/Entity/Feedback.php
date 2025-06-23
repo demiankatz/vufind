@@ -133,6 +133,16 @@ class Feedback implements FeedbackEntityInterface
     protected ?UserEntityInterface $updatedBy = null;
 
     /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->created = new Datetime();
+        $this->updated = new Datetime();
+    }
+
+    /**
      * Id getter
      *
      * @return int
