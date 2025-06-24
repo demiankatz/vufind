@@ -110,13 +110,13 @@ class ChangeTracker implements ChangeTrackerEntityInterface
     }
 
     /**
-     * Getter for identifier.
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return string
+     * @return ?string
      */
-    public function getId(): string
+    public function getId(): ?string
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     /**

@@ -116,7 +116,7 @@ class UserList implements UserListEntityInterface
      */
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     /**

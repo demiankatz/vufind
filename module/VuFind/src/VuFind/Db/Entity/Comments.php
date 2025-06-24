@@ -102,13 +102,13 @@ class Comments implements CommentsEntityInterface
     }
 
     /**
-     * Id getter
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     /**

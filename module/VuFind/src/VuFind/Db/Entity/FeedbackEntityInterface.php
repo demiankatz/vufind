@@ -43,11 +43,11 @@ use DateTime;
 interface FeedbackEntityInterface extends EntityInterface
 {
     /**
-     * Id getter
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int;
+    public function getId(): ?int;
 
     /**
      * Message setter
