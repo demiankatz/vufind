@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * Entity model for access_token table
@@ -45,6 +46,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class AccessToken implements AccessTokenEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -53,7 +56,7 @@ class AccessToken implements AccessTokenEntityInterface
     #[ORM\Column(name: 'id', type: 'string', length: 255, nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'NONE')]
-    protected $id;
+    protected string $id;
 
     /**
      * Token type.
@@ -63,24 +66,24 @@ class AccessToken implements AccessTokenEntityInterface
     #[ORM\Column(name: 'type', type: 'string', length: 128, nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'NONE')]
-    protected $type;
+    protected string $type;
 
     /**
      * User.
      *
-     * @var UserEntityInterface
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Creation date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $created = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
+    protected DateTime $created;
 
     /**
      * Data.
@@ -88,7 +91,7 @@ class AccessToken implements AccessTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'data', type: 'text', length: 16777215, nullable: true)]
-    protected $data;
+    protected ?string $data = null;
 
     /**
      * Flag indicating status of the token.
@@ -96,7 +99,16 @@ class AccessToken implements AccessTokenEntityInterface
      * @var bool
      */
     #[ORM\Column(name: 'revoked', type: 'boolean', nullable: false)]
-    protected $revoked = '0';
+    protected bool $revoked = false;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->created = $this->getUnassignedDefaultDateTime();
+    }
 
     /**
      * Set access token identifier.
@@ -220,7 +232,7 @@ class AccessToken implements AccessTokenEntityInterface
      */
     public function isRevoked(): bool
     {
-        return (bool)$this->revoked;
+        return $this->revoked;
     }
 
     /**
@@ -232,7 +244,7 @@ class AccessToken implements AccessTokenEntityInterface
      */
     public function setRevoked(bool $revoked): static
     {
-        $this->revoked = $revoked ? '1' : '0';
+        $this->revoked = $revoked;
         return $this;
     }
 }

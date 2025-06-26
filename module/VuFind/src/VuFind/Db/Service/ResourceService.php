@@ -34,17 +34,13 @@ use Doctrine\ORM\EntityManager;
 use Exception;
 use Laminas\Log\LoggerAwareInterface;
 use VuFind\Db\Entity\PluginManager as EntityPluginManager;
-use VuFind\Db\Entity\Resource;
 use VuFind\Db\Entity\ResourceEntityInterface;
-use VuFind\Db\Entity\User;
+use VuFind\Db\Entity\ResourceTagsEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Entity\UserList;
 use VuFind\Db\Entity\UserListEntityInterface;
 use VuFind\Db\Entity\UserResourceEntityInterface;
 use VuFind\Db\PersistenceManager;
 use VuFind\Log\LoggerAwareTrait;
-
-use function in_array;
 
 /**
  * Database service for resource.
@@ -62,6 +58,7 @@ class ResourceService extends AbstractDbService implements
     LoggerAwareInterface
 {
     use DbServiceAwareTrait;
+    use Feature\ResourceSortTrait;
     use LoggerAwareTrait;
 
     /**
@@ -131,10 +128,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function getResourceById(int $id): ?ResourceEntityInterface
     {
-        $resource = $this->entityManager->find(
-            $this->getEntityClass(ResourceEntityInterface::class),
-            $id
-        );
+        $resource = $this->entityManager->find(ResourceEntityInterface::class, $id);
         return $resource;
     }
 
@@ -145,8 +139,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function createEntity(): ResourceEntityInterface
     {
-        $class = $this->getEntityClass(ResourceEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(ResourceEntityInterface::class);
     }
 
     /**
@@ -158,64 +151,12 @@ class ResourceService extends AbstractDbService implements
     public function findMissingMetadata(): array
     {
         $dql = 'SELECT r '
-            . 'FROM ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
+            . 'FROM ' . ResourceEntityInterface::class . ' r '
             . "WHERE r.title = '' OR r.author IS NULL OR r.year IS NULL";
 
         $query = $this->entityManager->createQuery($dql);
         $result = $query->getResult();
         return $result;
-    }
-
-    /**
-     * Apply a sort parameter to a query on the resource table. Returns an
-     * array with two keys: 'orderByClause' (the actual ORDER BY) and
-     * 'extraSelect' (extra values to add to SELECT, if necessary)
-     *
-     * @param string $sort  Field to use for sorting (may include
-     *                      'desc' qualifier)
-     * @param string $alias Alias to the resource table (defaults to 'r')
-     *
-     * @return array
-     */
-    public static function getOrderByClause(string $sort, string $alias = 'r'): array
-    {
-        // Apply sorting, if necessary:
-        $legalSorts = [
-            'title', 'title desc', 'author', 'author desc', 'year', 'year desc', 'last_saved', 'last_saved desc',
-        ];
-        $orderByClause = $extraSelect = '';
-        if (!empty($sort) && in_array(strtolower($sort), $legalSorts)) {
-            // Strip off 'desc' to obtain the raw field name -- we'll need it
-            // to sort null values to the bottom:
-            $parts = explode(' ', $sort);
-            $rawField = trim($parts[0]);
-
-            // Start building the list of sort fields:
-            $order = [];
-
-            // Only include the table alias on non-virtual fields:
-            $fieldPrefix = (strtolower($rawField) === 'last_saved') ? '' : "$alias.";
-
-            // The title field can't be null, so don't bother with the extra
-            // isnull() sort in that case.
-            if (strtolower($rawField) === 'title') {
-                // Do nothing
-            } elseif (strtolower($rawField) === 'last_saved') {
-                $extraSelect = 'ur.saved AS HIDDEN last_saved, '
-                    . 'CASE WHEN ur.saved IS NULL THEN 1 ELSE 0 END AS HIDDEN last_savedsort';
-                $order[] = 'last_savedsort';
-            } else {
-                $extraSelect = 'CASE WHEN ' . $fieldPrefix . $rawField . ' IS NULL THEN 1 ELSE 0 END AS HIDDEN '
-                    . $rawField . 'sort';
-                $order[] = "{$rawField}sort";
-            }
-
-            // Apply the user-specified sort:
-            $order[] = $fieldPrefix . $sort;
-            // Inject the sort preferences into the query object:
-            $orderByClause = ' ORDER BY ' . implode(', ', $order);
-        }
-        return compact('orderByClause', 'extraSelect');
     }
 
     /**
@@ -241,12 +182,46 @@ class ResourceService extends AbstractDbService implements
      */
     public function getResourcesByRecordIds(array $ids, string $source = DEFAULT_SEARCH_BACKEND): array
     {
-        $repo = $this->entityManager->getRepository($this->getEntityClass(ResourceEntityInterface::class));
+        $repo = $this->entityManager->getRepository(ResourceEntityInterface::class);
         $criteria = [
             'recordId' => $ids,
             'source' => $source,
         ];
         return $repo->findBy($criteria);
+    }
+
+    /**
+     * Get resources associated with a particular tag.
+     *
+     * @param string $tag               Tag to match
+     * @param int    $user              ID of user owning favorite list
+     * @param ?int   $list              ID of list to retrieve (null for all favorites)
+     * @param bool   $caseSensitiveTags Should tags be treated case sensitively?
+     *
+     * @return array
+     */
+    protected function getResourceIDsForTag(
+        string $tag,
+        int $user,
+        ?int $list = null,
+        bool $caseSensitiveTags = false
+    ): array {
+        $dql = 'SELECT DISTINCT(rt.resource) AS resource_id '
+            . 'FROM ' . ResourceTagsEntityInterface::class . ' rt '
+            . 'JOIN rt.tag t '
+            . 'WHERE ' . ($caseSensitiveTags ? 't.tag = :tag' : 'LOWER(t.tag) = LOWER(:tag) ')
+            . 'AND rt.user = :user';
+
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $user);
+        $parameters = compact('tag', 'user');
+        if (null !== $list) {
+            $list = $this->getDoctrineReference(UserListEntityInterface::class, $list);
+            $dql .= ' AND rt.list = :list';
+            $parameters['list'] = $list;
+        }
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($parameters);
+        return $query->getSingleColumnResult();
     }
 
     /**
@@ -272,15 +247,15 @@ class ResourceService extends AbstractDbService implements
         ?int $limit = null,
         bool $caseSensitiveTags = false
     ): array {
-        $user = $this->getDoctrineReference(User::class, $userOrId);
-        $list = $listOrId ? $this->getDoctrineReference(UserList::class, $listOrId) : null;
-        $orderByDetails = empty($sort) ? [] : ResourceService::getOrderByClause($sort);
+        $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
+        $list = $listOrId ? $this->getDoctrineReference(UserListEntityInterface::class, $listOrId) : null;
+        $orderByDetails = empty($sort) ? [] : $this->getResourceOrderByClause($sort);
         $dql = 'SELECT DISTINCT r';
         if (!empty($orderByDetails['extraSelect'])) {
             $dql .= ', ' . $orderByDetails['extraSelect'];
         }
-        $dql .= ' FROM ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
-            . 'JOIN ' . $this->getEntityClass(UserResourceEntityInterface::class) . ' ur WITH r.id = ur.resource ';
+        $dql .= ' FROM ' . ResourceEntityInterface::class . ' r '
+            . 'JOIN ' . UserResourceEntityInterface::class . ' ur WITH r.id = ur.resource ';
         $dqlWhere = [];
         $dqlWhere[] = 'ur.user = :user';
         $parameters = compact('user');
@@ -291,17 +266,18 @@ class ResourceService extends AbstractDbService implements
 
         // Adjust for tags if necessary:
         if (!empty($tags)) {
-            $linkingTable = $this->getDbService(TagService::class);
-            $matches = [];
+            $matches = null;
             foreach ($tags as $tag) {
-                $matches[] = $linkingTable
-                    ->getResourceIDsForTag($tag, $user->getId(), $list?->getId(), $caseSensitiveTags);
+                $nextTagBatch = $this->getResourceIDsForTag($tag, $user->getId(), $list?->getId(), $caseSensitiveTags);
+                $matches = array_intersect(
+                    $matches ?? $nextTagBatch, // first time, use whole batch
+                    $nextTagBatch
+                );
             }
             $dqlWhere[] = 'r.id IN (:ids)';
             $parameters['ids'] = $matches;
         }
         $dql .= ' WHERE ' . implode(' AND ', $dqlWhere);
-        //$dql .= ' GROUP BY r.id';
         if (!empty($orderByDetails['orderByClause'])) {
             $dql .= $orderByDetails['orderByClause'];
         }
@@ -332,7 +308,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function deleteResourceByRecordId(string $id, string $source): bool
     {
-        $dql = 'DELETE FROM ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
+        $dql = 'DELETE FROM ' . ResourceEntityInterface::class . ' r '
             . 'WHERE r.recordId = :id AND r.source = :source';
         $parameters = compact('id', 'source');
         $query = $this->entityManager->createQuery($dql);
@@ -350,7 +326,7 @@ class ResourceService extends AbstractDbService implements
      */
     public function renameSource(string $old, string $new): int
     {
-        $dql = 'UPDATE ' . $this->getEntityClass(ResourceEntityInterface::class) . ' r '
+        $dql = 'UPDATE ' . ResourceEntityInterface::class . ' r '
             . 'SET r.source=:new WHERE r.source=:old';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters(compact('new', 'old'));
@@ -366,6 +342,6 @@ class ResourceService extends AbstractDbService implements
      */
     public function deleteResource(ResourceEntityInterface|int $resourceOrId): void
     {
-        $this->deleteEntity($this->getDoctrineReference(Resource::class, $resourceOrId));
+        $this->deleteEntity($this->getDoctrineReference(ResourceEntityInterface::class, $resourceOrId));
     }
 }

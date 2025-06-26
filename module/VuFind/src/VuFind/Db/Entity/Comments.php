@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * Comments
@@ -45,6 +46,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Comments implements CommentsEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -53,7 +56,7 @@ class Comments implements CommentsEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Comment.
@@ -61,42 +64,51 @@ class Comments implements CommentsEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'comment', type: 'text', length: 65535, nullable: false)]
-    protected $comment;
+    protected string $comment;
 
     /**
      * Creation date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $created = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
+    protected DateTime $created;
 
     /**
      * User ID.
      *
-     * @var ?User
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Resource ID.
      *
-     * @var Resource
+     * @var ResourceEntityInterface
      */
-    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\Resource::class)]
-    protected $resource;
+    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
+    protected ResourceEntityInterface $resource;
 
     /**
-     * Id getter
-     *
-     * @return int
+     * Constructor.
      */
-    public function getId(): int
+    public function __construct()
     {
-        return $this->id;
+        // Set the default value as a DateTime object
+        $this->created = $this->getUnassignedDefaultDateTime();
+    }
+
+    /**
+     * Get identifier (returns null for an uninitialized or non-persisted object).
+     *
+     * @return ?int
+     */
+    public function getId(): ?int
+    {
+        return $this->id ?? null;
     }
 
     /**
@@ -171,7 +183,7 @@ class Comments implements CommentsEntityInterface
     /**
      * Resource setter.
      *
-     * @param ResourceEntityInterface $resource Resource id.
+     * @param ResourceEntityInterface $resource Resource
      *
      * @return static
      */

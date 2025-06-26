@@ -62,7 +62,7 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
     public function getChangeTrackerEntity(string $indexName, string $id): ?ChangeTrackerEntityInterface
     {
         $dql = 'SELECT c '
-            . 'FROM ' . $this->getEntityClass(ChangeTrackerEntityInterface::class) . ' c '
+            . 'FROM ' . ChangeTrackerEntityInterface::class . ' c '
             . 'WHERE c.core = :core AND c.id = :id';
         $parameters = ['core' => $indexName, 'id' => $id];
         $query = $this->entityManager->createQuery($dql);
@@ -84,7 +84,7 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
     public function getDeletedCount(string $indexName, DateTime $from, DateTime $until): int
     {
         $dql = 'SELECT COUNT(c) as deletedcount '
-            . 'FROM ' . $this->getEntityClass(ChangeTrackerEntityInterface::class) . ' c '
+            . 'FROM ' . ChangeTrackerEntityInterface::class . ' c '
             . 'WHERE c.core = :core AND c.deleted BETWEEN :from AND :until';
         $parameters = ['core' => $indexName, 'from' => $from, 'until' => $until];
         $query = $this->entityManager->createQuery($dql);
@@ -112,7 +112,7 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
         ?int $limit = null
     ): array {
         $dql = 'SELECT c '
-            . 'FROM ' . $this->getEntityClass(ChangeTrackerEntityInterface::class) . ' c '
+            . 'FROM ' . ChangeTrackerEntityInterface::class . ' c '
             . 'WHERE c.core = :core AND c.deleted BETWEEN :from AND :until '
             . 'ORDER BY c.deleted';
         $parameters = ['core' => $indexName, 'from' => $from, 'until' => $until];
@@ -133,24 +133,19 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
      * @param string $core The Solr core holding the record.
      * @param string $id   The ID of the record being indexed.
      *
-     * @return ChangeTracker|false
+     * @return ChangeTracker
      */
-    public function retrieveOrCreate(string $core, string $id): ChangeTracker|false
+    protected function retrieveOrCreate(string $core, string $id): ChangeTracker
     {
         $row = $this->getChangeTrackerEntity($core, $id);
         if (empty($row)) {
-            $now = new \DateTime('now', new \DateTimeZone('UTC'));
+            $now = new \DateTime();
             $row = $this->createEntity()
                 ->setIndexName($core)
                 ->setId($id)
                 ->setFirstIndexed($now)
                 ->setLastIndexed($now);
-            try {
-                $this->persistEntity($row);
-            } catch (\Exception $e) {
-                $this->logError('Could not save change tracker record: ' . $e->getMessage());
-                return false;
-            }
+            $this->persistEntity($row);
         }
         return $row;
     }
@@ -176,13 +171,8 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
         }
 
         // Save new value to the object:
-        $row->setDeleted(new \DateTime('now', new \DateTimeZone('UTC')));
-        try {
-            $this->persistEntity($row);
-        } catch (\Exception $e) {
-            $this->logError('Could not update the deleted time: ' . $e->getMessage());
-            return false;
-        }
+        $row->setDeleted(new \DateTime());
+        $this->persistEntity($row);
         return $row;
     }
 
@@ -207,7 +197,7 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
 
         // Flag to indicate whether we need to save the contents of $row:
         $saveNeeded = false;
-        $utcTime = \DateTime::createFromFormat('U', $change, new \DateTimeZone('UTC'));
+        $utcTime = \DateTime::createFromFormat('U', $change);
 
         // Make sure there is a change date in the row (this will be empty
         // if we just created a new row):
@@ -221,7 +211,7 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
         // we need to update the table!
         if (!empty($row->getDeleted()) || $row->getLastRecordChange() < $utcTime) {
             // Save new values to the object:
-            $now = new \DateTime('now', new \DateTimeZone('UTC'));
+            $now = new \DateTime();
             $row->setLastIndexed($now);
             $row->setLastRecordChange($utcTime);
 
@@ -256,7 +246,7 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
      */
     public function deleteRows(?string $core = null, ?string $id = null): void
     {
-        $dql = 'DELETE FROM ' . $this->getEntityClass(ChangeTrackerEntityInterface::class) . ' c ';
+        $dql = 'DELETE FROM ' . ChangeTrackerEntityInterface::class . ' c ';
         $parameters = $dqlWhere = [];
         if (null !== $core) {
             $dqlWhere[] = 'c.core = :core';
@@ -281,7 +271,6 @@ class ChangeTrackerService extends AbstractDbService implements ChangeTrackerSer
      */
     public function createEntity(): ChangeTrackerEntityInterface
     {
-        $class = $this->getEntityClass(ChangeTrackerEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(ChangeTrackerEntityInterface::class);
     }
 }

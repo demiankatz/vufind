@@ -31,6 +31,8 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
+use VuFind\Search\Minified;
 
 use function is_object;
 use function is_resource;
@@ -52,6 +54,8 @@ use function is_resource;
 #[ORM\Entity]
 class Search implements SearchEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -60,16 +64,16 @@ class Search implements SearchEntityInterface
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false, options: ['unsigned' => true])]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Session ID.
@@ -77,15 +81,15 @@ class Search implements SearchEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'session_id', type: 'string', length: 128, nullable: true)]
-    protected $sessionId;
+    protected ?string $sessionId = null;
 
     /**
      * Created date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
     #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
-    protected $created;
+    protected DateTime $created;
 
     /**
      * Title.
@@ -93,7 +97,7 @@ class Search implements SearchEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'title', type: 'string', length: 20, nullable: true)]
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * Saved.
@@ -101,22 +105,22 @@ class Search implements SearchEntityInterface
      * @var bool
      */
     #[ORM\Column(name: 'saved', type: 'boolean', nullable: false)]
-    protected $saved = false;
+    protected bool $saved = false;
 
     /**
      * Search object.
      *
-     * @var string
+     * @var mixed
      */
     #[ORM\Column(name: 'search_object', type: 'blob', length: 65535, nullable: true)]
-    protected $searchObject;
+    protected mixed $searchObject = null;
 
     /**
      * Normalized search object after loading.
      *
-     * @var ?\VuFind\Search\Minified
+     * @var ?Minified
      */
-    protected $deserializedSearchObject = null;
+    protected ?Minified $deserializedSearchObject = null;
 
     /**
      * Checksum
@@ -124,7 +128,7 @@ class Search implements SearchEntityInterface
      * @var ?int
      */
     #[ORM\Column(name: 'checksum', type: 'integer', nullable: true)]
-    protected $checksum;
+    protected ?int $checksum = null;
 
     /**
      * Notification frequency.
@@ -132,15 +136,15 @@ class Search implements SearchEntityInterface
      * @var int
      */
     #[ORM\Column(name: 'notification_frequency', type: 'integer', nullable: false)]
-    protected $notificationFrequency = '0';
+    protected int $notificationFrequency = 0;
 
     /**
      * Date last notification is sent.
      *
-     * @var \DateTime
+     * @var DateTime
      */
     #[ORM\Column(name: 'last_notification_sent', type: 'datetime', nullable: false)]
-    protected $lastNotificationSent;
+    protected DateTime $lastNotificationSent;
 
     /**
      * Notification base URL.
@@ -148,16 +152,16 @@ class Search implements SearchEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'notification_base_url', type: 'string', length: 255, nullable: false)]
-    protected $notificationBaseUrl = '';
+    protected string $notificationBaseUrl = '';
 
     /**
      * Constructor.
      */
     public function __construct()
     {
-        // Set the default value as a DateTime object
-        $this->created = DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
-        $this->lastNotificationSent = DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
+        // Set the default values as DateTime objects
+        $this->created = $this->getUnassignedDefaultDateTime();
+        $this->lastNotificationSent = $this->getUnassignedDefaultDateTime();
     }
 
     /**
@@ -269,7 +273,7 @@ class Search implements SearchEntityInterface
      */
     public function getSaved(): bool
     {
-        return (bool)$this->saved;
+        return $this->saved;
     }
 
     /**
@@ -288,7 +292,7 @@ class Search implements SearchEntityInterface
     /**
      * Post-load normalization (deserialization).
      *
-     * @return static
+     * @return void
      */
     #[ORM\PostLoad]
     public function postLoadNormalize(): void

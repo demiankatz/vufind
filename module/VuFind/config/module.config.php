@@ -432,6 +432,8 @@ $config = [
             'VuFind\ChannelProvider\ChannelLoader' => 'VuFind\ChannelProvider\ChannelLoaderFactory',
             'VuFind\ChannelProvider\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\Config\AccountCapabilities' => 'VuFind\Config\AccountCapabilitiesFactory',
+            'VuFind\Config\ConfigManager' => 'VuFind\Config\ConfigManagerFactory',
+            'VuFind\Config\Handler\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\Config\PathResolver' => 'VuFind\Config\PathResolverFactory',
             'VuFind\Config\PluginManager' => 'VuFind\Config\PluginManagerFactory',
             'VuFind\Config\SearchSpecsReader' => 'VuFind\Config\YamlReaderFactory',
@@ -461,7 +463,6 @@ $config = [
             'VuFind\Crypt\PasswordHasher' => 'Laminas\ServiceManager\Factory\InvokableFactory',
             'VuFind\Crypt\SecretCalculator' => 'VuFind\Crypt\SecretCalculatorFactory',
             'VuFind\Date\Converter' => 'VuFind\Service\DateConverterFactory',
-            'VuFind\Db\AdapterFactory' => 'VuFind\Service\ServiceWithConfigIniFactory',
             'VuFind\Db\ConnectionFactory' => 'VuFind\Db\ConnectionFactoryFactory',
             'VuFind\Db\Connection' => 'VuFind\Db\ConnectionFactory',
             'VuFind\Db\Entity\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
@@ -554,7 +555,6 @@ $config = [
             'VuFind\Validator\SessionCsrf' => 'VuFind\Validator\SessionCsrfFactory',
             'VuFindHttp\HttpService' => 'VuFind\Service\HttpServiceFactory',
             'VuFindSearch\Service' => 'VuFind\Service\SearchServiceFactory',
-            'Laminas\Db\Adapter\Adapter' => 'VuFind\Db\AdapterFactory',
             'Laminas\Session\SessionManager' => 'VuFind\Session\ManagerFactory',
         ],
         'delegators' => [
@@ -587,8 +587,6 @@ $config = [
             'VuFind\ContentTOCPluginManager' => 'VuFind\Content\TOC\PluginManager',
             'VuFind\CookieManager' => 'VuFind\Cookie\CookieManager',
             'VuFind\DateConverter' => 'VuFind\Date\Converter',
-            'VuFind\DbAdapter' => 'Laminas\Db\Adapter\Adapter',
-            'VuFind\DbAdapterFactory' => 'VuFind\Db\AdapterFactory',
             'VuFind\HierarchicalFacetHelper' => 'VuFind\Search\Solr\HierarchicalFacetHelper',
             'VuFind\HierarchyDriverPluginManager' => 'VuFind\Hierarchy\Driver\PluginManager',
             'VuFind\HierarchyTreeDataFormatterPluginManager' => 'VuFind\Hierarchy\TreeDataFormatter\PluginManager',
@@ -680,6 +678,9 @@ $config = [
             ],
         ],
     ],
+    'doctrine_factories' => [
+        'entitymanager' => \VuFind\Db\EntityManagerFactory::class,
+    ],
     'translator' => [],
     'translator_plugins' => [
         'factories' => [
@@ -714,6 +715,7 @@ $config = [
             'autocomplete' => [ /* see VuFind\Autocomplete\PluginManager for defaults */ ],
             'captcha' => [ /* see VuFind\Captcha\PluginManager for defaults */ ],
             'channelprovider' => [ /* see VuFind\ChannelProvider\PluginManager for defaults */ ],
+            'config_handler' => [ /* see VuFind\Config\Handler\PluginManager for defaults */ ],
             'content' => [ /* see VuFind\Content\PluginManager for defaults */ ],
             'content_authornotes' => [ /* see VuFind\Content\AuthorNotes\PluginManager for defaults */ ],
             'content_covers' => [ /* see VuFind\Content\Covers\PluginManager for defaults */ ],

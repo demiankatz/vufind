@@ -34,6 +34,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
 use Laminas\ServiceManager\Exception\ServiceNotFoundException;
+use PDO;
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface;
 use VuFind\Config\Config;
@@ -154,17 +155,9 @@ class ConnectionFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
             }
         }
 
-        /* TODO: still needed?
-        $options['use_ssl'] = $this->config->Database->use_ssl ?? false;
-        $options['driver_options'] = $this->getDriverOptions($driverName);
-         */
+        $options['driverOptions'] = $this->getDriverOptions($options['driver']);
 
-        // Get extra custom options from config:
-        $extraOptions = $this->config?->Database?->extra_options?->toArray() ?? [];
-
-        // Note: $options takes precedence over $extraOptions -- we don't want users
-        // using extended settings to override values from core settings.
-        return $this->getConnectionFromOptions($options + $extraOptions);
+        return $this->getConnectionFromOptions($options);
     }
 
     /**
@@ -179,9 +172,6 @@ class ConnectionFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
         switch (strtolower($type)) {
             case 'mysql':
                 return 'pdo_mysql';
-            case 'oci8':
-                // TODO: fix/test
-                return 'Oracle';
             case 'pgsql':
                 return 'pdo_pgsql';
         }
@@ -197,12 +187,43 @@ class ConnectionFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
      */
     protected function getDriverOptions($driver)
     {
-        switch ($driver) {
-            case 'mysqli':
-                return ($this->config->Database->verify_server_certificate ?? false)
-                    ? [] : [MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT];
+        // Load options from the configuration:
+        $driverOptions = $this->config?->Database?->extra_options?->toArray() ?? [];
+
+        // Apply MySQL-specific adjustments:
+        if ($driver == 'pdo_mysql') {
+            $driverOptions[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]
+                = $this->config->Database->verify_server_certificate ?? false;
+            $sslKeyMap = [
+                'client_key' => PDO::MYSQL_ATTR_SSL_KEY,
+                'client_cert' => PDO::MYSQL_ATTR_SSL_CERT,
+                'ca_cert' => PDO::MYSQL_ATTR_SSL_CA,
+                'ca_path' => PDO::MYSQL_ATTR_SSL_CAPATH,
+            ];
+            $sslConfigured = false;
+            foreach ($sslKeyMap as $oldKey => $newKey) {
+                if (isset($driverOptions[$oldKey])) {
+                    $driverOptions[$newKey] = $driverOptions[$oldKey];
+                    unset($driverOptions[$oldKey]);
+                }
+                $sslConfigured = $sslConfigured || isset($driverOptions[$newKey]);
+            }
+            $useSsl = $this->config->Database->use_ssl ?? false;
+            if ($useSsl && !$sslConfigured) {
+                throw new \Exception(
+                    'To use SSL with MySQL, please configure appropriate extra_options in '
+                    . 'the [Database] section of config.ini.'
+                );
+            }
+            if (!$useSsl && $sslConfigured) {
+                throw new \Exception(
+                    'Incompatible settings: SSL settings activated, but SSL disabled. '
+                    . 'See use_ssl and extra_options in config.ini [Database] section.'
+                );
+            }
         }
-        return [];
+
+        return $driverOptions;
     }
 
     /**
@@ -214,23 +235,18 @@ class ConnectionFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
      */
     public function getConnectionFromOptions($options)
     {
-        /* TODO: still needed?
         // Set up custom options by database type:
         $driver = strtolower($options['driver']);
         switch ($driver) {
-        case 'mysqli':
-            $options['charset'] = $this->config->Database->charset ?? 'utf8mb4';
-            if (strtolower($options['charset']) === 'latin1') {
-                throw new \Exception(
-                    'The latin1 encoding is no longer supported for MySQL databases'
-                    . ' in VuFind. Please convert your database to utf8 using VuFind'
-                    . ' 7.x or earlier BEFORE upgrading to this version.'
-                );
-            }
-            $options['options'] = ['buffer_results' => true];
-            break;
+            case 'pdo_mysql':
+                $options['charset'] = $this->config->Database->charset ?? 'utf8mb4';
+                if (strtolower($options['charset']) === 'latin1') {
+                    throw new \Exception(
+                        'The latin1 encoding is no longer supported for MySQL databases in VuFind.'
+                    );
+                }
+                break;
         }
-         */
         $options['wrapperClass'] = $this->wrapperClass;
 
         // Set up database connection:
@@ -240,17 +256,6 @@ class ConnectionFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
         $connection = DriverManager::getConnection(
             $options
         );
-
-        /* TODO: still needed?
-        // Special-case setup:
-        if ($driver == 'pdo_pgsql' && isset($this->config->Database->schema)) {
-            // Set schema
-            $statement = $adapter->createStatement(
-                'SET search_path TO ' . $this->config->Database->schema
-            );
-            $statement->execute();
-        }
-         */
 
         return $connection;
     }

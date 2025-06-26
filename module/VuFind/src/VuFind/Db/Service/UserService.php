@@ -75,8 +75,7 @@ class UserService extends AbstractDbService implements
      */
     public function createEntity(): UserEntityInterface
     {
-        $class = $this->getEntityClass(UserEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(UserEntityInterface::class);
     }
 
     /**
@@ -105,7 +104,7 @@ class UserService extends AbstractDbService implements
     public function deleteUser(UserEntityInterface|int $userOrId): void
     {
         $userId = $userOrId instanceof UserEntityInterface ? $userOrId->getId() : $userOrId;
-        $dql = 'DELETE FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u'
+        $dql = 'DELETE FROM ' . UserEntityInterface::class . ' u'
             . ' WHERE u.id = :id';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('id', $userId);
@@ -122,7 +121,7 @@ class UserService extends AbstractDbService implements
     public function getUserById(int $id): ?UserEntityInterface
     {
         $dql = 'SELECT u '
-                . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
+                . 'FROM ' . UserEntityInterface::class . ' u '
                 . 'WHERE u.id = :id';
         $query = $this->entityManager->createQuery($dql);
         $query->setParameter('id', $id);
@@ -141,6 +140,10 @@ class UserService extends AbstractDbService implements
      */
     public function getUserByField(string $fieldName, int|string|null $fieldValue): ?UserEntityInterface
     {
+        // Null ID lookups cannot possibly retrieve a value:
+        if ($fieldName === 'id' && $fieldValue === null) {
+            return null;
+        }
         // Map expected incoming values (actual database columns) to legal values (Doctrine properties)
         $legalFieldMap = [
             'id' => 'id',
@@ -149,12 +152,14 @@ class UserService extends AbstractDbService implements
             'cat_id' => 'catId',
             'verify_hash' => 'verifyHash',
         ];
-        if ($fieldName === 'id' && $fieldValue === null) {
-            return null;
-        }
+        // For now, only username lookups are case-insensitive:
+        $caseInsensitive = $fieldName === 'username';
         if (isset($legalFieldMap[$fieldName])) {
-            $dql = 'SELECT U FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' U '
-                . 'WHERE U.' . $legalFieldMap[$fieldName] . ' = :fieldValue';
+            $where = $caseInsensitive
+                ? 'LOWER(U.' . $legalFieldMap[$fieldName] . ') = LOWER(:fieldValue)'
+                : 'U.' . $legalFieldMap[$fieldName] . ' = :fieldValue';
+            $dql = 'SELECT U FROM ' . UserEntityInterface::class . ' U '
+                . 'WHERE ' . $where;
             $parameters = compact('fieldValue');
             $query = $this->entityManager->createQuery($dql);
             $query->setParameters($parameters);
@@ -313,7 +318,7 @@ class UserService extends AbstractDbService implements
     public function getAllUsersWithCatUsernames(): array
     {
         $dql = 'SELECT u '
-                . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
+                . 'FROM ' . UserEntityInterface::class . ' u '
                 . 'WHERE u.catUsername IS NOT NULL';
         $query = $this->entityManager->createQuery($dql);
         $result = $query->getResult();
@@ -328,7 +333,7 @@ class UserService extends AbstractDbService implements
     public function getInsecureRows(): array
     {
         $dql = 'SELECT u '
-                . 'FROM ' . $this->getEntityClass(UserEntityInterface::class) . ' u '
+                . 'FROM ' . UserEntityInterface::class . ' u '
                 . "WHERE u.password != '' "
                 . 'AND u.catPassword IS NOT NULL';
         $query = $this->entityManager->createQuery($dql);

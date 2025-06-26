@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * Record
@@ -46,6 +47,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Record implements RecordEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -54,7 +57,7 @@ class Record implements RecordEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Record ID.
@@ -62,7 +65,7 @@ class Record implements RecordEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'record_id', type: 'string', length: 255, nullable: true)]
-    protected $recordId;
+    protected ?string $recordId = null;
 
     /**
      * Record source.
@@ -70,7 +73,7 @@ class Record implements RecordEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'source', type: 'string', length: 50, nullable: true)]
-    protected $source;
+    protected ?string $source = null;
 
     /**
      * Record version.
@@ -78,7 +81,7 @@ class Record implements RecordEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'version', type: 'string', length: 20, nullable: false)]
-    protected $version;
+    protected string $version;
 
     /**
      * Record Data.
@@ -86,15 +89,24 @@ class Record implements RecordEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'data', type: 'text', length: 0, nullable: true)]
-    protected $data;
+    protected ?string $data = null;
 
     /**
      * Updated date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'updated', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $updated = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'updated', type: 'datetime', nullable: false)]
+    protected DateTime $updated;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->updated = $this->getUnassignedDefaultDateTime();
+    }
 
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).

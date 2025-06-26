@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * Session
@@ -47,6 +48,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Session implements SessionEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -55,7 +58,7 @@ class Session implements SessionEntityInterface
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false, options: ['unsigned' => true])]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Session ID.
@@ -63,7 +66,7 @@ class Session implements SessionEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'session_id', type: 'string', length: 128, nullable: true)]
-    protected $sessionId;
+    protected ?string $sessionId = null;
 
     /**
      * Session data.
@@ -71,7 +74,7 @@ class Session implements SessionEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'data', type: 'text', length: 16777215, nullable: true)]
-    protected $data;
+    protected ?string $data = null;
 
     /**
      * Time session last used.
@@ -79,24 +82,33 @@ class Session implements SessionEntityInterface
      * @var int
      */
     #[ORM\Column(name: 'last_used', type: 'integer', nullable: false)]
-    protected $lastUsed = '0';
+    protected int $lastUsed = 0;
 
     /**
      * Time session is created.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $created = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
+    protected DateTime $created;
 
     /**
-     * Id getter
-     *
-     * @return int
+     * Constructor.
      */
-    public function getId(): int
+    public function __construct()
     {
-        return $this->id;
+        // Set the default value as a DateTime object
+        $this->created = $this->getUnassignedDefaultDateTime();
+    }
+
+    /**
+     * Get identifier (returns null for an uninitialized or non-persisted object).
+     *
+     * @return ?int
+     */
+    public function getId(): ?int
+    {
+        return $this->id ?? null;
     }
 
     /**
@@ -128,13 +140,13 @@ class Session implements SessionEntityInterface
     /**
      * Set time the session is last used.
      *
-     * @param int $lastused Time last used
+     * @param int $lastUsed Time last used
      *
      * @return static
      */
-    public function setLastUsed(int $lastused): static
+    public function setLastUsed(int $lastUsed): static
     {
-        $this->lastUsed = $lastused;
+        $this->lastUsed = $lastUsed;
         return $this;
     }
 

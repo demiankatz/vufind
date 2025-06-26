@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * Entity model for login_token table
@@ -45,6 +46,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class LoginToken implements LoginTokenEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -53,16 +56,16 @@ class LoginToken implements LoginTokenEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
+    protected UserEntityInterface $user;
 
     /**
      * Token.
@@ -70,7 +73,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'token', type: 'string', length: 255, nullable: false)]
-    protected $token;
+    protected string $token;
 
     /**
      * Series.
@@ -78,7 +81,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'series', type: 'string', length: 255, nullable: false)]
-    protected $series;
+    protected string $series;
 
     /**
      * Last login date.
@@ -86,7 +89,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var DateTime
      */
     #[ORM\Column(name: 'last_login', type: 'datetime', nullable: false)]
-    protected $lastLogin;
+    protected DateTime $lastLogin;
 
     /**
      * Browser.
@@ -94,7 +97,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'browser', type: 'string', length: 255, nullable: true)]
-    protected $browser;
+    protected ?string $browser = null;
 
     /**
      * Platform.
@@ -102,7 +105,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'platform', type: 'string', length: 255, nullable: true)]
-    protected $platform;
+    protected ?string $platform = null;
 
     /**
      * Expires.
@@ -110,7 +113,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var int
      */
     #[ORM\Column(name: 'expires', type: 'integer', nullable: false)]
-    protected $expires;
+    protected int $expires;
 
     /**
      * Last session ID.
@@ -118,7 +121,7 @@ class LoginToken implements LoginTokenEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'last_session_id', type: 'string', length: 255, nullable: true)]
-    protected $lastSessionId;
+    protected ?string $lastSessionId = null;
 
     /**
      * Constructor.
@@ -126,17 +129,17 @@ class LoginToken implements LoginTokenEntityInterface
     public function __construct()
     {
         // Set the default value as a DateTime object
-        $this->lastLogin = DateTime::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
+        $this->lastLogin = $this->getUnassignedDefaultDateTime();
     }
 
     /**
-     * Getter for ID.
+     * Get identifier (returns null for an uninitialized or non-persisted object).
      *
-     * @return int
+     * @return ?int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     /**
@@ -159,7 +162,7 @@ class LoginToken implements LoginTokenEntityInterface
      */
     public function getUser(): ?UserEntityInterface
     {
-        return $this->user;
+        return $this->user ?? null;
     }
 
     /**

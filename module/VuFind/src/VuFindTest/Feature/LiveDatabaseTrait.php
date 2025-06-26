@@ -56,7 +56,7 @@ use VuFindTest\Container\MockContainer;
  */
 trait LiveDatabaseTrait
 {
-    use PathResolverTrait;
+    use ConfigPluginManagerTrait;
 
     /**
      * Flag to allow other traits to test for the presence of this one (to enforce
@@ -154,13 +154,6 @@ trait LiveDatabaseTrait
             'doctrine.entity_resolver.orm_default',
             $entityResolverFactory($container, 'orm_default')
         );
-        $entityManagerFactory = new \DoctrineORMModule\Service\EntityManagerFactory(
-            'orm_vufind'
-        );
-        $container->set(
-            \Doctrine\ORM\EntityManager::class,
-            $entityManagerFactory($container, 'orm_vufind')
-        );
         $container->set(
             \VuFind\Db\Entity\PluginManager::class,
             new \VuFind\Db\Entity\PluginManager($container, [])
@@ -168,6 +161,13 @@ trait LiveDatabaseTrait
         $container->set(
             \VuFind\Db\Service\PluginManager::class,
             new \VuFind\Db\Service\PluginManager($container, [])
+        );
+        $entityManagerFactory = new \VuFind\Db\EntityManagerFactory(
+            'orm_vufind'
+        );
+        $container->set(
+            \Doctrine\ORM\EntityManager::class,
+            $entityManagerFactory($container, 'orm_vufind')
         );
         $container->set(
             PersistenceManager::class,
@@ -187,12 +187,7 @@ trait LiveDatabaseTrait
         $container = new \VuFindTest\Container\MockContainer($this);
         $container->set(\VuFind\Log\Logger::class, $this->createMock(\Laminas\Log\LoggerInterface::class));
         $container->set('config', $config);
-        $configManager = new \VuFind\Config\PluginManager(
-            $container,
-            $config['vufind']['config_reader']
-        );
-        $container->set(\VuFind\Config\PluginManager::class, $configManager);
-        $this->addPathResolverToContainer($container);
+        $this->addConfigPluginManagerToContainer($container, $config);
         $this->addDoctrineDependenciesToContainer($container);
         return $container;
     }

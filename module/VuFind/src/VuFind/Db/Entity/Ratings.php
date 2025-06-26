@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * Entity model for ratings table
@@ -45,6 +46,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Ratings implements RatingsEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -53,25 +56,25 @@ class Ratings implements RatingsEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * User ID.
      *
-     * @var User
+     * @var ?UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
+    protected ?UserEntityInterface $user = null;
 
     /**
      * Resource ID.
      *
-     * @var Resource
+     * @var ResourceEntityInterface
      */
-    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\Resource::class)]
-    protected $resource;
+    #[ORM\JoinColumn(name: 'resource_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: ResourceEntityInterface::class)]
+    protected ResourceEntityInterface $resource;
 
     /**
      * Rating.
@@ -79,15 +82,24 @@ class Ratings implements RatingsEntityInterface
      * @var int
      */
     #[ORM\Column(name: 'rating', type: 'integer', nullable: false)]
-    protected $rating;
+    protected int $rating;
 
     /**
      * Creation date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $created = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
+    protected DateTime $created;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->created = $this->getUnassignedDefaultDateTime();
+    }
 
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).
@@ -125,9 +137,9 @@ class Ratings implements RatingsEntityInterface
     /**
      * Get resource.
      *
-     * @return Resource
+     * @return ResourceEntityInterface
      */
-    public function getResource(): Resource
+    public function getResource(): ResourceEntityInterface
     {
         return $this->resource;
     }

@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * UserCard
@@ -47,6 +48,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class UserCard implements UserCardEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -55,7 +58,7 @@ class UserCard implements UserCardEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Card name.
@@ -63,7 +66,7 @@ class UserCard implements UserCardEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'card_name', type: 'string', length: 255, nullable: false)]
-    protected $cardName = '';
+    protected string $cardName = '';
 
     /**
      * Cat username.
@@ -71,7 +74,7 @@ class UserCard implements UserCardEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'cat_username', type: 'string', length: 50, nullable: false)]
-    protected $catUsername = '';
+    protected string $catUsername = '';
 
     /**
      * Cat password.
@@ -79,7 +82,7 @@ class UserCard implements UserCardEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_password', type: 'string', length: 70, nullable: true)]
-    protected $catPassword;
+    protected ?string $catPassword = null;
 
     /**
      * Cat password (encrypted).
@@ -87,40 +90,40 @@ class UserCard implements UserCardEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'cat_pass_enc', type: 'string', length: 255, nullable: true)]
-    protected $catPassEnc;
+    protected ?string $catPassEnc = null;
 
     /**
      * Home library.
      *
-     * @var string
+     * @var ?string
      */
     #[ORM\Column(name: 'home_library', type: 'string', length: 100, nullable: true)]
-    protected $homeLibrary = '';
+    protected ?string $homeLibrary = '';
 
     /**
      * Creation date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $created;
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
+    protected DateTime $created;
 
     /**
      * Saved timestamp.
      *
-     * @var \DateTime
+     * @var DateTime
      */
     #[ORM\Column(name: 'saved', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
-    protected $saved;
+    protected DateTime $saved;
 
     /**
      * User.
      *
-     * @var User
+     * @var UserEntityInterface
      */
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \VuFind\Db\Entity\User::class)]
-    protected $user;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: UserEntityInterface::class)]
+    protected UserEntityInterface $user;
 
     /**
      * Constructor
@@ -128,8 +131,8 @@ class UserCard implements UserCardEntityInterface
     public function __construct()
     {
         // Set the default value as a \DateTime object
-        $this->created = new \DateTime('2000-01-01 00:00:00');
-        $this->saved = new \DateTime();
+        $this->created = $this->getUnassignedDefaultDateTime();
+        $this->saved = new DateTime();
     }
 
     /**
@@ -139,7 +142,7 @@ class UserCard implements UserCardEntityInterface
      */
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     /**

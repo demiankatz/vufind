@@ -289,20 +289,6 @@ class UpgradeController extends AbstractBase
     }
 
     /**
-     * Support method for fixdatabaseAction() -- clean up invalid user ID
-     * values in the search table.
-     *
-     * @return void
-     */
-    protected function fixInvalidUserIdsInSearchTable(): void
-    {
-        $count = $this->getDbService(SearchServiceInterface::class)->cleanUpInvalidUserIds();
-        if ($count) {
-            $this->session->warnings->append("Converted $count invalid user_id values in search table");
-        }
-    }
-
-    /**
      * Support method for fixdatabaseAction() -- add checksums to search table rows.
      *
      * @return void
@@ -417,9 +403,6 @@ class UpgradeController extends AbstractBase
 
             // Clean up the "VuFind" source, if necessary.
             $this->fixVuFindSourceInDatabase();
-
-            // Fix invalid user IDs in search table, if necessary.
-            $this->fixInvalidUserIdsInSearchTable();
         } catch (Exception $e) {
             $this->flashMessenger()->addMessage(
                 'Database upgrade failed: ' . $e->getMessage(),
@@ -451,14 +434,12 @@ class UpgradeController extends AbstractBase
      */
     public function showsqlAction()
     {
-        $recheck = $this->params()->fromPost('recheck');
-        if ($recheck) {
-            unset($this->session->sql);
-            return $this->redirect()->toRoute('upgrade-fixdatabase');
-        }
         $continue = $this->params()->fromPost('continue', 'nope');
-        if ($continue == 'Next') {
-            unset($this->session->sql);
+        if (str_contains($continue, 'Next')) {
+            // Clear the SQL out but leave it set; this will prevent the user from
+            // getting caught in a loop -- we won't show them the migrations another
+            // time this session.
+            $this->session->sql = '';
             return $this->redirect()->toRoute('upgrade-home');
         }
 
@@ -559,7 +540,10 @@ class UpgradeController extends AbstractBase
 
         // Handle submit action:
         if ($this->formWasSubmitted()) {
-            $this->getService(TagsService::class)->fixDuplicateTags();
+            $fixed = $this->getService(TagsService::class)->fixDuplicateTags();
+            if ($fixed > 0) {
+                $this->session->warnings->append("Merged $fixed duplicate tag(s)");
+            }
             return $this->forwardTo('Upgrade', 'FixDatabase');
         }
 

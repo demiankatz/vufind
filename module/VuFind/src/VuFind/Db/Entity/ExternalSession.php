@@ -31,6 +31,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * ExternalSession
@@ -47,6 +48,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class ExternalSession implements ExternalSessionEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -55,7 +58,7 @@ class ExternalSession implements ExternalSessionEntityInterface
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false, options: ['unsigned' => true])]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Session ID.
@@ -63,7 +66,7 @@ class ExternalSession implements ExternalSessionEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'session_id', type: 'string', length: 128, nullable: false)]
-    protected $sessionId;
+    protected string $sessionId;
 
     /**
      * External session ID.
@@ -71,15 +74,24 @@ class ExternalSession implements ExternalSessionEntityInterface
      * @var string
      */
     #[ORM\Column(name: 'external_session_id', type: 'string', length: 255, nullable: false)]
-    protected $externalSessionId;
+    protected string $externalSessionId;
 
     /**
      * Creation date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $created = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
+    protected DateTime $created;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        // Set the default value as a DateTime object
+        $this->created = $this->getUnassignedDefaultDateTime();
+    }
 
     /**
      * Get identifier (returns null for an uninitialized or non-persisted object).

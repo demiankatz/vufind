@@ -32,7 +32,6 @@ namespace VuFind\Db\Service;
 
 use DateTime;
 use Exception;
-use VuFind\Db\Entity\Shortlinks;
 use VuFind\Db\Entity\ShortlinksEntityInterface;
 
 /**
@@ -89,8 +88,7 @@ class ShortlinksService extends AbstractDbService implements
      */
     public function createEntity(): ShortlinksEntityInterface
     {
-        $class = $this->getEntityClass(ShortlinksEntityInterface::class);
-        return new $class();
+        return $this->entityPluginManager->get(ShortlinksEntityInterface::class);
     }
 
     /**
@@ -105,8 +103,7 @@ class ShortlinksService extends AbstractDbService implements
         $shortlink = $this->createEntity()
             ->setPath($path)
             ->setCreated(new DateTime());
-        $this->entityManager->persist($shortlink);
-        $this->entityManager->flush();
+        $this->persistEntity($shortlink);
         return $shortlink;
     }
 
@@ -121,7 +118,7 @@ class ShortlinksService extends AbstractDbService implements
     {
         $queryBuilder = $this->entityManager->createQueryBuilder();
         $queryBuilder->select('s')
-            ->from($this->getEntityClass(ShortlinksEntityInterface::class), 's')
+            ->from(ShortlinksEntityInterface::class, 's')
             ->where('s.hash = :hash')
             ->setParameter('hash', $hash);
         $query = $queryBuilder->getQuery();
@@ -136,7 +133,7 @@ class ShortlinksService extends AbstractDbService implements
     public function getShortLinksWithMissingHashes(): array
     {
         return $this->entityManager
-            ->getRepository($this->getEntityClass(ShortlinksEntityInterface::class))
+            ->getRepository(ShortlinksEntityInterface::class)
             ->findBy(['hash' => null]);
     }
 }

@@ -32,6 +32,7 @@ namespace VuFind\Db\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use VuFind\Db\Feature\DateTimeTrait;
 
 /**
  * OaiResumption
@@ -47,6 +48,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class OaiResumption implements OaiResumptionEntityInterface
 {
+    use DateTimeTrait;
+
     /**
      * Unique ID.
      *
@@ -55,7 +58,7 @@ class OaiResumption implements OaiResumptionEntityInterface
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    protected $id;
+    protected int $id;
 
     /**
      * Resumption parameters.
@@ -63,15 +66,15 @@ class OaiResumption implements OaiResumptionEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'params', type: 'text', length: 65535, nullable: true)]
-    protected $params;
+    protected ?string $params = null;
 
     /**
      * Expiry date.
      *
-     * @var \DateTime
+     * @var DateTime
      */
-    #[ORM\Column(name: 'expires', type: 'datetime', nullable: false, options: ['default' => '2000-01-01 00:00:00'])]
-    protected $expires = '2000-01-01 00:00:00';
+    #[ORM\Column(name: 'expires', type: 'datetime', nullable: false)]
+    protected DateTime $expires;
 
     /**
      * Token.
@@ -79,16 +82,25 @@ class OaiResumption implements OaiResumptionEntityInterface
      * @var ?string
      */
     #[ORM\Column(name: 'token', type: 'string', length: 255, nullable: true)]
-    protected $token;
+    protected ?string $token = null;
 
     /**
-     * Id getter
-     *
-     * @return int
+     * Constructor.
      */
-    public function getId(): int
+    public function __construct()
     {
-        return $this->id;
+        // Set the default value as a DateTime object
+        $this->expires = $this->getUnassignedDefaultDateTime();
+    }
+
+    /**
+     * Get identifier (returns null for an uninitialized or non-persisted object).
+     *
+     * @return ?int
+     */
+    public function getId(): ?int
+    {
+        return $this->id ?? null;
     }
 
     /**
