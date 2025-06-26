@@ -76,7 +76,7 @@
                   </div>
                 </div>
               </td>
-              <td data-label="<?=$this->transEscAttr('Created')?>"><?=$this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $comment['created']->format('Y-m-d H:i:s'))?></td>
+              <td data-label="<?=$this->transEscAttr('Created')?>"><?=$this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $comment['created'])?></td>
               <td data-label="<?=$this->transEscAttr('Title')?>">
                 <a href="<?=$this->url('record', ['id' => $comment['record_id']])?>"><?=$this->escapeHtml($comment['recordTitle'])?></a>
               </td>
@@ -89,7 +89,9 @@
         </tbody>
       </table>
     </form>
-  <?php endif;?>
+  <?php else: ?>
+    <?=$this->transEsc('No Comments')?>
+  <?php endif; ?>
   <?=$this->paginationControl($this->comments, 'Sliding', 'Helpers/pagination.phtml', ['params' => $this->params])?>
 </div>
 
