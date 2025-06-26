@@ -156,13 +156,13 @@ class LoginToken implements LoginTokenEntityInterface
     }
 
     /**
-     * User getter.
+     * User getter (only null if entity has not been populated yet).
      *
-     * @return UserEntityInterface
+     * @return ?UserEntityInterface
      */
-    public function getUser(): UserEntityInterface
+    public function getUser(): ?UserEntityInterface
     {
-        return $this->user;
+        return $this->user ?? null;
     }
 
     /**
