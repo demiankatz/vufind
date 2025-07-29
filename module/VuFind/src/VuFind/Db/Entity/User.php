@@ -42,7 +42,7 @@ use VuFind\Db\Feature\DateTimeTrait;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:database_gateways Wiki
  */
-#[ORM\Table(name: 'user')]
+#[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'user_cat_id_idx', columns: ['cat_id'], options: ['lengths' => [190]])]
 #[ORM\UniqueConstraint(name: 'user_username_idx', columns: ['username'], options: ['lengths' => [190]])]
 #[ORM\Index(name: 'user_email_idx', columns: ['email'], options: ['lengths' => [190]])]
