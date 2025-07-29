@@ -122,10 +122,10 @@ DROP INDEX IF EXISTS external_session_id;
 DROP INDEX IF EXISTS shortlinks_hash_idx;
 CREATE UNIQUE INDEX IF NOT EXISTS shortlinks_hash_idx ON shortlinks (hash);
 
-DROP INDEX IF EXISTS auth_hash_hash_type_key;
-DROP INDEX IF EXISTS session_session_id_key;
-DROP INDEX IF EXISTS external_session_session_key;
-DROP INDEX IF EXISTS user_cat_id_key;
-DROP INDEX IF EXISTS user_username_key;
-DROP INDEX IF EXISTS oai_resumption_token_key;
-DROP INDEX IF EXISTS record_record_id_source_key;
+ALTER TABLE auth_hash DROP CONSTRAINT IF EXISTS auth_hash_hash_type_key;
+ALTER TABLE session DROP CONSTRAINT IF EXISTS session_session_id_key;
+ALTER TABLE external_session DROP CONSTRAINT IF EXISTS external_session_session_key;
+ALTER TABLE "user" DROP CONSTRAINT IF EXISTS user_cat_id_key;
+ALTER TABLE "user" DROP CONSTRAINT IF EXISTS user_username_key;
+ALTER TABLE oai_resumption DROP CONSTRAINT IF EXISTS oai_resumption_token_key;
+ALTER TABLE record DROP CONSTRAINT IF EXISTS record_record_id_source_key;
