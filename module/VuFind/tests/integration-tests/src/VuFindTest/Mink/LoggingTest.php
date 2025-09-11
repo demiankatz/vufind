@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Logging integration test.
  *
@@ -20,10 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * @category VuFind
- * @package Tests
- * @author Sambhav Pokharel <sambhavpokharel@gmail.com>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link https://vufind.org Main Page
+ * @package  Tests
+ * @author   Sambhav Pokharel <sambhavpokharel@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org Main Page
  */
 
 namespace VuFindTest\Mink;
@@ -34,10 +35,10 @@ use VuFindTest\Integration\MinkTestCase;
  * Logging integration test.
  *
  * @category VuFind
- * @package Tests
- * @author Sambhav Pokharel <sambhavpokharel@gmail.com>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link https://vufind.org Main Page
+ * @package  Tests
+ * @author   Sambhav Pokharel <sambhavpokharel@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org Main Page
  */
 class LoggingTest extends MinkTestCase
 {
@@ -48,7 +49,7 @@ class LoggingTest extends MinkTestCase
      *
      * @return array
      */
-    public function loggingScenarioProvider(): array
+    public static function loggingScenarioProvider(): array
     {
         return [
             'error_and_alert_logging' => [
@@ -115,13 +116,15 @@ class LoggingTest extends MinkTestCase
     /**
      * Test email logging functionality with various configurations
      *
-     * @dataProvider loggingScenarioProvider
-     * @param string $emailConfig Email configuration string
-     * @param array $expectedPatterns Patterns that should be found in log
-     * @param array $unexpectedPatterns Patterns that should NOT be found in log
-     * @param int $minEmails Minimum number of emails expected
-     * @param string $description Test scenario description
+     * @param string $emailConfig        Email configuration string
+     * @param array  $expectedPatterns   Patterns that should be found in log
+     * @param array  $unexpectedPatterns Patterns that should NOT be found in log
+     * @param int    $minEmails          Minimum number of emails expected
+     * @param string $description        Test scenario description
+     *
      * @return void
+     *
+     * @dataProvider loggingScenarioProvider
      */
     public function testLogging(
         string $emailConfig,
@@ -150,20 +153,21 @@ class LoggingTest extends MinkTestCase
 
         $session = $this->getMinkSession();
         $session->visit($this->getVuFindUrl() . '/Search/Results?lookfor=test');
+        $page = $session->getPage();
 
         // Wait for logging to complete
-        sleep(2);
+        $this->findCss($page, 'body');
 
-        $loggedEmail = $this->getLoggedEmail(); // Single email, not array
+        $loggedEmails = $this->getLoggedEmails(); // Single email, not array
+        $allEmailContent = implode('', array_map(fn ($email) => $email->toString(), $loggedEmails));
+        $allEmailSubjects = implode('', array_map(fn ($email) => $email->getSubject(), $loggedEmails));
+        $allEmailBodies = implode('', array_map(fn ($email) => $email->getBody()->getBody(), $loggedEmails));
 
         // Basic assertions
         $this->assertNotEmpty(
-            $loggedEmail,
+            $allEmailContent,
             $description . ': Expected to receive log email'
         );
-
-        // Get email content (single email with all log content)
-        $allEmailContent = ($loggedEmail->body ?? '') . ($loggedEmail->subject ?? '');
 
         foreach ($expectedPatterns as $pattern) {
             $this->assertMatchesRegularExpression(
@@ -183,26 +187,26 @@ class LoggingTest extends MinkTestCase
 
         // Additional specific assertions
         $this->assertStringContainsString(
-            'VuFind Log Alert',
-            $loggedEmail->subject ?? '',
-            'Email subject should contain "VuFind Log Alert"'
+            'VuFind Log Message',
+            $allEmailSubjects,
+            'Email subject should contain "VuFind Log Message"'
         );
 
         $this->assertStringContainsString(
             'RequestErrorException',
-            $loggedEmail->body ?? '',
+            $allEmailBodies,
             'Email body should contain the specific exception type'
         );
 
         $this->assertStringContainsString(
             '/Search/Results?lookfor=test',
-            $loggedEmail->body ?? '',
+            $allEmailBodies,
             'Email body should contain the URL that caused the error'
         );
 
         $this->assertStringContainsString(
             '404 Not Found',
-            $loggedEmail->body ?? '',
+            $allEmailBodies,
             'Email body should contain the HTTP error'
         );
     }
@@ -231,8 +235,10 @@ class LoggingTest extends MinkTestCase
 
         $session = $this->getMinkSession();
         $session->visit($this->getVuFindUrl() . '/Search/Results?lookfor=test');
+        $page = $session->getPage();
 
-        sleep(2);
+        // Wait for logging to complete
+        $this->findCss($page, 'body');
 
         $loggedEmails = file_get_contents($this->getEmailLogPath());
 
